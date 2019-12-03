@@ -14,7 +14,7 @@ $(() => {
             messages.forEach((message) => {
                 const time = new Date(message.time);
                 const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
-                $message_list.append(newMessage);
+                $messageList.append(newMessage);
 
             });
         })
@@ -33,7 +33,7 @@ $(() => {
                 messages.forEach((message) => {
                     const time = new Date(message.time);
                     const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
-                    $message_list.append(newMessage);
+                    $messageList.append(newMessage);
                 });
             })
             .catch((err) => {
