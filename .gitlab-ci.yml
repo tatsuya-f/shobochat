@@ -1,0 +1,13 @@
+stages:
+    - build
+
+before_script:
+    - df
+    - npm install
+
+build_job1:
+    stage: build
+    script:
+        - npx gulp
+    tags:
+        - se-node-runner
