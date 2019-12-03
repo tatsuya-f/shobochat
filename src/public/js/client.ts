@@ -1,7 +1,7 @@
 "use strict";
 
 $(() => {
-    var $update_button = $("#update");
+    var $updateButton = $("#update");
     var $sendButton = $("#send");
 
     fetch("/messages")
@@ -9,17 +9,17 @@ $(() => {
             return response.json();
         })
         .then((messages) => {
-            var $message_list = $("div");
-            $message_list.empty();
+            var $messageList = $("div");
+            $messageList.empty();
             messages.forEach((message) => {
-                $message_list.append(`<p>time:${message.time} name:${message.name} message:${message.message}</p>`);
+                $messageList.append(`<p>time:${message.time} name:${message.name} message:${message.message}</p>`);
             });
         })
         .catch((err) => {
             console.log(err);
         });
 
-    $update_button.on("click", () => {
+    $updateButton.on("click", () => {
         fetch("/messages")
             .then((response) => {
                 return response.json();
