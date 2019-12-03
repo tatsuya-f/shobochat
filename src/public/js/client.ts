@@ -12,7 +12,10 @@ $(() => {
             var $messageList = $("div");
             $messageList.empty();
             messages.forEach((message) => {
-                $messageList.append(`<p>time:${message.time} name:${message.name} message:${message.message}</p>`);
+                const time = new Date(message.time);
+                const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
+                $messageList.append(newMessage);
+
             });
         })
         .catch((err) => {
@@ -28,7 +31,9 @@ $(() => {
                 var $messageList = $("div");
                 $messageList.empty();
                 messages.forEach((message) => {
-                    $messageList.append(`<p>time:${message.time} name:${message.name} message:${message.message}</p>`);
+                    const time = new Date(message.time);
+                    const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
+                    $messageList.append(newMessage);
                 });
             })
             .catch((err) => {
