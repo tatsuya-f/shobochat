@@ -1,21 +1,20 @@
 "use strict";
 
 $(() => {
-    var $updateButton = $("#update");
-    var $sendButton = $("#send");
+    const $updateButton = $("#update");
+    const $sendButton = $("#send");
 
     fetch("/messages")
         .then((response) => {
             return response.json();
         })
         .then((messages) => {
-            var $messageList = $("div");
+            let $messageList = $("#messageList");
             $messageList.empty();
             messages.forEach((message) => {
                 const time = new Date(message.time);
                 const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
                 $messageList.append(newMessage);
-
             });
         })
         .catch((err) => {
@@ -28,7 +27,7 @@ $(() => {
                 return response.json();
             })
             .then((messages) => {
-                var $messageList = $("div");
+                const $messageList = $("#messageList");
                 $messageList.empty();
                 messages.forEach((message) => {
                     const time = new Date(message.time);
@@ -42,8 +41,8 @@ $(() => {
     });
 
     $sendButton.on("click", () => {
-        var requestBody = {
-            name: $("#name").val(), 
+        const requestBody = {
+            name: $("#name").val(),
             message: $("#message").val()
         };
         fetch("/messages", {
