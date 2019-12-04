@@ -8,22 +8,24 @@ app.use(express.static("public"));
 app.use(express.json());
 
 app.get("/messages", (req, res) => {
-    getAllMessages()
-        .then((messages) => {
-            res.json(messages);
-        });
+    (async () => {
+        const messages = await getAllMessages();
+        res.json(messages);
+    })();
 });
 
 app.post("/messages", (req, res) => {
-    insertMessage(req.body)
-        .then(() => {
-            res.end();
-        });
+    (async () => {
+        await insertMessage(req.body);
+        res.end();
+    })();
 });
 
-initializeDB()
-    .then(() => {
-        app.listen(8000, () => {
-            console.log("listening on port 8000");
-        });
+
+(async () => {
+    await initializeDB();
+    app.listen(8000 , () =>{
+        console.log("listening on port 8000");
     });
+})();
+
