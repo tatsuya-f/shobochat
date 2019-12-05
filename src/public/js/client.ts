@@ -3,11 +3,26 @@
 $(() => {
     const $updateButton = $("#update");
     const $sendButton = $("#send");
+    const chatApiEndpoint = "http://localhost:8000/messages";
 
-    (async () => {
+    function getMessages(url = "") {
+        return fetch(url)
+            .then((response) => response.json());
+    }
+
+    function postMessage(url = "", message = {}) {
+        return fetch(url, {
+            method: "POST",
+            body: JSON.stringify(message),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    async function showMessages() {
         try{
-            const response = await fetch("/messages");
-            const messages = await response.json();
+            const messages = await getMessages(chatApiEndpoint);
             const $messageList = $("#messageList");
             $messageList.empty();
             messages.forEach((message) => {
@@ -15,56 +30,34 @@ $(() => {
                 const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
                 $messageList.append(newMessage);
             });
-
-        }catch (err){
+        } catch (err) {
             console.log(err);
         }
+    }
 
-    })();
-
-
-    $updateButton.on("click", () => {
-        (async () => {
-            try{
-                const response = await fetch("/messages");
-                const messages = await response.json();
-                const $messageList = $("#messageList");
-                $messageList.empty();
-                messages.forEach((message) => {
-                    const time = new Date(message.time);
-                    const newMessage=`<p>time:${time} name:${message.name} message:${message.message}</p>`;
-                    $messageList.append(newMessage);
-
-                });
-
-            }catch (err){
-                console.log(err);
-            }
-
-        })();
-
-    });
-
-    $sendButton.on("click", () => {
-        const requestBody = {
+    async function sendMessage() {
+        const message = {
             name: $("#name").val(),
             message: $("#message").val()
         };
 
-        (async () =>{
-            try{
-                await fetch("/messages", {
-                    method: "POST",
-                    body: JSON.stringify(requestBody),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-                $("#name").val("");
-                $("#message").val("");
-            }catch (err) {
-                console.log(err);
-            }
-        })();
+        try{
+            await postMessage(chatApiEndpoint, message);
+        } catch (err) {
+            console.log(err);
+        }
+
+        $("#name").val("");
+        $("#message").val("");
+    }
+        
+    $updateButton.on("click", () => {
+        showMessages();
     });
+
+    $sendButton.on("click", () => {
+        sendMessage();
+    });
+
+    showMessages();
 });
