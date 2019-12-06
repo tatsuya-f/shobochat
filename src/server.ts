@@ -12,10 +12,12 @@ async function startServer() {
     try {
         await initializeDB();
 
-        const port = app.get("port");
-        app.listen(port, () => 
-            console.log("Server listening on port " + port)
-        );
+        if (__filename.includes("dist")) {
+            const port = app.get("port");
+            app.listen(port, () => 
+                console.log("Server listening on port " + port)
+            );
+        }
     } catch(err) {
         console.log(err);
     }
@@ -40,3 +42,5 @@ app.post("/messages", async (req, res, next) => {
 });
 
 startServer();
+
+module.exports = app; 
