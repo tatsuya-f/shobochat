@@ -3,29 +3,40 @@
 import * as express from "express";
 import { initializeDB, getAllMessages, insertMessage } from "./database";
 
-var app: express.Application = express();
+const app: express.Application = express();
+app.set("port", 8000);
 app.use(express.static("public"));
 app.use(express.json());
 
-app.get("/messages", (req, res) => {
-    (async () => {
+async function startServer() {
+    try {
+        await initializeDB();
+
+        const port = app.get("port");
+        app.listen(port, () => 
+            console.log("Server listening on port " + port)
+        );
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+app.get("/messages", async (req, res, next) => {
+    try {
         const messages = await getAllMessages();
         res.json(messages);
-    })();
+    } catch(err) {
+        next(err);
+    }
 });
 
-app.post("/messages", (req, res) => {
-    (async () => {
+app.post("/messages", async (req, res, next) => {
+    try {
         await insertMessage(req.body);
         res.end();
-    })();
+    } catch(err) {
+        next(err);
+    }
 });
 
-
-(async () => {
-    await initializeDB();
-    app.listen(8000 , () =>{
-        console.log("listening on port 8000");
-    });
-})();
-
+startServer();
