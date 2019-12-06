@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "sqlite3": "^4.1.0"
+    "power-assert": "^1.6.1",
+    "sqlite3": "^4.1.0",
+    "supertest": "^4.0.2"
   }
 }
