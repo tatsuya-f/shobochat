@@ -1,8 +1,26 @@
+import { checkInput } from "./checkInput";
 
 $(() => {
     const $updateButton = $("#update");
     const $sendButton = $("#send");
     const chatApiEndpoint = "http://localhost:8000/messages";
+
+    function checkEscape(nameInput, messageInput): boolean{
+        let warnEscape: boolean = false;
+        const $warnMes = $("#warnList");
+        $warnMes.empty();
+        if(checkInput(nameInput)===false){
+            warnEscape=true;
+            const $mes = $("<p></p>");
+            $mes.text("名前を入力してください").appendTo($warnMes);           
+        }
+        if(checkInput(messageInput)===false){
+            warnEscape=true;
+            const $mes = $("<p></p>");
+            $mes.text("メッセージを入力してください").appendTo($warnMes);           
+        }
+        return warnEscape;
+    }
 
     function getMessages(url = "") {
         return fetch(url)
@@ -39,7 +57,12 @@ $(() => {
             name: $("#name").val(),
             message: $("#message").val()
         };
-
+        
+        if(checkEscape(message.name, message.message)===true){
+            //console.log("Escape send as empty input!")
+            return;
+        }
+        
         try{
             await postMessage(chatApiEndpoint, message);
         } catch (err) {
