@@ -1,4 +1,4 @@
-import { checkInput } from "./MessageFunctions";
+import { checkInput } from "./messageHandler";
 
 $(() => {
     const $updateButton = $("#update");
