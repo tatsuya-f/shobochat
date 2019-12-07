@@ -1,5 +1,5 @@
 import { equal } from 'assert';
-import { checkInput } from '../src/public/js/checkInput';
+import { checkInput } from '../src/public/js/MessageFunctions';
 		describe('checkInput', function() {
 			describe('#checkInput(a: string)', function() {
 				it('should return true when input is ABC', function() {
