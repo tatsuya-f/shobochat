@@ -1,17 +1,15 @@
 import { sendMessage, showMessages } from "./messageHandler";
 
 $(() => {
-    const $updateButton = $("#update");
-    const $sendButton = $("#send");
-    const chatApiEndpoint = "http://localhost:8000/messages";
-        
-    $updateButton.on("click", () => {
+    const chatApiEndpoint: string = "http://localhost:8000/messages";
+
+    $("#update").on("click", () => {
         showMessages(chatApiEndpoint);
     });
 
-    $sendButton.on("click", () => {
+    $("#send").on("click", () => {
         sendMessage(chatApiEndpoint);
     });
 
-    showMessages();
+    showMessages(chatApiEndpoint);
 });

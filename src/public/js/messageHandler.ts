@@ -1,47 +1,42 @@
 import { postJson, getJson } from "./jsonHandler";
 
-export function checkInput(a): boolean{
-    if(a==="")return false; 
-    else{
-        let space: boolean = false;
-        let m: number = 0;
-        while(m <= a.length-1){
-            if(a.charAt(m)!==" " && a.charAt(m)!=="	")space = true;
-            m++;
+export function checkInput(input: string): boolean {
+    for(let ch of input) {
+        if(ch !== " " && ch !== "\t") {
+            return true;
         }
-        return space;
     }
+    return false;
 }
 
-export function checkEscape(nameInput, messageInput): boolean{
+export function checkEscape(nameInput: string, messageInput: string): boolean {
     let warnEscape: boolean = false;
-    const $warnMes = $("#warnList");
-    $warnMes.empty();
-    if(checkInput(nameInput)===false){
-        warnEscape=true;
-        const $mes = $("<p></p>");
-        $mes.text("名前を入力してください").appendTo($warnMes);           
+    const $warnList: JQuery = $("#warnList");
+    $warnList.empty();
+    if(!checkInput(nameInput)){
+        warnEscape = true;
+        $("<p></p>").text("名前を入力してください").appendTo($warnList);
     }
-    if(checkInput(messageInput)===false){
-        warnEscape=true;
-        const $mes = $("<p></p>");
-        $mes.text("メッセージを入力してください").appendTo($warnMes);           
+    if(!checkInput(messageInput)){
+        warnEscape = true;
+        $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
     }
     return warnEscape;
 }
 
-export async function sendMessage(chatApiEndpoint = "") {
+export async function sendMessage(chatApiEndpoint: string) {
+    // TODO: use interface
     const message = {
-        name: $("#name").val(),
-        message: $("#message").val()
+        name: $("#name").val() as string,
+        message: $("#message").val() as string
     };
 
-    if(checkEscape(message.name, message.message)===true){
+    if(checkEscape(message.name, message.message)) {
         //console.log("Escape send as empty input!")
         return;
     }
 
-    try{
+    try {
         await postJson(chatApiEndpoint, message);
     } catch (err) {
         console.log(err);
@@ -51,10 +46,10 @@ export async function sendMessage(chatApiEndpoint = "") {
     $("#message").val("");
 }
 
-export async function showMessages(chatApiEndpoint = "") {
-    try{
+export async function showMessages(chatApiEndpoint: string) {
+    try {
         const messages = await getJson(chatApiEndpoint);
-        const $messageList = $("#messageList");
+        const $messageList: JQuery = $("#messageList");
 
         $messageList.empty();
         messages.forEach((message) => {
