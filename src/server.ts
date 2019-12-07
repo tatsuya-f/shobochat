@@ -1,4 +1,3 @@
-"use strict";
 
 import * as express from "express";
 import { initializeDB, getAllMessages, insertMessage } from "./database";
