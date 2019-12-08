@@ -1,7 +1,7 @@
-import { postJson, getJson } from "./jsonHandler";
+import { Message } from "./Message";
 
-export function checkInput(input: string): boolean {
-    for(let ch of input) {
+export function hasSpace(input: string): boolean {
+    for(const ch of input) {
         if(ch !== " " && ch !== "\t") {
             return true;
         }
@@ -9,35 +9,49 @@ export function checkInput(input: string): boolean {
     return false;
 }
 
-export function checkEscape(nameInput: string, messageInput: string): boolean {
-    let warnEscape: boolean = false;
-    const $warnList: JQuery = $("#warnList");
+function isValidMessage(message: Message): boolean {
+    let isValid = false;
+    const $warnList = $("#warnList");
     $warnList.empty();
-    if(!checkInput(nameInput)){
-        warnEscape = true;
+    if(!hasSpace(message.name)){
+        isValid = true;
         $("<p></p>").text("名前を入力してください").appendTo($warnList);
     }
-    if(!checkInput(messageInput)){
-        warnEscape = true;
+    if(!hasSpace(message.message)){
+        isValid = true;
         $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
     }
-    return warnEscape;
+    return isValid;
+}
+
+export function getMessages(url: string): Promise<Array<Message>> {
+    return fetch(url)
+        .then((response) => response.json());
+}
+
+export function postMessage(url: string, message: Message) {
+    return fetch(url, {
+        method: "POST",
+        body: JSON.stringify(message),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 }
 
 export async function sendMessage(chatApiEndpoint: string) {
-    // TODO: use interface
-    const message = {
+    const message: Message = {
         name: $("#name").val() as string,
         message: $("#message").val() as string
     };
 
-    if(checkEscape(message.name, message.message)) {
+    if(isValidMessage(message)) {
         //console.log("Escape send as empty input!")
         return;
     }
 
     try {
-        await postJson(chatApiEndpoint, message);
+        await postMessage(chatApiEndpoint, message);
     } catch (err) {
         console.log(err);
     }
@@ -48,14 +62,16 @@ export async function sendMessage(chatApiEndpoint: string) {
 
 export async function showMessages(chatApiEndpoint: string) {
     try {
-        const messages = await getJson(chatApiEndpoint);
-        const $messageList: JQuery = $("#messageList");
+        const messages = await getMessages(chatApiEndpoint);
+        const $messageList = $("#messageList");
 
         $messageList.empty();
         messages.forEach((message) => {
-            const time = new Date(message.time);
-            const newMessage = `<p>time:${time} name:${message.name} message:${message.message}</p>`;
-            $messageList.append(newMessage);
+            if(message.time) {
+                const time = new Date(message.time);
+                const newMessage = `<p>time:${time} name:${message.name} message:${message.message}</p>`;
+                $messageList.append(newMessage);
+            }
         });
     } catch (err) {
         console.log(err);
