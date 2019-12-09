@@ -10,15 +10,15 @@ export function hasSpace(input: string): boolean {
 }
 
 function isValidMessage(message: Message): boolean {
-    let isValid = false;
+    let isValid = true;
     const $warnList = $("#warnList");
     $warnList.empty();
     if(!hasSpace(message.name)){
-        isValid = true;
+        isValid = false;
         $("<p></p>").text("名前を入力してください").appendTo($warnList);
     }
     if(!hasSpace(message.message)){
-        isValid = true;
+        isValid = false;
         $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
     }
     return isValid;
@@ -45,7 +45,7 @@ export async function sendMessage(chatApiEndpoint: string) {
         message: $("#message").val() as string
     };
 
-    if(isValidMessage(message)) {
+    if(!isValidMessage(message)) {
         //console.log("Escape send as empty input!")
         return;
     }
