@@ -47,12 +47,10 @@ export async function sendMessage(chatApiEndpoint: string) {
 
     try {
         await postMessage(chatApiEndpoint, message);
-        //await showMessages(chatApiEndpoint);
     }catch (err) {
         console.log(err);
     }
 
-    //$("#name").val("");
     $("#message").val("");
 }
 
