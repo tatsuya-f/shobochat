@@ -7,8 +7,9 @@ $(() => {
         showMessages(chatApiEndpoint);
     });
 
-    $("#send").on("click", () => {
-        sendMessage(chatApiEndpoint);
+    $("#send").on("click", async () => {
+        await sendMessage(chatApiEndpoint);
+        await showMessages(chatApiEndpoint);
     });
 
     showMessages(chatApiEndpoint);

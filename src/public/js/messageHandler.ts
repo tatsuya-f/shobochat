@@ -34,7 +34,7 @@ export function postMessage(url: string, message: Message) {
     });
 }
 
-export async function sendMessage(chatApiEndpoint: string) {
+export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     const message: Message = {
         name: $("#name").val() as string,
         message: $("#message").val() as string
@@ -54,7 +54,7 @@ export async function sendMessage(chatApiEndpoint: string) {
     $("#message").val("");
 }
 
-export async function showMessages(chatApiEndpoint: string) {
+export async function showMessages(chatApiEndpoint: string): Promise<void> {
     try {
         const messages = await getMessages(chatApiEndpoint);
         const $messageList = $("#messageList");
