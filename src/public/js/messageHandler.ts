@@ -47,7 +47,7 @@ export async function sendMessage(chatApiEndpoint: string) {
 
     try {
         await postMessage(chatApiEndpoint, message);
-    }catch (err) {
+    } catch (err) {
         console.log(err);
     }
 
