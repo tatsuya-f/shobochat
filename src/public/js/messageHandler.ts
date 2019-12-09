@@ -1,23 +1,18 @@
 import { Message } from "./Message";
 
-export function hasSpace(input: string): boolean {
-    for(const ch of input) {
-        if(ch !== " " && ch !== "\t") {
-            return true;
-        }
-    }
-    return false;
+export function hasChar(input: string): boolean {
+    return input.trim() !== "";
 }
 
 function isValidMessage(message: Message): boolean {
     let isValid = true;
     const $warnList = $("#warnList");
     $warnList.empty();
-    if(!hasSpace(message.name)){
+    if(!hasChar(message.name)){
         isValid = false;
         $("<p></p>").text("名前を入力してください").appendTo($warnList);
     }
-    if(!hasSpace(message.message)){
+    if(!hasChar(message.message)){
         isValid = false;
         $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
     }
