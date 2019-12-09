@@ -51,7 +51,6 @@ export async function sendMessage(chatApiEndpoint: string) {
         console.log(err);
     }
 
-    $("#name").val("");
     $("#message").val("");
 }
 
