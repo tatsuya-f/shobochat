@@ -6,3 +6,18 @@
     border: 3px solid #0000FF;
     padding: 10px;
 }
+
+div.nameCss {
+    font-size: 25px;
+    font-weight: bold;
+    display: inline;
+}
+
+div.timeCss{
+    font-size: 12px;
+    display: inline;
+}
+
+p.messageCss{
+    font-size: 20px;
+}
