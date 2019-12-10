@@ -25,9 +25,21 @@ export function getMessages(url: string): Promise<Array<Message>> {
 }
 
 export function postMessage(url: string, message: Message) {
-    return fetch(url, {
+    fetch(url, {
         method: "POST",
         body: JSON.stringify(message),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+}
+
+export async function deleteMessage(url: string, messageId: number): Promise<any> {
+    fetch(url, {
+        method: "DELETE",
+        body: JSON.stringify({
+            messageId: messageId
+        }),
         headers: {
             "Content-Type": "application/json"
         }
@@ -41,7 +53,6 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     };
 
     if (!isValidMessage(message)) {
-        //console.log("Escape send as empty input!")
         return;
     }
 
@@ -63,7 +74,13 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
         messages.forEach((message) => {
             if (message.time) {
                 const time = new Date(message.time);
-                const newMessage = `<p> <div class="name">${message.name}</div> <div class="time">${time}</div> </p> <p class="message">${message.message}</p><hr>`;
+                const newMessage = `<div class="messagediv" \
+                                         data-messageid=${message.id} \
+                                         data-userid=${message.userId}> \
+                                       <p class="name">name:${message.name}</p> \
+                                       <p class="time">time:${time}</p> \
+                                       <p class="message">message:${message.message}</p> \
+                                    </div>`;
                 $messageList.append(newMessage);
             }
         });
