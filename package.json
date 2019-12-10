@@ -29,6 +29,7 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
+    "@types/supertest": "^2.0.8",
     "express": "^4.17.1",
     "power-assert": "^1.6.1",
     "sqlite3": "^4.1.0",
