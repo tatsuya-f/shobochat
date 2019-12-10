@@ -8,11 +8,11 @@ function isValidMessage(message: Message): boolean {
     let isValid = true;
     const $warnList = $("#warnList");
     $warnList.empty();
-    if(!hasChar(message.name)){
+    if (!hasChar(message.name)) {
         isValid = false;
         $("<p></p>").text("名前を入力してください").appendTo($warnList);
     }
-    if(!hasChar(message.message)){
+    if (!hasChar(message.message)) {
         isValid = false;
         $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
     }
@@ -40,7 +40,7 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
         message: $("#message").val() as string
     };
 
-    if(!isValidMessage(message)) {
+    if (!isValidMessage(message)) {
         //console.log("Escape send as empty input!")
         return;
     }
@@ -61,7 +61,7 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
 
         $messageList.empty();
         messages.forEach((message) => {
-            if(message.time) {
+            if (message.time) {
                 const time = new Date(message.time);
                 const newMessage = `<p>time:${time} name:${message.name} message:${message.message}</p>`;
                 $messageList.append(newMessage);
