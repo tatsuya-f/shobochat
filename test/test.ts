@@ -1,6 +1,7 @@
 import { app } from "../src/server";
 import * as request from "supertest";
-import * as assert from "power-assert";
+import * as assert from "assert";
+import { Message, isMessage } from '../src/Message';
 
 describe("GET /", () => {
     it("return top page", async () => {
@@ -28,12 +29,10 @@ describe("GET /messages", () => {
             .expect("Content-Type", "application/json; charset=utf-8")
             .expect(200);
 
-        const messages = response.body;
-        assert.equal(Array.isArray(messages), true);
+        assert.equal(Array.isArray(response.body), true);
+        const messages = response.body as Array<any>;
         messages.forEach((m => {
-            assert.equal(typeof m.time === "number", true);
-            assert.equal(typeof m.name === "string", true);
-            assert.equal(typeof m.message === "string", true);
+            assert.equal(isMessage(m), true);
         }));
     });
 });
