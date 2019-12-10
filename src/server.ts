@@ -11,7 +11,7 @@ app.get("/messages", async (req, res, next) => {
     try {
         const messages = await getAllMessages();
         res.json(messages);
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 });
@@ -20,7 +20,7 @@ app.post("/messages", async (req, res, next) => {
     try {
         await insertMessage(req.body);
         res.end();
-    } catch(err) {
+    } catch (err) {
         next(err);
     }
 });
@@ -35,7 +35,7 @@ app.post("/messages", async (req, res, next) => {
                 console.log("Server listening on port " + port)
             );
         }
-    } catch(err) {
+    } catch (err) {
         console.log(err);
     }
 })();
