@@ -63,7 +63,7 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
         messages.forEach((message) => {
             if (message.time) {
                 const time = new Date(message.time);
-                const newMessage = `<p> <div class="nameCss">${message.name}</div> <div class="timeCss">${time}</div> </p> <p class="messageCss">${message.message}</p><hr>`;
+                const newMessage = `<p> <div class="name">${message.name}</div> <div class="time">${time}</div> </p> <p class="message">${message.message}</p><hr>`;
                 $messageList.append(newMessage);
             }
         });

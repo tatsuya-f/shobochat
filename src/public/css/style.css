@@ -7,17 +7,17 @@
     padding: 10px;
 }
 
-div.nameCss {
+.name {
     font-size: 25px;
     font-weight: bold;
     display: inline;
 }
 
-div.timeCss{
+.time {
     font-size: 12px;
     display: inline;
 }
 
-p.messageCss{
+.message {
     font-size: 20px;
 }
