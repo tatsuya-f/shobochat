@@ -1,4 +1,4 @@
-import { sendMessage, showMessages } from "./messageHandler";
+import { sendMessage, showMessages, removeMessage } from "./messageHandler";
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
@@ -10,6 +10,22 @@ $(() => {
     $("#send").on("click", async () => {
         await sendMessage(chatApiEndpoint);
         await showMessages(chatApiEndpoint);
+    });
+
+    let timer: number;
+    $(document).on("mousedown", ".messagediv", function() {
+        timer = window.setTimeout(() => {
+            if (window.confirm("削除しますか?")) {
+                let messageId = $(this).data("messageid");
+                if (typeof messageId === "number") {
+                    removeMessage(chatApiEndpoint, $(this).data("messageid"));
+                }
+                console.log($(this).data("messageid"));
+                console.log($(this).data("userid"));
+            }
+        }, 1000);
+    }).on("mouseup mouseleave", () => {
+        clearTimeout(timer);
     });
 
     showMessages(chatApiEndpoint);

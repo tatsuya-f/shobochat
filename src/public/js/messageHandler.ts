@@ -6,28 +6,44 @@ export function hasChar(input: string): boolean {
 
 function isValidMessage(message: Message): boolean {
     let isValid = true;
-    const $warnList = $("#warnList");
-    $warnList.empty();
     if (!hasChar(message.name)) {
         isValid = false;
-        $("<p></p>").text("名前を入力してください").appendTo($warnList);
+        $("#name").css("background-color", "red");
+    }
+    else {
+        $("#name").css("background-color", "white");
     }
     if (!hasChar(message.message)) {
         isValid = false;
-        $("<p></p>").text("メッセージを入力してください").appendTo($warnList);
+        $("#message").css("background-color", "red");
+    }
+    else {
+        $("#message").css("background-color", "white");
     }
     return isValid;
 }
 
-export function getMessages(url: string): Promise<Array<Message>> {
+function getMessages(url: string): Promise<Array<Message>> {
     return fetch(url)
         .then((response) => response.json());
 }
 
-export function postMessage(url: string, message: Message) {
-    return fetch(url, {
+function postMessage(url: string, message: Message) {
+    fetch(url, {
         method: "POST",
         body: JSON.stringify(message),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+}
+
+function deleteMessage(url: string, messageId: number) {
+    fetch(url, {
+        method: "DELETE",
+        body: JSON.stringify({
+            messageId: messageId
+        }),
         headers: {
             "Content-Type": "application/json"
         }
@@ -41,7 +57,6 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     };
 
     if (!isValidMessage(message)) {
-        //console.log("Escape send as empty input!")
         return;
     }
 
@@ -63,11 +78,22 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
         messages.forEach((message) => {
             if (message.time) {
                 const time = new Date(message.time);
-                const newMessage = `<p> <div class="name">${message.name}</div> <div class="time">${time}</div> </p> <p class="message">${message.message}</p><hr>`;
-                $messageList.append(newMessage);
+                const newMessage = `<div class="messagediv" \
+                                         data-messageid=${message.id} \
+                                       <p class="name">${message.name}</p> \
+                                       <p class="time">${time}</p> \
+                                       <p class="message">${message.message}</p> \
+                                    </div>`;
+                $messageList.prepend(newMessage);
             }
         });
     } catch (err) {
         console.log(err);
     }
 }
+
+export async function removeMessage(chatApiEndpoint: string, messageId: number): Promise<void> {
+    await deleteMessage(chatApiEndpoint, messageId);
+    await showMessages(chatApiEndpoint);
+}
+
