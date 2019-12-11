@@ -1,4 +1,4 @@
-import { Message } from "./Message";
+import { Message, isMessage } from "./Message";
 
 export function hasChar(input: string): boolean {
     return input.trim() !== "";
@@ -8,17 +8,17 @@ function isValidMessage(message: Message): boolean {
     let isValid = true;
     if (!hasChar(message.name)) {
         isValid = false;
-        $("#name").css("background-color", "red");
+        $("#name").addClass("is-danger");
     }
     else {
-        $("#name").css("background-color", "white");
+        $("#name").removeClass("is-danger");
     }
     if (!hasChar(message.message)) {
         isValid = false;
-        $("#message").css("background-color", "red");
+        $("#message").addClass("is-danger");
     }
     else {
-        $("#message").css("background-color", "white");
+        $("#message").removeClass("is-danger");
     }
     return isValid;
 }
@@ -38,34 +38,28 @@ function postMessage(url: string, message: Message) {
     });
 }
 
-function deleteMessage(url: string, messageId: number) {
-    fetch(url, {
+function deleteMessage(url: string, messageId: number): Promise<number> {
+    return fetch(`${url}/${messageId}`, {
         method: "DELETE",
-        body: JSON.stringify({
-            messageId: messageId
-        }),
         headers: {
-            "Content-Type": "application/json"
+            "Content-Length": "0"
         }
-    });
+    }).then(res => res.status);
 }
 
 export async function sendMessage(chatApiEndpoint: string): Promise<void> {
-    const message: Message = {
-        name: $("#name").val() as string,
-        message: $("#message").val() as string
+    const message = {
+        name: $("#name").val(),
+        message: $("#message").val()
     };
 
-    if (!isValidMessage(message)) {
-        return;
+    if (isMessage(message) && isValidMessage(message)) {
+        try {
+            await postMessage(chatApiEndpoint, message);
+        } catch (err) {
+            console.log(err);
+        }
     }
-
-    try {
-        await postMessage(chatApiEndpoint, message);
-    } catch (err) {
-        console.log(err);
-    }
-
     $("#message").val("");
 }
 
@@ -73,18 +67,18 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
     try {
         const messages = await getMessages(chatApiEndpoint);
         const $messageList = $("#messageList");
-
         $messageList.empty();
+        console.log(messages);
         messages.forEach((message) => {
-            if (message.time) {
+            if (message.time !== undefined) {
                 const time = new Date(message.time);
-                const newMessage = `<div class="messagediv" \
-                                         data-messageid=${message.id} \
-                                       <p class="name">${escapeHTML(message.name)}</p> \
-                                       <p class="time">${time}</p> \
+                const messageTag = `<div class="messagediv" \
+                                         data-messageid=${message.id}> \
+                                       <span class="name">${escapeHTML(message.name)}</span> \
+                                       <span class="time">${time}</span> \
                                        <p class="message">${escapeHTML(message.message)}</p> \
                                     </div>`;
-                $messageList.prepend(newMessage);
+                $messageList.prepend(messageTag);
             }
         });
     } catch (err) {
@@ -93,7 +87,10 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
 }
 
 export async function removeMessage(chatApiEndpoint: string, messageId: number): Promise<void> {
-    await deleteMessage(chatApiEndpoint, messageId);
+    const status = await deleteMessage(chatApiEndpoint, messageId);
+    if (status !== 200) {
+        console.log("DELETE Failed");
+    }
     await showMessages(chatApiEndpoint);
 }
 
