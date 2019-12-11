@@ -80,11 +80,11 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
                 const time = new Date(message.time);
                 const newMessage = `<div class="messagediv" \
                                          data-messageid=${message.id} \
-                                       <p class="name">name:${message.name}</p> \
-                                       <p class="time">time:${time}</p> \
-                                       <p class="message">message:${message.message}</p> \
+                                       <p class="name">${message.name}</p> \
+                                       <p class="time">${time}</p> \
+                                       <p class="message">${message.message}</p> \
                                     </div>`;
-                $messageList.append(newMessage);
+                $messageList.prepend(newMessage);
             }
         });
     } catch (err) {
