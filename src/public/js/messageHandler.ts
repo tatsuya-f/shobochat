@@ -80,9 +80,9 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
                 const time = new Date(message.time);
                 const newMessage = `<div class="messagediv" \
                                          data-messageid=${message.id} \
-                                       <p class="name">${message.name}</p> \
+                                       <p class="name">${escapeHTML(message.name)}</p> \
                                        <p class="time">${time}</p> \
-                                       <p class="message">${message.message}</p> \
+                                       <p class="message">${escapeHTML(message.message)}</p> \
                                     </div>`;
                 $messageList.prepend(newMessage);
             }
@@ -97,3 +97,14 @@ export async function removeMessage(chatApiEndpoint: string, messageId: number):
     await showMessages(chatApiEndpoint);
 }
 
+
+
+export function escapeHTML(str : string): string {
+    str = str.replace(/&/g, "&amp;");
+    str = str.replace(/</g, "&lt;");
+    str = str.replace(/>/g, "&gt;");
+    str = str.replace(/"/g, "&quot;");
+    str = str.replace(/'/g, "&#x27;");
+    str = str.replace(/`/g, "&#x60;");
+    return str;
+}
