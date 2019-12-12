@@ -1,9 +1,22 @@
+:root {
+    --input-area-height: 300px;
+    --input-area-padding: 10px;
+    --input-area-bottom: 10px;
+}
+
+section {
+    position: fixed;
+    top: 0px;
+    align-content: center;
+}
+
 footer {
     position: fixed;
-    bottom: 10px;
+    bottom: var(--input-area-bottom);
     width: 97%;
-    background: #FFFFFF;
-    padding: 10px;
+    background: transparent;
+    padding: var(--input-area-padding);
+    height: var(--input-area-height);
 }
 
 .name {
@@ -21,6 +34,11 @@ footer {
     font-size: 20px;
 }
 
+.main-contents {
+    margin-bottom: calc(var(--input-area-height) +
+                        var(--input-area-bottom) +
+                        var(--input-area-padding));
+}
 
 .textarea {
   resize: none;
