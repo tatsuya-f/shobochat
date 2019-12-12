@@ -37,10 +37,6 @@ describe("test /messages", async () => {
 
             const messageList = response.body;
 
-            console.log("\n----------------------- response body ----------------------------");
-            console.log(messageList);
-            console.log("----------------------- response body ----------------------------");
-
             assert.equal(Array.isArray(response.body), true);
             const messages = response.body as Array<any>;
             messages.forEach((m => {
@@ -60,17 +56,12 @@ describe("test /messages", async () => {
 
             const message = await getMessage(test_id);
             assert.equal(typeof message === "undefined", true);
-
-            console.log("\n----------------------- response body ----------------------------");
-            console.log(message);
-            console.log("----------------------- response body ----------------------------");
         });
     });
 
     after(() => {
         try {
             fs.unlinkSync('sqlite3.db');
-            console.log('deleted sqlite3.db');
         } catch (error) {
             throw error;
         }
