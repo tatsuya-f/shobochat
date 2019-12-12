@@ -41,7 +41,7 @@ footer {
 }
 
 .textarea {
-  resize: none;
+  resize: none !important;
 }
 
 body {
