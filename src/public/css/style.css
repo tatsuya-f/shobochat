@@ -1,7 +1,7 @@
 footer {
     position: fixed;
     bottom: 10px;
-    right: 10px;
+    width: 97%;
     background: #FFFFFF;
     border: 3px solid #0000FF;
     padding: 10px;
@@ -20,4 +20,13 @@ footer {
 
 .message {
     font-size: 20px;
+}
+
+
+textarea {
+  resize: none;
+}
+
+body {
+  margin:10px;
 }
