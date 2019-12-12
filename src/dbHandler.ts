@@ -26,7 +26,7 @@ export function insertMessage(msg: Message): Promise<void> {
         const message = msg.message;
 
         // プレースホルダを利用すると，非NULLのエラーを出してくれるので，こちらでは特にチェックをしない
-        const sql = "INSERT INTO messages (userId, time, name, message) VALUES(?, ?, ?, ?)"; 
+        const sql = "INSERT INTO messages (userId, time, name, message) VALUES(?, ?, ?, ?)";
 
         db.run(sql, [userId, time, name, message], (err) => {
             db.close();
@@ -73,7 +73,7 @@ export function getAllMessages(): Promise<Array<Message>> {
 export function deleteMessage(id: number): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database("sqlite3.db");
-        const sql = "DELETE FROM messages where id = ?"; 
+        const sql = "DELETE FROM messages where id = ?";
 
         db.run(sql, [id], (err) => {
             db.close();
