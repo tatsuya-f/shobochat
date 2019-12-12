@@ -1,6 +1,6 @@
 import * as express from "express";
 import { initializeDB, getAllMessages, insertMessage, deleteMessage } from "./dbHandler";
-import { Application, Request, Response } from "express";
+import { Application, Request, Response, NextFunction } from "express";
 
 export const app: Application = express();
 
@@ -8,7 +8,7 @@ app.set("port", 8000);
 app.use(express.static("public"));
 app.use(express.json());
 
-app.get("/messages", async (req, res, next) => {
+app.get("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const messages = await getAllMessages();
         res.json(messages);
@@ -17,7 +17,7 @@ app.get("/messages", async (req, res, next) => {
     }
 });
 
-app.post("/messages", async (req, res, next) => {
+app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const insertableMessage = { userId: 999, name: req.body.name, message: req.body.message }; // userIdを付与
         await insertMessage(insertableMessage);
@@ -27,9 +27,13 @@ app.post("/messages", async (req, res, next) => {
     }
 });
 
-app.delete("/messages/:id", async (req: Request, res: Response): Promise<void> => {
-    await deleteMessage(parseInt(req.params.id));
-    res.status(200).end();
+app.delete("/messages/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        await deleteMessage(parseInt(req.params.id));
+        res.status(200).end();
+    } catch (err) {
+        next(err);
+    }
 });
 
 (async function startServer() {
