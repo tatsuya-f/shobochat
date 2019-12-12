@@ -1,7 +1,8 @@
 import * as express from "express";
-import { initializeDB, getAllMessages, insertMessage } from "./dbHandler";
+import { initializeDB, getAllMessages, insertMessage, deleteMessage } from "./dbHandler";
+import { Application, Request, Response } from "express";
 
-export const app: express.Application = express();
+export const app: Application = express();
 
 app.set("port", 8000);
 app.use(express.static("public"));
@@ -24,6 +25,11 @@ app.post("/messages", async (req, res, next) => {
     } catch (err) {
         next(err);
     }
+});
+
+app.delete("/messages/:id", async (req: Request, res: Response): Promise<void> => {
+    await deleteMessage(parseInt(req.params.id));
+    res.status(200).end();
 });
 
 (async function startServer() {
