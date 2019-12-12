@@ -1,5 +1,5 @@
 import * as express from "express";
-import { initializeDB, getAllMessages, insertMessage } from "./database";
+import { initializeDB, getAllMessages, insertMessage } from "./dbHandler";
 
 export const app: express.Application = express();
 
@@ -18,8 +18,9 @@ app.get("/messages", async (req, res, next) => {
 
 app.post("/messages", async (req, res, next) => {
     try {
-        await insertMessage(req.body);
-        res.end();
+        const insertableMessage = { userId: 999, name: req.body.name, message: req.body.message }; // userIdを付与
+        await insertMessage(insertableMessage);
+        res.status(200).end();
     } catch (err) {
         next(err);
     }

@@ -16,7 +16,7 @@ describe("POST /messages", () => {
     it("returns 200 when parameters are valid", async () => {
         await request(app)
             .post("/messages")
-            .send({name: "test_name", message: "test_message"})
+            .send({userId: 999, name: "test_name", message: "test_message"})
             .expect(200);
     });
 });
