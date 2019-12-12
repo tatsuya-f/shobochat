@@ -76,7 +76,7 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
                                          data-messageid=${message.id}> \
                                        <span class="name">${escapeHTML(message.name)}</span> \
                                        <span class="time">${time}</span> \
-                                       <p class="message">${escapeHTML(message.message)}</p> \
+                                       <pre class="message">${escapeHTML(message.message)}</pre> \
                                     </div>`;
                 $messageList.prepend(messageTag);
             }
