@@ -45,7 +45,6 @@ describe("test /messages", async () => {
         });
     });
 
-
     const test_id = 1;
     await describe("DELETE /messages/" + test_id, () => {
 
