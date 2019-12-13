@@ -28,15 +28,15 @@ function getMessages(url: string): Promise<Array<Message>> {
         .then((response) => response.json());
 }
 
-function postMessage(url: string, message: Message) {
-    fetch(url, {
+function postMessage(url: string, message: Message): Promise<number> {
+    return fetch(url, {
         method: "POST",
         body: JSON.stringify(message),
         headers: {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    });
+    }).then(res => res.status);
 }
 
 function deleteMessage(url: string, messageId: number): Promise<number> {
@@ -57,7 +57,16 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
 
     if (isMessage(message) && isValidMessage(message)) {
         try {
-            await postMessage(chatApiEndpoint, message);
+            const status = await postMessage(chatApiEndpoint, message);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage.html("メッセージを送信しました");
+                $queryMessage.css("color", "black");
+            } else {
+                $queryMessage.html("メッセージを送信できませんでした");
+                $queryMessage.css("color", "red");
+                console.log("POST Failed");
+            }
         } catch (err) {
             console.log(err);
         }
@@ -91,14 +100,20 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
     }
 }
 
+
 export async function removeMessage(chatApiEndpoint: string, messageId: number): Promise<void> {
     const status = await deleteMessage(chatApiEndpoint, messageId);
-    if (status !== 200) {
+    const $queryMessage = $("#queryMessage");
+    if (status === 200) {
+        $queryMessage.html("メッセージを削除しました");
+        $queryMessage.css("color", "black");
+    } else {
+        $queryMessage.html("メッセージを削除できませんでした");
+        $queryMessage.css("color", "red");
         console.log("DELETE Failed");
     }
     await showMessages(chatApiEndpoint);
 }
-
 
 
 export function escapeHTML(str : string): string {
