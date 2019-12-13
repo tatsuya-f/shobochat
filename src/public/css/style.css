@@ -33,6 +33,7 @@ footer {
 
 .message {
     font-size: 20px;
+    background: transparent;
 }
 
 .main-contents {

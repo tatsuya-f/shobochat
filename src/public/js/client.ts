@@ -29,5 +29,12 @@ $(() => {
         clearTimeout(timer);
     });
 
+    $(document).on("mouseover", ".messagediv", function() {
+        $(this).addClass("message is-dark");
+
+    }).on("mouseout", ".messagediv", function() {
+        $(this).removeClass("message is-dark");
+    });
+
     showMessages(chatApiEndpoint);
 });
