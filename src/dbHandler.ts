@@ -5,7 +5,7 @@ const sqlite3 = sqlite.verbose();
 export function initializeDB(): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database("sqlite3.db");
-        const sql = "CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL, time INTEGER NOT NULL, name TEXT NOT NULL, message TEXT NOT NULL)";
+        const sql = "CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, userId CHAR(35) NOT NULL, time INTEGER NOT NULL, name TEXT NOT NULL, message TEXT NOT NULL)";
         db.run(sql, (err) => {
             db.close();
             if (err) {

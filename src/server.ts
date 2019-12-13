@@ -7,6 +7,7 @@ import {
     insertMessage,
     deleteMessage
 } from "./dbHandler";
+import * as uuid from "uuid";
 import { Application, Request, Response, NextFunction } from "express";
 
 export const app: Application = express();
@@ -33,13 +34,12 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-let seed = 0;
 app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
         if (sess === undefined) { return; }
         if (sess.userId === undefined) {
-            sess.userId = seed++;
+            sess.userId = uuid();
         }
         const insertableMessage = {
             userId: sess.userId,
