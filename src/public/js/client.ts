@@ -9,7 +9,7 @@ $(() => {
 
     $("#send").on("click", async () => {
         await sendMessage(chatApiEndpoint);
-        await showMessages(chatApiEndpoint);
+        setTimeout(() => showMessages(chatApiEndpoint), 50);
         // $("body").animate({ scrollTop: $(document).height() }, 100);
     });
 
