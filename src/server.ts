@@ -37,8 +37,11 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
 app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
-        if (sess === undefined) { return; }
-        if (sess.userId === undefined) {
+        if (sess === undefined) {
+            res.status(500).end();
+            return;
+        }
+        else if (sess.userId === undefined) {
             sess.userId = uuid();
         }
         const insertableMessage = {
@@ -56,7 +59,8 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
 app.delete("/messages/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const sess = req.session;
-        if (sess === undefined) { // reject
+        if (sess === undefined) {
+            res.status(500).end();
             return;
         }
         const messageId = parseInt(req.params.id);
