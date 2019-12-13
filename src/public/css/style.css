@@ -12,8 +12,9 @@ section {
 
 footer {
     position: fixed;
+    right: 10px;
     bottom: var(--input-area-bottom);
-    width: 97%;
+    width: 50%;
     background: transparent;
     padding: var(--input-area-padding);
     height: var(--input-area-height);
