@@ -2,8 +2,8 @@ import { app } from "../src/server";
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
-import { Message, isMessage } from "../src/Message";
-import { initializeDB, getMessage } from "../src/dbHandler";
+import { isMessage } from "../src/Message";
+import { initializeDB, getMessage, getAllMessages } from "../src/dbHandler";
 
 async function postTestMessage(times: number): Promise<void> {
     for (let i = 0; i < times; i++) {
@@ -92,27 +92,33 @@ describe("POST /messages", () => {
     });
 });
 
-const test_id = 1;
-describe("DELETE /messages/" + test_id, () => {
+describe("test regarding session", () => {
+    const agent = request.agent(app);
+    const testId = 1;
+    let cookie: Array<string>;
     before(async () => {
         try {
             await initializeDB();
-            await postTestMessage(3);
         } catch (err) {
             console.log(err);
         }
+        const response = await agent
+            .post("/messages")
+            .send({ name: "test_name", message: "test_message" })
+            .expect(200);
+        cookie = response.header["set-cookie"];
     });
-
     after(() => {
         deleteDB();
     });
 
-    it("delete message with id = " + test_id, async () => {
-        const response = await request(app)
-            .delete("/messages/" + test_id)
+    it("delete message with id = " + testId, async () => {
+        const response = await agent
+            .delete("/messages/" + testId)
+            .set("Cookie", cookie)
             .expect(200);
-
-        const message = await getMessage(test_id);
-        assert.equal(typeof message === "undefined", true);
+        const message = await getMessage(testId);
+        assert.equal(message === undefined, true);
     });
 });
+

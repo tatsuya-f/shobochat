@@ -34,7 +34,8 @@ function postMessage(url: string, message: Message) {
         body: JSON.stringify(message),
         headers: {
             "Content-Type": "application/json"
-        }
+        },
+        credentials: "same-origin"
     });
 }
 
@@ -43,7 +44,8 @@ function deleteMessage(url: string, messageId: number): Promise<number> {
         method: "DELETE",
         headers: {
             "Content-Length": "0"
-        }
+        },
+        credentials: "same-origin"
     }).then(res => res.status);
 }
 

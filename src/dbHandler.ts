@@ -5,7 +5,7 @@ const sqlite3 = sqlite.verbose();
 export function initializeDB(): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database("sqlite3.db");
-        const sql = "CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL, time INTEGER NOT NULL, name TEXT NOT NULL, message TEXT NOT NULL)";
+        const sql = "CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, userId CHAR(35) NOT NULL, time INTEGER NOT NULL, name TEXT NOT NULL, message TEXT NOT NULL)";
         db.run(sql, (err) => {
             db.close();
             if (err) {
@@ -26,7 +26,7 @@ export function insertMessage(msg: Message): Promise<void> {
         const message = msg.message;
 
         // プレースホルダを利用すると，非NULLのエラーを出してくれるので，こちらでは特にチェックをしない
-        const sql = "INSERT INTO messages (userId, time, name, message) VALUES(?, ?, ?, ?)"; 
+        const sql = "INSERT INTO messages (userId, time, name, message) VALUES(?, ?, ?, ?)";
 
         db.run(sql, [userId, time, name, message], (err) => {
             db.close();
@@ -73,7 +73,7 @@ export function getAllMessages(): Promise<Array<Message>> {
 export function deleteMessage(id: number): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database("sqlite3.db");
-        const sql = "DELETE FROM messages where id = ?"; 
+        const sql = "DELETE FROM messages where id = ?";
 
         db.run(sql, [id], (err) => {
             db.close();
