@@ -14,3 +14,11 @@ export function isMessage(arg: any): arg is Message {
         typeof arg.name === "string" &&
         typeof arg.message === "string";
 }
+
+export function isMessageArray(arg: any): arg is Array<Message> {
+    if (!Array.isArray(arg)) { return false; }
+    arg.forEach(m => {
+        if (!isMessage(m)) { return false; }
+    });
+    return true;
+}

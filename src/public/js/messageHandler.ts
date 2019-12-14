@@ -23,11 +23,6 @@ export function isValidMessage(message: Message): boolean {
     return isValid;
 }
 
-function getMessages(url: string): Promise<Array<Message>> {
-    return fetch(url)
-        .then((response) => response.json());
-}
-
 function postMessage(url: string, message: Message): Promise<number> {
     return fetch(url, {
         method: "POST",
@@ -75,29 +70,24 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     $("#message").val("");
 }
 
-export async function showMessages(chatApiEndpoint: string): Promise<void> {
-    try {
-        const messages = await getMessages(chatApiEndpoint);
-        const $messageList = $("#messageList");
-        $messageList.empty();
-        console.log(messages);
-        messages.forEach((message) => {
-            if (message.time !== undefined) { const time = new Date(message.time);
-                const messageTag = `<div class="messagediv" \
-                                         data-messageid=${message.id}> \
-                                       <span style="font-size: 40px;"> \
-                                         <i class="fas fa-user-circle"></i> \
-                                       </span>
-                                       <span class="name">${escapeHTML(message.name)}</span> \
-                                       <span class="time">${time}</span> \
-                                       <pre class="message">${escapeHTML(message.message)}</pre> \
-                                    </div>`;
-                $messageList.prepend(messageTag);
-            }
-        });
-    } catch (err) {
-        console.log(err);
-    }
+export function showMessages(messages: Array<Message>) {
+    const $messageList = $("#messageList");
+    $messageList.empty();
+    messages.forEach((message) => {
+        if (message.time !== undefined) {
+            const time = new Date(message.time);
+            const messageTag = `\
+                <div class="messagediv" data-messageid=${message.id}> \
+                    <span style="font-size: 40px;"> \
+                        <i class="fas fa-user-circle"></i> \
+                    </span>
+                    <span class="name">${escapeHTML(message.name)}</span> \
+                    <span class="time">${time}</span> \
+                    <pre class="message">${escapeHTML(message.message)}</pre> \
+                </div>`;
+            $messageList.prepend(messageTag);
+        }
+    });
 }
 
 
@@ -112,7 +102,6 @@ export async function removeMessage(chatApiEndpoint: string, messageId: number):
         $queryMessage.css("color", "red");
         console.log("DELETE Failed");
     }
-    await showMessages(chatApiEndpoint);
 }
 
 

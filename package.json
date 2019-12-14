@@ -12,12 +12,14 @@
   "devDependencies": {
     "@types/express": "^4.17.2",
     "@types/express-session": "^1.15.16",
+    "@types/express-ws": "^3.0.0",
     "@types/jquery": "^3.3.31",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.6",
     "@types/sqlite3": "^3.1.5",
     "@types/supertest": "^2.0.8",
     "@types/uuid": "^3.4.6",
+    "@types/ws": "^6.0.4",
     "@typescript-eslint/eslint-plugin": "^2.6.1",
     "@typescript-eslint/parser": "^2.6.1",
     "browserify": "^16.5.0",
@@ -37,7 +39,9 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "express-ws": "^4.0.0",
     "sqlite3": "^4.1.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "ws": "^7.2.1"
   }
 }
