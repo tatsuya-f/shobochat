@@ -55,6 +55,4 @@ $(() => {
     $("#message").on("input", () => {
         inputCheck();
     });
-
-    // showMessages(chatApiEndpoint);
 });
