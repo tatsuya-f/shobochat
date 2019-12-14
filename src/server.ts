@@ -18,7 +18,7 @@ export const app = exWs.app;
 async function sendAllMessage() {
     const wss: WebSocket.Server = exWs.getWss(); // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
     const messages = await getAllMessages();
-    wss.clients.forEach(ws => { 
+    wss.clients.forEach(ws => {
         ws.send(JSON.stringify(messages)); // 接続されている各Clientにsendする
     });
 }
@@ -48,9 +48,9 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
 app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
-        if (sess === undefined) { 
+        if (sess === undefined) {
             res.status(500).end();
-            return; 
+            return;
         }
         if (sess.userId === undefined) {
             sess.userId = uuid();
@@ -90,7 +90,7 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
     }
 });
 
-app.ws("/messages", (ws, req) => { 
+app.ws("/messages", (ws, req) => {
     ws.on("message", async (recvJsonData) => { // 接続完了後Client側でsendするとServerのmessage eventが発火
         try {
             if (typeof recvJsonData !== "string") { return; }

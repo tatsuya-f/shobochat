@@ -1,7 +1,7 @@
 :root {
-    --input-area-height: 190px;
-    --input-area-padding: 10px;
-    --input-area-bottom: 10px;
+    --input-area-height: 220px;
+    --input-area-padding: 0px;
+    --input-area-bottom: 20px;
 }
 
 section {
@@ -17,6 +17,9 @@ footer {
     background: transparent;
     padding: var(--input-area-padding);
     height: var(--input-area-height);
+    left: 0;
+    right: 0;
+    margin: auto;
 }
 
 .name {
@@ -42,25 +45,24 @@ footer {
 }
 
 .textarea {
-  resize: none !important;
+    resize: none;
 }
-
-body {
-  margin:10px;
-}
-
 
 #queryMessage {
-  font-size: 20px;
-  display: inline-block;
-  margin-left: 10px;
-  color: red;
+    font-size: 20px;
+    display: inline-block;
+    margin-left: 10px;
+    color: red;
 }
 
 #name {
-  margin-bottom : 5px;
+    margin-bottom: 5px;
 }
 
 #message {
-  margin-bottom : 5px;
+    margin-bottom: 5px;
+}
+
+body {
+    padding: 10px;
 }

@@ -1,4 +1,4 @@
-import { sendMessage, showMessages, removeMessage, inputCheck} from "./messageHandler";
+import { sendMessage, showMessages, removeMessage, checkInput} from "./messageHandler";
 import { isMessageArray } from "./Message";
 
 $(() => {
@@ -23,7 +23,10 @@ $(() => {
         $("#send").addClass("is-loading");
         await sendMessage(chatApiEndpoint);
         $("#send").removeClass("is-loading");
-        // $("body").animate({ scrollTop: $(document).height() }, 100);
+
+        $("html,body").animate({
+            scrollTop: $(document).height()
+        });
     });
 
     let timer: number;
@@ -49,10 +52,10 @@ $(() => {
         $(this).removeClass("message is-dark");
     });
     $("#name").on("input", () => {
-        inputCheck();
+        checkInput();
     });
 
     $("#message").on("input", () => {
-        inputCheck();
+        checkInput();
     });
 });
