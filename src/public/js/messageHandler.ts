@@ -116,7 +116,7 @@ export function escapeHTML(str : string): string {
 }
 
 
-export async function inputCheck(): Promise<void> {
+export async function checkInput(): Promise<void> {
 
     $("#send").prop("disabled", true);
 
