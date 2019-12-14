@@ -1,5 +1,5 @@
 :root {
-    --input-area-height: 250px;
+    --input-area-height: 190px;
     --input-area-padding: 10px;
     --input-area-bottom: 10px;
 }
@@ -55,4 +55,12 @@ body {
   display: inline-block;
   margin-left: 10px;
   color: red;
+}
+
+#name {
+  margin-bottom : 5px;
+}
+
+#message {
+  margin-bottom : 5px;
 }
