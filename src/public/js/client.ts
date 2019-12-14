@@ -56,5 +56,5 @@ $(() => {
         inputCheck();
     });
 
-    showMessages(chatApiEndpoint);
+    // showMessages(chatApiEndpoint);
 });

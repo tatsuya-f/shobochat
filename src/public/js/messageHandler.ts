@@ -78,10 +78,10 @@ export function showMessages(messages: Array<Message>) {
             const time = new Date(message.time);
             const messageTag = `\
                 <div class="messagediv" data-messageid=${message.id}> \
-                    <span class="name">${escapeHTML(message.name)}</span> \
                     <span style="font-size: 40px;"> \
                         <i class="fas fa-user-circle"></i> \
                     </span>
+                    <span class="name">${escapeHTML(message.name)}</span> \
                     <span class="time">${time}</span> \
                     <pre class="message">${escapeHTML(message.message)}</pre> \
                 </div>`;
