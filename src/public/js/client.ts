@@ -1,18 +1,27 @@
 import { sendMessage, showMessages, removeMessage, inputCheck} from "./messageHandler";
+import { isMessageArray } from "./Message";
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
+    const websocketEndPoint = "ws://localhost:8000/messages";
+    let ws = new WebSocket(websocketEndPoint);
+
+    ws.addEventListener("open", () => { // 接続完了後発火
+        ws.send(JSON.stringify({ operation: "sessionStart" }));
+    });
+    ws.addEventListener("message", (ev) => { // サーバーがsendすると発火
+        const messages = JSON.parse(ev.data);
+        if (isMessageArray(messages)) {
+            showMessages(messages);
+        }
+    });
 
     $("#update").on("click", () => {
-        $("#update").addClass("is-loading");
-        showMessages(chatApiEndpoint);
-        $("#update").removeClass("is-loading");
     });
 
     $("#send").on("click", async () => {
         $("#send").addClass("is-loading");
         await sendMessage(chatApiEndpoint);
-        setTimeout(() => showMessages(chatApiEndpoint), 50);
         $("#send").removeClass("is-loading");
         // $("body").animate({ scrollTop: $(document).height() }, 100);
     });
@@ -39,8 +48,6 @@ $(() => {
     }).on("mouseout", ".messagediv", function() {
         $(this).removeClass("message is-dark");
     });
-
-    
     $("#name").on("input", () => {
         inputCheck();
     });
@@ -49,6 +56,5 @@ $(() => {
         inputCheck();
     });
 
-    
     showMessages(chatApiEndpoint);
 });

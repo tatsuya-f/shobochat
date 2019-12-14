@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as session from "express-session";
+import * as expressWs from "express-ws";
 import {
     initializeDB,
     getMessage,
@@ -8,9 +9,19 @@ import {
     deleteMessage
 } from "./dbHandler";
 import * as uuid from "uuid";
-import { Application, Request, Response, NextFunction } from "express";
+import * as WebSocket from "ws";
+import { Request, Response, NextFunction } from "express";
 
-export const app: Application = express();
+const exWs = expressWs(express());
+export const app = exWs.app;
+
+async function sendAllMessage() {
+    const wss: WebSocket.Server = exWs.getWss(); // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
+    const messages = await getAllMessages();
+    wss.clients.forEach(ws => { 
+        ws.send(JSON.stringify(messages)); // 接続されている各Clientにsendする
+    });
+}
 
 app.set("port", 8000);
 app.use(express.static("public"));
@@ -37,11 +48,11 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
 app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
-        if (sess === undefined) {
+        if (sess === undefined) { 
             res.status(500).end();
-            return;
+            return; 
         }
-        else if (sess.userId === undefined) {
+        if (sess.userId === undefined) {
             sess.userId = uuid();
         }
         const insertableMessage = {
@@ -50,6 +61,7 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
             message: req.body.message
         };
         await insertMessage(insertableMessage);
+        sendAllMessage();
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -67,6 +79,7 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
         const message = await getMessage(messageId);
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
+            sendAllMessage();
             res.status(200).end();
         }
         else { // reject
@@ -75,6 +88,28 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
+});
+
+app.ws("/messages", (ws, req) => { 
+    ws.on("message", async (recvJsonData) => { // 接続完了後Client側でsendするとServerのmessage eventが発火
+        try {
+            if (typeof recvJsonData !== "string") { return; }
+            const recvData = JSON.parse(recvJsonData);
+            const operation = recvData["operation"];
+            if (operation === "sessionStart") {
+                const sess = req.session;
+                if (sess === undefined) { return; }
+                if (sess.userId === undefined) {
+                    sess.userId = uuid();
+                }
+                sendAllMessage();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    ws.on("close", () => {
+    });
 });
 
 (async function startServer() {
