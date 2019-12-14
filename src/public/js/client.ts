@@ -1,4 +1,4 @@
-import { sendMessage, showMessages, removeMessage } from "./messageHandler";
+import { sendMessage, showMessages, removeMessage, inputCheck} from "./messageHandler";
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
@@ -33,12 +33,22 @@ $(() => {
         clearTimeout(timer);
     });
 
-    $(document).on("mouseover", ".messagediv", function() {
+    $(document).on("mouseover", ".messagediv", function()  {
         $(this).addClass("message is-dark");
 
     }).on("mouseout", ".messagediv", function() {
         $(this).removeClass("message is-dark");
     });
 
+    
+    $("#name").on("input", () => {
+        inputCheck();
+    });
+
+    $("#message").on("input", () => {
+        inputCheck();
+    });
+
+    
     showMessages(chatApiEndpoint);
 });
