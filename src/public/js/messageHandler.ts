@@ -4,7 +4,7 @@ export function hasChar(input: string): boolean {
     return input.trim() !== "";
 }
 
-function isValidMessage(message: Message): boolean {
+export function isValidMessage(message: Message): boolean {
     let isValid = true;
     if (!hasChar(message.name)) {
         isValid = false;
@@ -67,6 +67,7 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
                 $queryMessage.css("color", "red");
                 console.log("POST Failed");
             }
+            $("#send").prop("disabled", true);
         } catch (err) {
             console.log(err);
         }
@@ -81,8 +82,7 @@ export async function showMessages(chatApiEndpoint: string): Promise<void> {
         $messageList.empty();
         console.log(messages);
         messages.forEach((message) => {
-            if (message.time !== undefined) {
-                const time = new Date(message.time);
+            if (message.time !== undefined) { const time = new Date(message.time);
                 const messageTag = `<div class="messagediv" \
                                          data-messageid=${message.id}> \
                                        <span style="font-size: 40px;"> \
@@ -124,4 +124,20 @@ export function escapeHTML(str : string): string {
     str = str.replace(/'/g, "&#x27;");
     str = str.replace(/`/g, "&#x60;");
     return str;
+}
+
+
+export async function inputCheck(): Promise<void> {
+
+    $("#send").prop("disabled", true);
+
+    const message = {
+        name: $("#name").val(),
+        message: $("#message").val()
+    };
+
+    if (isMessage(message) && isValidMessage(message)) {
+        $("#send").prop("disabled", false);
+    }
+
 }
