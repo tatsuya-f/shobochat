@@ -4,12 +4,16 @@ $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
 
     $("#update").on("click", () => {
+        $("#update").addClass("is-loading");
         showMessages(chatApiEndpoint);
+        $("#update").removeClass("is-loading");
     });
 
     $("#send").on("click", async () => {
+        $("#send").addClass("is-loading");
         await sendMessage(chatApiEndpoint);
         setTimeout(() => showMessages(chatApiEndpoint), 50);
+        $("#send").removeClass("is-loading");
         // $("body").animate({ scrollTop: $(document).height() }, 100);
     });
 
