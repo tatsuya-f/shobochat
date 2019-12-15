@@ -30,26 +30,25 @@ $(() => {
     });
 
     let timer: number;
-    $(document).on("mousedown", ".messagediv", function() {
+    $(document).on("mousedown", ".shobo-message-div", function() {
         timer = window.setTimeout(async () => {
             if (window.confirm("削除しますか?")) {
-                let messageId = $(this).data("messageid");
+                let messageId = $(this).data("message-id");
+                console.log(messageId);
                 if (typeof messageId === "number") {
-                    await removeMessage(chatApiEndpoint, $(this).data("messageid"));
+                    await removeMessage(chatApiEndpoint, messageId);
                 }
-                console.log($(this).data("messageid"));
-                console.log($(this).data("userid"));
             }
         }, 1000);
     }).on("mouseup mouseleave", () => {
         clearTimeout(timer);
     });
 
-    $(document).on("mouseover", ".messagediv", function()  {
-        $(this).addClass("message is-dark");
+    $(document).on("mouseover", ".shobo-message-div", function()  {
+        $(this).addClass("has-background-grey-light");
 
-    }).on("mouseout", ".messagediv", function() {
-        $(this).removeClass("message is-dark");
+    }).on("mouseout", ".shobo-message-div", function() {
+        $(this).removeClass("has-background-grey-light");
     });
     $("#name").on("input", () => {
         checkInput();
