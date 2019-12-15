@@ -1,7 +1,7 @@
 import { Message, isMessage } from "./Message";
 import { Marked } from "marked-ts";
 import { highlight } from "highlight.js";
-// import * as sanitizeHtml from "sanitize-html";
+import * as sanitizeHtml from "sanitize-html";
 
 (() => {  // setup for highlight.js
     Marked.setOptions({
@@ -94,20 +94,19 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
 }
 
 function parseMarkdown(md: string): string {
-    return Marked.parse(md);
-    // return sanitizeHtml(Marked.parse(md), {
-    //     allowedTags: [
-    //         "h1", "h2", "h3", "h4", "h5",
-    //         "b", "i", "strong", "em", "strike", "del", "blockquote",
-    //         "pre", "p", "div", "code", "span",
-    //         "tr", "th", "td", "ol", "li", "ul", "table", "thead", "tbody",
-    //         "br",
-    //         "a"],
-    //     allowedAttributes: {
-    //         "a": ["href"],
-    //         "span": ["style"],
-    //     },
-    // });
+    return sanitizeHtml(Marked.parse(md), {
+        allowedTags: [
+            "h1", "h2", "h3", "h4", "h5",
+            "b", "i", "strong", "em", "strike", "del", "blockquote",
+            "pre", "p", "div", "code", "span",
+            "tr", "th", "td", "ol", "li", "ul", "table", "thead", "tbody",
+            "br",
+            "a"],
+        allowedAttributes: {
+            "a": ["href"],
+            "span": ["style"],
+        },
+    });
 }
 
 export function showMessages(messages: Array<Message>) {
