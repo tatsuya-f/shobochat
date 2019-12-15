@@ -93,7 +93,8 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     $("#message").val("");
 }
 
-function parseMarkdown(md: string): string {
+export function parseMarkdown(md: string): string {
+    // return Marked.parse(md);
     return sanitizeHtml(Marked.parse(md), {
         allowedTags: [
             "h1", "h2", "h3", "h4", "h5",
@@ -104,7 +105,8 @@ function parseMarkdown(md: string): string {
             "a"],
         allowedAttributes: {
             "a": ["href"],
-            "span": ["style"],
+            "span": ["style", "class"],
+            "code": ["class"],
         },
     });
 }

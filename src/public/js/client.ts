@@ -1,4 +1,10 @@
-import { sendMessage, showMessages, removeMessage, checkInput} from "./messageHandler";
+import {
+    sendMessage,
+    showMessages,
+    removeMessage,
+    checkInput,
+    parseMarkdown
+} from "./messageHandler";
 import { isMessageArray } from "./Message";
 
 $(() => {
@@ -14,6 +20,32 @@ $(() => {
         if (isMessageArray(messages)) {
             showMessages(messages);
         }
+    });
+
+    $(".navbar-burger").on("click", () => {
+        $(".navbar-burger").toggleClass("is-active");
+        $(".navbar-menu").toggleClass("is-active");
+    });
+    $("#help-open").on("click", () => {
+        $("#help-popup").addClass("is-active");
+
+        $(".navbar-burger").toggleClass("is-active");
+        $(".navbar-menu").toggleClass("is-active");
+    });
+    $("#help-close").on("click", () => {
+        $("#help-popup").removeClass("is-active");
+    });
+
+    $("#markdown-preview-open").on("click", () => {
+        const message = $("#message").val();
+        console.log(message);
+        if (typeof message === "string") {
+            $("#markdown-preview-body").html(parseMarkdown(message));
+            $("#markdown-preview").addClass("is-active");
+        }
+    });
+    $("#markdown-preview-close").on("click", () => {
+        $("#markdown-preview").removeClass("is-active");
     });
 
     $("#update").on("click", () => {
@@ -34,7 +66,6 @@ $(() => {
         timer = window.setTimeout(async () => {
             if (window.confirm("削除しますか?")) {
                 let messageId = $(this).data("message-id");
-                console.log(messageId);
                 if (typeof messageId === "number") {
                     await removeMessage(chatApiEndpoint, messageId);
                 }

@@ -1,16 +1,18 @@
 :root {
+    --navbar-height: 50px;
     --input-area-height: 220px;
     --input-area-padding: 0px;
     --input-area-bottom: 20px;
 }
 
-section {
+nav.shobo-nav {
     position: fixed;
-    top: 0px;
-    align-content: center;
+    top: 0;
+    width: 100%;
+    height: var(--navbar-height);
 }
 
-footer {
+#main-footer {
     position: fixed;
     bottom: var(--input-area-bottom);
     width: 90%;
@@ -39,6 +41,7 @@ footer {
 }
 
 .shobo-main {
+    margin-top: var(--navbar-height);
     margin-bottom: calc(var(--input-area-height) +
                         var(--input-area-bottom) +
                         var(--input-area-padding));
@@ -53,6 +56,12 @@ footer {
     display: inline-block;
     margin-left: 10px;
     color: red;
+}
+
+#shobo-title {
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 #name {

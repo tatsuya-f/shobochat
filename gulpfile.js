@@ -1,8 +1,11 @@
 const { src, dest, series } = require("gulp");
 const del = require("del");
 const browserify = require("browserify");
+const notify = require("gulp-notify");
 const eslint = require("gulp-eslint");
 const mocha = require("gulp-mocha");
+const pug = require("gulp-pug");
+const plumber = require("gulp-plumber");
 const source = require ("vinyl-source-stream");
 const tsify = require("tsify");
 
@@ -15,6 +18,17 @@ function lint() {
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
+}
+
+function compilePug() {
+    return src("src/public/pug/*.pug")
+        .pipe(plumber({
+                errorHandler: notify.onError("Error: <%= error.message %>")
+        }))
+        .pipe(pug({
+            pretty: true,
+        }))
+        .pipe(dest("dist/public"));
 }
 
 function client() {
@@ -45,8 +59,8 @@ function copy() {
         .pipe(dest("dist/public"));
 }
 
-exports.default = series(clean, lint, test, client, server, copy);
+exports.default = series(clean, lint, test, client, server, compilePug, copy);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
-exports.build = series(client, server, copy);
+exports.build = series(client, server, compilePug, copy);
