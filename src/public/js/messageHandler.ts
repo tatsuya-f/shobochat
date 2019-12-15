@@ -1,4 +1,27 @@
 import { Message, isMessage } from "./Message";
+import { Marked } from "marked-ts";
+import { highlight } from "highlight.js";
+// import * as sanitizeHtml from "sanitize-html";
+
+(() => {  // setup for highlight.js
+    Marked.setOptions({
+        highlight: (code, lang) => {
+            if (typeof lang === "string") {
+                try {
+                    return highlight(lang, code).value;
+                }
+                catch (err) {
+                    console.log(err);
+                    return code;
+                }
+            }
+            else {
+                return code;
+            }
+        },
+        breaks: true
+    });
+})();
 
 export function hasChar(input: string): boolean {
     return input.trim() !== "";
@@ -70,6 +93,23 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     $("#message").val("");
 }
 
+function parseMarkdown(md: string): string {
+    return Marked.parse(md);
+    // return sanitizeHtml(Marked.parse(md), {
+    //     allowedTags: [
+    //         "h1", "h2", "h3", "h4", "h5",
+    //         "b", "i", "strong", "em", "strike", "del", "blockquote",
+    //         "pre", "p", "div", "code", "span",
+    //         "tr", "th", "td", "ol", "li", "ul", "table", "thead", "tbody",
+    //         "br",
+    //         "a"],
+    //     allowedAttributes: {
+    //         "a": ["href"],
+    //         "span": ["style"],
+    //     },
+    // });
+}
+
 export function showMessages(messages: Array<Message>) {
     const $messageList = $("#messageList");
     $messageList.empty();
@@ -77,13 +117,19 @@ export function showMessages(messages: Array<Message>) {
         if (message.time !== undefined) {
             const time = new Date(message.time);
             const messageTag = `\
-                <div class="messagediv" data-messageid=${message.id}> \
+                <div class="shobo-message-div" data-message-id=${message.id}> \
                     <span style="font-size: 40px;"> \
                         <i class="fas fa-user-circle"></i> \
                     </span>
-                    <span class="name">${escapeHTML(message.name)}</span> \
-                    <span class="time">${time}</span> \
-                    <pre class="message">${escapeHTML(message.message)}</pre> \
+                    <span class="shobo-name"> \
+                        ${escapeHTML(message.name)} \
+                    </span> \
+                    <span class="shobo-time"> \
+                        ${time} \
+                    </span> \
+                    <div class="content shobo-message"> \
+                        ${parseMarkdown(message.message)} \
+                    </div> \
                 </div>`;
             $messageList.prepend(messageTag);
         }
@@ -104,7 +150,6 @@ export async function removeMessage(chatApiEndpoint: string, messageId: number):
     }
 }
 
-
 export function escapeHTML(str : string): string {
     str = str.replace(/&/g, "&amp;");
     str = str.replace(/</g, "&lt;");
@@ -114,7 +159,6 @@ export function escapeHTML(str : string): string {
     str = str.replace(/`/g, "&#x60;");
     return str;
 }
-
 
 export async function checkInput(): Promise<void> {
 
