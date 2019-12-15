@@ -47,6 +47,27 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
 
 app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const contentType = req.header("Content-Type");
+
+        /*
+         * post はMIME Type を偽装してシンプルなリクエストに
+         * する可能性があるので，以下の対策をする
+         * その場合，Access-Control-Allow-Headers を
+         * 緩和してはいけない
+         *
+         * delete はシンプルなリクエストになりえないので
+         * Access-Control-Allow-Methods を
+         * 緩和しない限りは特にチェックは必要ない
+         *
+         * 時間があったら，token を生成する方法にする
+         */
+        // MIME Type を偽装してシンプルなリクエストにしてきた場合の対処
+        if (contentType !== "application/json") { 
+            console.log("** CSRF detected **");
+            res.status(500).end();
+            return;
+        }
+
         const sess = req.session;
         if (sess === undefined) {
             res.status(500).end();
