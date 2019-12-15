@@ -61,7 +61,7 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
             message: req.body.message
         };
         await insertMessage(insertableMessage);
-        sendAllMessage();
+        await sendAllMessage();
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -79,7 +79,7 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
         const message = await getMessage(messageId);
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
-            sendAllMessage();
+            await sendAllMessage();
             res.status(200).end();
         }
         else { // reject
@@ -102,7 +102,7 @@ app.ws("/messages", (ws, req) => {
                 if (sess.userId === undefined) {
                     sess.userId = uuid();
                 }
-                sendAllMessage();
+                await sendAllMessage();
             }
         } catch (err) {
             console.log(err);
