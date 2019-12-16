@@ -30,23 +30,21 @@ html
     body
         include _navigation.pug
 
-        include _help.pug
-        include _markdown_preview.pug
-        // include _popup_window.pug
-        //
-        // +popup_window({
-        //     id: "help-popup",
-        //     popup_close: "help-close",
-        //     kind: "help",
-        //     title: "Help"
-        // })
-        //
-        // +popup_window({
-        //     id: "markdown-preview",
-        //     popup_close: "markdown-preview-close",
-        //     content_id: "markdown-preview-body",
-        //     title: "Markdown Preview"
-        // })
+        include _popup_window.pug
+
+        +popup_window({
+            id: "help-popup",
+            popup_close: "help-close",
+            kind: "help",
+            title: "Help"
+        })
+
+        +popup_window({
+            id: "markdown-preview",
+            popup_close: "markdown-preview-close",
+            content_id: "markdown-preview-body",
+            title: "Markdown Preview"
+        })
 
         div.shobo-main#messageList
 
