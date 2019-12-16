@@ -4,7 +4,6 @@ div.modal#help-popup
         header.modal-card-head
             p.modal-card-title Help
             button.delete#help-close(aria-label="close")
-        section.modal-card-body
-            p メッセージ削除方法
-            p メッセージを左クリックで長押しをすると、削除ができます
+        section.modal-card-body.content
+            include:markdown-it markdown/help.md
         footer.modal-card-foot

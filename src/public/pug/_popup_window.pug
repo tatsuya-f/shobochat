@@ -1,0 +1,15 @@
+
+mixin popup_window(arg)
+    div.modal(id=arg.id)
+        div.modal-card
+            header.modal-card-head
+                p.modal-card-title #{arg.title}
+                button.delete(id=arg.popup_close aria-label="close")
+            if arg.content_id
+                section.modal-card-body.content(id=arg.content_id)
+            else
+                section.modal-card-body.content
+                    case arg.kind
+                        when "help"
+                            include:markdown-it markdown/help.md
+            footer.modal-card-foot
