@@ -34,6 +34,24 @@ function compilePug() {
         .pipe(dest("dist/public"));
 }
 
+function clientLogin() {
+    return browserify()
+        .add("src/public/js/clientLogin.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
+        .bundle()
+        .pipe(source("client_bundle.js"))
+        .pipe(dest("dist/public/js"));
+}
+
+function clientRegister() {
+    return browserify()
+        .add("src/public/js/clientRegister.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
+        .bundle()
+        .pipe(source("client_bundle.js"))
+        .pipe(dest("dist/public/js"));
+}
+
 function client() {
     return browserify()
         .add("src/public/js/client.ts")
@@ -62,8 +80,8 @@ function copy() {
         .pipe(dest("dist/public"));
 }
 
-exports.default = series(clean, lint, test, client, server, compilePug, copy);
+exports.default = series(clean, lint, test, client, clientLogin, clientRegister, server, compilePug, copy);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
-exports.build = series(client, server, compilePug, copy);
+exports.build = series(client, clientLogin, clientRegister, server, compilePug, copy);
