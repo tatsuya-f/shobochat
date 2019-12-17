@@ -21,7 +21,10 @@ function lint() {
 }
 
 function compilePug() {
-    return src("src/public/pug/index.pug")
+    return src([
+            "src/public/pug/*.pug",
+            "!src/public/pug/_*.pug",
+        ])
         .pipe(plumber({
                 errorHandler: notify.onError("Error: <%= error.message %>")
         }))

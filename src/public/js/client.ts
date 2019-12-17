@@ -7,6 +7,23 @@ import {
 } from "./messageHandler";
 import { isMessageArray } from "./Message";
 
+function insertTextarea(before: string, after: string) {
+    const $textarea = $("#message");
+    const text = $textarea.val();
+    if (typeof text !== "string") { return; }
+    const startpos = $textarea.prop("selectionStart");
+    const endpos = $textarea.prop("selectionEnd");
+    const beforeCursor = text.substr(0, startpos) + before;
+    const selected = text.substr(startpos, endpos);
+    const afterCursor = after + text.substr(endpos, text.length);
+    $textarea.val(beforeCursor + selected + afterCursor);
+    $textarea.focus();
+    $textarea.prop({
+        "selectionStart": beforeCursor.length,
+        "selectionEnd": beforeCursor.length
+    });
+}
+
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
     const websocketEndPoint = "ws://localhost:8000/messages";
@@ -32,13 +49,15 @@ $(() => {
         $(".navbar-burger").toggleClass("is-active");
         $(".navbar-menu").toggleClass("is-active");
     });
+    $("help-popup").on("focusout", () => {
+        $("#help-popup").removeClass("is-active");
+    });
     $("#help-close").on("click", () => {
         $("#help-popup").removeClass("is-active");
     });
 
     $("#markdown-preview-open").on("click", () => {
         const message = $("#message").val();
-        console.log(message);
         if (typeof message === "string") {
             $("#markdown-preview-body").html(parseMarkdown(message));
             $("#markdown-preview").addClass("is-active");
@@ -47,8 +66,24 @@ $(() => {
     $("#markdown-preview-close").on("click", () => {
         $("#markdown-preview").removeClass("is-active");
     });
+    $("#markdown-preview").on("focusout", () => {
+        $("#markdown-preview").removeClass("is-active");
+    });
 
     $("#update").on("click", () => {
+    });
+
+    $("#bold-btn").on("click", () => {
+        insertTextarea("**", "**");
+    });
+    $("#italic-btn").on("click", () => {
+        insertTextarea("*", "*");
+    });
+    $("#strike-btn").on("click", () => {
+        insertTextarea("~~", "~~");
+    });
+    $("#code-btn").on("click", () => {
+        insertTextarea("```", "\n```");
     });
 
     $("#send").on("click", async () => {

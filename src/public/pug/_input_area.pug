@@ -1,0 +1,46 @@
+
+footer#main-footer
+    div.box#fixed
+        input.input.is-rounded#name(
+            type="text"
+            placeholder="名前"
+            )
+        div.field.has-addons
+            p.control
+                button.button#bold-btn
+                    span.icon.is-small
+                        i.fas.fa-bold
+                    span Bold
+            p.control
+                button.button#italic-btn
+                    span.icon.is-small
+                        i.fas.fa-italic
+                    span Italic
+            p.control
+                button.button#strike-btn
+                    span.icon.is-small
+                        i.fas.fa-strikethrough
+                    span Strike
+            p.control
+                button.button#code-btn
+                    span.icon.is-small
+                        i.fas.fa-code
+                    span Code
+        textarea.shobo-textarea.textarea#message(
+            cols="60"
+            rows="2"
+            placeholder="いまなにしてる？"
+            )
+        button.button.is-primary.is-rounded#send(disabled)
+            span.icon.is-small
+                i.fas.fa-paper-plane
+            span 送信
+        button.button.is-primary.is-rounded#update
+            span.icon.is-small
+                i.fas.fa-sync
+            span 更新
+        button.button.is-primary.is-rounded#markdown-preview-open
+            span.icon.is-small
+                i.fab.fa-markdown
+            span プレビュー
+        div#queryMessage

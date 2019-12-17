@@ -94,7 +94,6 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
 }
 
 export function parseMarkdown(md: string): string {
-    // return Marked.parse(md);
     return sanitizeHtml(Marked.parse(md), {
         allowedTags: [
             "h1", "h2", "h3", "h4", "h5",
