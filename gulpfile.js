@@ -39,7 +39,7 @@ function clientLogin() {
         .add("src/public/js/clientLogin.ts")
         .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
         .bundle()
-        .pipe(source("client_bundle.js"))
+        .pipe(source("client_login.js"))
         .pipe(dest("dist/public/js"));
 }
 
@@ -48,7 +48,7 @@ function clientRegister() {
         .add("src/public/js/clientRegister.ts")
         .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
         .bundle()
-        .pipe(source("client_bundle.js"))
+        .pipe(source("client_register.js"))
         .pipe(dest("dist/public/js"));
 }
 
