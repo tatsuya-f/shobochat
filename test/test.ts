@@ -4,6 +4,7 @@ import * as assert from "assert";
 import * as fs from "fs";
 import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages } from "../src/dbHandler";
+import * as db from "../src/database";
 
 async function postTestMessage(times: number): Promise<void> {
     for (let i = 0; i < times; i++) {
@@ -63,10 +64,10 @@ describe("GET /messages", () => {
             .expect("Content-Type", /application\/json/)
             .expect(200);
 
-        assert.equal(Array.isArray(response.body), true);
+        assert.strictEqual(Array.isArray(response.body), true);
         const messages = response.body as Array<any>;
         messages.forEach((m => {
-            assert.equal(isMessage(m), true);
+            assert.strictEqual(isMessage(m), true);
         }));
     });
 });
@@ -118,7 +119,47 @@ describe("test regarding session", () => {
             .set("Cookie", cookie)
             .expect(200);
         const message = await getMessage(testId);
-        assert.equal(message === undefined, true);
+        assert.strictEqual(message, undefined);
+    });
+});
+
+describe("test for register, login", () => {
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    before(async () => {
+        try {
+            await initializeDB();
+            await db.initializeDB();
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    after(() => {
+        deleteDB();
+    });
+    it(`register/login user with name = ${name}, password = ${password}`, async () => {
+        {
+            const response = await agent
+                .post("/register")
+                .send({ name: name, password: password })
+                .expect(302)
+                .expect("Location", "/chat");
+            try {
+                const user = await db.getUserByName(name);
+                assert.strictEqual(user.name, name);
+                assert.strictEqual(user.password, password);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        {
+            const response = await agent
+                .get("/login")
+                .send({ name: name, password: password })
+                .expect(302)
+                .expect("Location", "/chat");
+        }
     });
 });
 
