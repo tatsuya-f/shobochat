@@ -12,7 +12,6 @@ import * as db from "./database";
 import * as uuid from "uuid";
 import * as WebSocket from "ws";
 import { Request, Response, NextFunction } from "express";
-import * as path from "path";
 // import * as chat from "./route/chat";
 // import * as login from "./route/login";
 // import * as register from "./route/register";
@@ -142,21 +141,21 @@ app.ws("/messages", (ws, req) => {
     });
 });
 
-app.get("/chat", (req, res) => {
-    res.sendFile("chat.html", {
-        root: path.join(__dirname, "public")
-    }, (err) => {
-        console.log(err);
-    });
-});
-
-app.get("/login.html", (req, res) => {
-    res.sendFile("login.html", {
-        root: path.join(__dirname, "public")
-    }, (err) => {
-        console.log(err);
-    });
-});
+// app.get("/chat", (req, res) => {
+//     res.sendFile("chat.html", {
+//         root: "public"
+//     }, (err) => {
+//         console.log(err);
+//     });
+// });
+//
+// app.get("/login.html", (req, res) => {
+//     res.sendFile("login.html", {
+//         root: "public"
+//     }, (err) => {
+//         console.log(err);
+//     });
+// });
 
 app.get("/login", async (req, res) => {
     const name = req.body.name;
@@ -179,13 +178,13 @@ app.get("/login", async (req, res) => {
     }
 });
 
-app.get("/register.html", (req, res) => {
-    res.sendFile("register.html", {
-        root: path.join(__dirname, "public")
-    }, (err) => {
-        console.log(err);
-    });
-});
+// app.get("/register.html", (req, res) => {
+//     res.sendFile("register.html", {
+//         root: "public"
+//     }, (err) => {
+//         console.log(err);
+//     });
+// });
 
 app.post("/register", async (req, res) => {
     const name = req.body.name;
