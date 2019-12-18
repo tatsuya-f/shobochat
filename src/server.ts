@@ -43,7 +43,7 @@ app.use(session({
     }
 }));
 
-app.get("/chat", async (req: Request, res: Response, next: NextFunction) => {
+app.get("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const messages = await getAllMessages();
         res.json(messages);
@@ -52,7 +52,7 @@ app.get("/chat", async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.post("/chat", async (req: Request, res: Response, next: NextFunction) => {
+app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const contentType = req.header("Content-Type");
 
@@ -96,7 +96,7 @@ app.post("/chat", async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.delete("/chat/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.delete("/messages/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -118,7 +118,7 @@ app.delete("/chat/:id", async (req: Request, res: Response, next: NextFunction):
     }
 });
 
-app.ws("/chat", (ws, req) => {
+app.ws("/messages", (ws, req) => {
     // 接続完了後Client側でsendするとServerのmessage eventが発火
     ws.on("message", async (recvJsonData) => {
         try {
@@ -141,6 +141,14 @@ app.ws("/chat", (ws, req) => {
     });
 });
 
+app.get("/chat", (req, res) => {
+    res.sendfile("public/chat.html");
+});
+
+app.get("/login.html", (req, res) => {
+    res.sendfile("public/login.html");
+});
+
 app.get("/login", async (req, res) => {
     const name = req.body.name;
     const password = req.body.password;
@@ -160,6 +168,10 @@ app.get("/login", async (req, res) => {
         console.log(err);
         res.status(500).end();
     }
+});
+
+app.get("/register.html", (req, res) => {
+    res.sendfile("public/register.html");
 });
 
 app.post("/register", async (req, res) => {
