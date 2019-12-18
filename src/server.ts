@@ -6,20 +6,27 @@ import {
     getMessage,
     getAllMessages,
     insertMessage,
-    deleteMessage
+    deleteMessage,
 } from "./dbHandler";
+import * as db from "./database";
 import * as uuid from "uuid";
 import * as WebSocket from "ws";
 import { Request, Response, NextFunction } from "express";
+// import * as chat from "./route/chat";
+// import * as login from "./route/login";
+// import * as register from "./route/register";
 
 const exWs = expressWs(express());
 export const app = exWs.app;
 
 async function sendAllMessage() {
-    const wss: WebSocket.Server = exWs.getWss(); // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
+    // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
+    const wss: WebSocket.Server = exWs.getWss();
     const messages = await getAllMessages();
+
+    // 接続されている各Clientにsendする
     wss.clients.forEach(ws => {
-        ws.send(JSON.stringify(messages)); // 接続されている各Clientにsendする
+        ws.send(JSON.stringify(messages));
     });
 }
 
@@ -36,7 +43,7 @@ app.use(session({
     }
 }));
 
-app.get("/messages", async (req: Request, res: Response, next: NextFunction) => {
+app.get("/chat", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const messages = await getAllMessages();
         res.json(messages);
@@ -45,7 +52,7 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
+app.post("/chat", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const contentType = req.header("Content-Type");
 
@@ -62,7 +69,7 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
          * 時間があったら，token を生成する方法にする
          */
         // MIME Type を偽装してシンプルなリクエストにしてきた場合の対処
-        if (contentType !== "application/json") { 
+        if (contentType !== "application/json") {
             console.log("** CSRF detected **");
             res.status(500).end();
             return;
@@ -89,7 +96,7 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
-app.delete("/messages/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.delete("/chat/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -111,8 +118,9 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
     }
 });
 
-app.ws("/messages", (ws, req) => {
-    ws.on("message", async (recvJsonData) => { // 接続完了後Client側でsendするとServerのmessage eventが発火
+app.ws("/chat", (ws, req) => {
+    // 接続完了後Client側でsendするとServerのmessage eventが発火
+    ws.on("message", async (recvJsonData) => {
         try {
             if (typeof recvJsonData !== "string") { return; }
             const recvData = JSON.parse(recvJsonData);
@@ -131,6 +139,51 @@ app.ws("/messages", (ws, req) => {
     });
     ws.on("close", () => {
     });
+});
+
+app.get("/login", async (req, res) => {
+    const name = req.body.name;
+    const password = req.body.password;
+    try {
+        const user = await db.getUserByName(name);
+        if (user.password === password) {
+            const sess = req.session;
+            if (sess === undefined) {
+                res.status(500).end();
+            } else {
+                sess.userId = user.id;
+                sess.name = user.name;
+                res.redirect("/chat");
+            }
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).end();
+    }
+});
+
+app.post("/register", async (req, res) => {
+    const name = req.body.name;
+    const password = req.body.password;
+    if (await db.hasUserName(name)) { // reject
+        res.status(500).end();
+    } else {  // accept; register
+        try {
+            await db.insertUser({
+                name: name,
+                password: password
+            });
+            const sess = req.session;
+            if (sess === undefined) { return; }
+            sess.userId = uuid();
+            sess.name = name;
+            res.redirect("/chat");
+        } catch (err) {
+            console.log(err);
+            res.status(500).end();
+        }
+    }
+
 });
 
 (async function startServer() {

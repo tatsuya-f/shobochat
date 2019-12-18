@@ -4,11 +4,12 @@ import * as assert from "assert";
 import * as fs from "fs";
 import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages } from "../src/dbHandler";
+import * as db from "../src/database";
 
 async function postTestMessage(times: number): Promise<void> {
     for (let i = 0; i < times; i++) {
         await request(app)
-            .post("/messages")
+            .post("/chat")
             .send({ name: "test_name", message: "test_message" });
     }
 }
@@ -42,7 +43,7 @@ describe("GET /", () => {
     });
 });
 
-describe("GET /messages", () => {
+describe("GET /chat", () => {
     before(async () => {
         try {
             await initializeDB();
@@ -58,20 +59,20 @@ describe("GET /messages", () => {
 
     it("return messages in response.body", async () => {
         const response = await request(app)
-            .get("/messages")
+            .get("/chat")
             .set("Accept", "application/json")
             .expect("Content-Type", /application\/json/)
             .expect(200);
 
-        assert.equal(Array.isArray(response.body), true);
+        assert.strictEqual(Array.isArray(response.body), true);
         const messages = response.body as Array<any>;
         messages.forEach((m => {
-            assert.equal(isMessage(m), true);
+            assert.strictEqual(isMessage(m), true);
         }));
     });
 });
 
-describe("POST /messages", () => {
+describe("POST /chat", () => {
     before(async () => {
         try {
             await initializeDB();
@@ -86,7 +87,7 @@ describe("POST /messages", () => {
 
     it("returns 200 when parameters are valid", async () => {
         await request(app)
-            .post("/messages")
+            .post("/chat")
             .send({ name: "test_name", message: "test_message" })
             .expect(200);
     });
@@ -103,7 +104,7 @@ describe("test regarding session", () => {
             console.log(err);
         }
         const response = await agent
-            .post("/messages")
+            .post("/chat")
             .send({ name: "test_name", message: "test_message" })
             .expect(200);
         cookie = response.header["set-cookie"];
@@ -114,11 +115,51 @@ describe("test regarding session", () => {
 
     it("delete message with id = " + testId, async () => {
         const response = await agent
-            .delete("/messages/" + testId)
+            .delete("/chat/" + testId)
             .set("Cookie", cookie)
             .expect(200);
         const message = await getMessage(testId);
-        assert.equal(message === undefined, true);
+        assert.strictEqual(message, undefined);
+    });
+});
+
+describe("test for register, login", () => {
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    before(async () => {
+        try {
+            await initializeDB();
+            await db.initializeDB();
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    after(() => {
+        deleteDB();
+    });
+    it(`register/login user with name = ${name}, password = ${password}`, async () => {
+        {
+            const response = await agent
+                .post("/register")
+                .send({ name: name, password: password })
+                .expect(302)
+                .expect("Location", "/chat");
+            try {
+                const user = await db.getUserByName(name);
+                assert.strictEqual(user.name, name);
+                assert.strictEqual(user.password, password);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        {
+            const response = await agent
+                .get("/login")
+                .send({ name: name, password: password })
+                .expect(302)
+                .expect("Location", "/chat");
+        }
     });
 });
 
