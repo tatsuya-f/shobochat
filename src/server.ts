@@ -12,6 +12,7 @@ import * as db from "./database";
 import * as uuid from "uuid";
 import * as WebSocket from "ws";
 import { Request, Response, NextFunction } from "express";
+import * as path from "path";
 // import * as chat from "./route/chat";
 // import * as login from "./route/login";
 // import * as register from "./route/register";
@@ -142,11 +143,19 @@ app.ws("/messages", (ws, req) => {
 });
 
 app.get("/chat", (req, res) => {
-    res.sendfile("public/chat.html");
+    res.sendFile("chat.html", {
+        root: path.join(__dirname, "public")
+    }, (err) => {
+        console.log(err);
+    });
 });
 
 app.get("/login.html", (req, res) => {
-    res.sendfile("public/login.html");
+    res.sendFile("login.html", {
+        root: path.join(__dirname, "public")
+    }, (err) => {
+        console.log(err);
+    });
 });
 
 app.get("/login", async (req, res) => {
@@ -171,7 +180,11 @@ app.get("/login", async (req, res) => {
 });
 
 app.get("/register.html", (req, res) => {
-    res.sendfile("public/register.html");
+    res.sendFile("register.html", {
+        root: path.join(__dirname, "public")
+    }, (err) => {
+        console.log(err);
+    });
 });
 
 app.post("/register", async (req, res) => {

@@ -9,7 +9,7 @@ import * as db from "../src/database";
 async function postTestMessage(times: number): Promise<void> {
     for (let i = 0; i < times; i++) {
         await request(app)
-            .post("/chat")
+            .post("/messages")
             .send({ name: "test_name", message: "test_message" });
     }
 }
@@ -43,7 +43,7 @@ describe("GET /", () => {
     });
 });
 
-describe("GET /chat", () => {
+describe("GET /messages", () => {
     before(async () => {
         try {
             await initializeDB();
@@ -59,7 +59,7 @@ describe("GET /chat", () => {
 
     it("return messages in response.body", async () => {
         const response = await request(app)
-            .get("/chat")
+            .get("/messages")
             .set("Accept", "application/json")
             .expect("Content-Type", /application\/json/)
             .expect(200);
@@ -72,7 +72,7 @@ describe("GET /chat", () => {
     });
 });
 
-describe("POST /chat", () => {
+describe("POST /messages", () => {
     before(async () => {
         try {
             await initializeDB();
@@ -87,7 +87,7 @@ describe("POST /chat", () => {
 
     it("returns 200 when parameters are valid", async () => {
         await request(app)
-            .post("/chat")
+            .post("/messages")
             .send({ name: "test_name", message: "test_message" })
             .expect(200);
     });
@@ -104,7 +104,7 @@ describe("test regarding session", () => {
             console.log(err);
         }
         const response = await agent
-            .post("/chat")
+            .post("/messages")
             .send({ name: "test_name", message: "test_message" })
             .expect(200);
         cookie = response.header["set-cookie"];
@@ -115,7 +115,7 @@ describe("test regarding session", () => {
 
     it("delete message with id = " + testId, async () => {
         const response = await agent
-            .delete("/chat/" + testId)
+            .delete("/messages/" + testId)
             .set("Cookie", cookie)
             .expect(200);
         const message = await getMessage(testId);
