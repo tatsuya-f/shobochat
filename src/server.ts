@@ -9,7 +9,7 @@ import {
     deleteMessage,
 } from "./dbHandler";
 import * as db from "./database";
-import * as uuid from "uuid";
+// import * as uuid from "uuid";
 import * as WebSocket from "ws";
 import { Request, Response, NextFunction } from "express";
 // import * as chat from "./route/chat";
@@ -80,9 +80,6 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
             res.status(500).end();
             return;
         }
-        if (sess.userId === undefined) {
-            sess.userId = uuid();
-        }
         /*
         const insertableMessage = {
             userId: sess.userId,
@@ -91,7 +88,7 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
         };
         */
         const testUserId = 1;
-        const testMessage = "message"; 
+        const testMessage = "message";
         await insertMessage(testUserId, testMessage); // gulp で止まらないように一時的に
         await sendAllMessage();
         res.status(200).end();
@@ -132,9 +129,7 @@ app.ws("/messages", (ws, req) => {
             if (operation === "sessionStart") {
                 const sess = req.session;
                 if (sess === undefined) { return; }
-                if (sess.userId === undefined) {
-                    sess.userId = uuid();
-                }
+                // TODO: check session and already logined, if not logined yet, redirect /login
                 await sendAllMessage();
             }
         } catch (err) {
@@ -158,18 +153,9 @@ app.get("/chat", (req, res, next) => {
     });
 });
 
-// app.get("/login.html", (req, res) => {
-//     res.sendFile("login.html", {
-//         root: "public"
-//     }, (err) => {
-//         console.log(err);
-//     });
-// });
-
 app.get("/login", async (req, res) => {
     const name = req.body.name;
     const password = req.body.password;
-    console.log("FOOBAR");
     try {
         const user = await db.getUserByName(name);
         if (user.password === password) {
@@ -179,7 +165,7 @@ app.get("/login", async (req, res) => {
             } else {
                 sess.userId = user.id;
                 sess.name = user.name;
-                // res.redirect("/chat");
+                res.status(200).end();
             }
         }
     } catch (err) {
@@ -188,14 +174,7 @@ app.get("/login", async (req, res) => {
     }
 });
 
-// app.get("/register.html", (req, res) => {
-//     res.sendFile("register.html", {
-//         root: "public"
-//     }, (err) => {
-//         console.log(err);
-//     });
-// });
-
+let seed = 0;
 app.post("/register", async (req: Request, res: Response) => {
     const name = req.body.name;
     const password = req.body.password;
@@ -213,9 +192,12 @@ app.post("/register", async (req: Request, res: Response) => {
                 console.log("req.session is undefined");
                 return;
             }
-            sess.userId = uuid();
+            if (sess.userId === undefined) {
+                // sess.userId = uuid();
+                sess.userId = seed++;
+            }
             sess.name = name;
-            res.redirect("/chat");
+            res.status(200).end();
         } catch (err) {
             console.log("err", err);
             res.status(500).end();

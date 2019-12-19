@@ -145,8 +145,7 @@ describe("test for register, login", () => {
             const response = await agent
                 .post("/register")
                 .send({ name: name, password: password })
-                .expect(302)
-                .expect("Location", "/chat");
+                .expect(200);
             try {
                 const user = await db.getUserByName(name);
                 assert.strictEqual(user.name, name);
@@ -159,8 +158,7 @@ describe("test for register, login", () => {
             const response = await agent
                 .get("/login")
                 .send({ name: name, password: password })
-                .expect(302)
-                .expect("Location", "/chat");
+                .expect(200);
         }
     });
 });
