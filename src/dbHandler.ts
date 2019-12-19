@@ -1,11 +1,30 @@
+import { User } from "./User";
 import { Message } from "./Message";
 import * as sqlite from "sqlite3";
 const sqlite3 = sqlite.verbose();
+const databaseName = "sqlite3.db";
 
-export function initializeDB(): Promise<void> {
+export async function initializeDB(): Promise<void> {
+    const userInfoTable = `userInfo(
+                         id INTEGER PRIMARY KEY AUTOINCREMENT,
+                         name TEXT UNIQUE NOT NULL,
+                         password TEST NOT NULL
+                         )`;
+
+    const messagesTable = `messages (
+                         id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL,
+                         time INTEGER NOT NULL, message TEST NOT NULL,
+                         FOREIGN KEY(userId) REFERENCES userInfo(id)
+                         )`;
+
+    await createTable(userInfoTable);
+    await createTable(messagesTable);
+}
+
+function createTable(tableInfo: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database("sqlite3.db");
-        const sql = "CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, userId CHAR(35) NOT NULL, time INTEGER NOT NULL, name TEXT NOT NULL, message TEXT NOT NULL)";
+        const db = new sqlite3.Database(databaseName);
+        const sql = "CREATE TABLE IF NOT EXISTS" + " " + tableInfo;
         db.run(sql, (err) => {
             db.close();
             if (err) {
@@ -17,49 +36,87 @@ export function initializeDB(): Promise<void> {
     });
 }
 
-export function insertMessage(msg: Message): Promise<void> {
+export function getUserByName(name: string): Promise<User> {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database("sqlite3.db");
-        const userId = msg.userId;
-        const time = Date.now();
-        const name = msg.name;
-        const message = msg.message;
+        const db = new sqlite3.Database(databaseName);
+        const sql = "SELECT * FROM userInfo WHERE name = ?";
 
-        // プレースホルダを利用すると，非NULLのエラーを出してくれるので，こちらでは特にチェックをしない
-        const sql = "INSERT INTO messages (userId, time, name, message) VALUES(?, ?, ?, ?)";
-
-        db.run(sql, [userId, time, name, message], (err) => {
+        db.get(sql, [name], (err, row) => {
             db.close();
             if (err) {
                 reject(err);
                 return;
             }
-            resolve();
+            resolve(row);
         });
     });
 }
 
-export function getMessage(id: number): Promise<Message> {
+export function hasUserName(name: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database("sqlite3.db");
-        const sql = "SELECT id, userId, time, name, message FROM messages WHERE id = ?";
-
-        db.get(sql, [id], (err, rows) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = "SELECT * FROM userInfo WHERE name = ?";
+        db.get(sql, [name], (err, row) => {
             db.close();
             if (err) {
                 reject(err);
                 return;
             }
-            resolve(rows);
+            resolve(!!row); // booleanに変換
+        });
+    });
+}
+
+// insert された user の user id をプロミスに入れて返します
+export function insertUser(name: string, password: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = "INSERT INTO userInfo (name, password) VALUES(?, ?)";
+        db.serialize(() => {
+            db.run(sql, [name, password], (err) => {
+                if (err) {
+                    db.close();
+                    reject(err);
+                    return;
+                }
+            });
+            db.get("SELECT last_insert_rowid() as last_insert_rowid", (err, row) => { // カラムをaliasing
+                db.close();
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row["last_insert_rowid"]);
+            });
+        });
+    });
+}
+
+export function getMessage(messageId: number): Promise<Message> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = `SELECT messages.id, userId, time, name, message
+                     FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
+                     WHERE messages.id = ?`;
+
+        db.get(sql, [messageId], (err, row) => { // クエリを実行して1番目の結果だけにcallbackを実行する
+            db.close();
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row);
         });
     });
 }
 
 export function getAllMessages(): Promise<Array<Message>> {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database("sqlite3.db");
-        const sql = "SELECT id, userId, time, name, message FROM messages ORDER BY time DESC";
-        db.all(sql, (err, rows) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = `SELECT messages.id, userId, time, name, message
+                    FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
+                    ORDER BY time DESC`;
+        db.all(sql, (err, rows) => { // クエリを実行して全ての結果に対して1度だけcallbackを実行する
             db.close();
             if (err) {
                 reject(err);
@@ -70,12 +127,48 @@ export function getAllMessages(): Promise<Array<Message>> {
     });
 }
 
-export function deleteMessage(id: number): Promise<void> {
+// insert された message の message id をプロミスに入れて返します
+export function insertMessage(userId: number, message: string): Promise<number> {
     return new Promise((resolve, reject) => {
-        const db = new sqlite3.Database("sqlite3.db");
+        const db = new sqlite3.Database(databaseName);
+        const time = Date.now();
+
+        /*
+         * プレースホルダを利用すると，非NULLのエラーがでる
+         * (文字列連結だと文字列"undefined"が格納されるので注意)
+         * 
+         * messages.userIdはuserInfo.idを参照しているので，
+         * messages.userIdにはuserInfo.idに無いものは入れられない
+         */
+        const sql = "INSERT INTO messages (userId, time, message) VALUES(?, ?, ?)";
+
+        db.serialize(() => {
+            db.run(sql, [userId, time, message], (err) => {
+                if (err) {
+                    db.close();
+                    reject(err);
+                    return;
+                }
+            });
+
+            db.get("SELECT last_insert_rowid() as last_insert_rowid", (err, row) => { // カラムをaliasing
+                db.close();
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row["last_insert_rowid"]); // return message id
+            });
+        });
+    });
+}
+
+export function deleteMessage(messageId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
         const sql = "DELETE FROM messages where id = ?";
 
-        db.run(sql, [id], (err) => {
+        db.run(sql, [messageId], (err) => {
             db.close();
             if (err) {
                 reject(err);
