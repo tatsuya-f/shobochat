@@ -1,7 +1,7 @@
 import { UserInfo, isUserInfo } from "./UserInfo";
 
 
-function RegisterUserInfo(url: string, userInfo: UserInfo): Promise<number> {
+function RegisterUserInfo(url: string, userInfo: UserInfo) {
     return fetch(url, {
         method: "POST",
         body: JSON.stringify(userInfo),
@@ -9,7 +9,7 @@ function RegisterUserInfo(url: string, userInfo: UserInfo): Promise<number> {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    }).then(res => res.status);
+    });
 }
 
 export async function Register(chatApiEndpoint: string): Promise<void> {
@@ -20,14 +20,16 @@ export async function Register(chatApiEndpoint: string): Promise<void> {
 
     if (isUserInfo(userInfo)) {
         try {
-            const status = await RegisterUserInfo(chatApiEndpoint, userInfo);
-            if (status === 200) {
+            await RegisterUserInfo(chatApiEndpoint, userInfo);
+            /*
+            if (status === 500) {
 
-                console.log("POST");
+                console.log("POST Failed");
             } else {
 
                 console.log("POST Failed");
             }
+            */
         } catch (err) {
             console.log(err);
         }

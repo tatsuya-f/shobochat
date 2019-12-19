@@ -1,14 +1,14 @@
 import { UserInfo, isUserInfo } from "./UserInfo";
 
-function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
+function CheckUserInfo(url: string, userInfo: UserInfo) {
     return fetch(url, {
-        method: "POST",
+        method: "GET",
         body: JSON.stringify(userInfo),
         headers: {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    }).then(res => res.status);
+    });
 }
 
 export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
@@ -20,14 +20,17 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
     if (isUserInfo(userInfo)) {
 
         try {
-            const status = await CheckUserInfo(chatApiEndpoint, userInfo);
-            if (status === 200) {
+            const data = await CheckUserInfo(chatApiEndpoint, userInfo);
+            window.location = data;
+            /*
+            if (status === 500) {
 
-                console.log("POST");
+                console.log("POST Failed");
             } else {
 
                 console.log("POST Failed");
             }
+            */
         } catch (err) {
             console.log(err);
         }
@@ -38,7 +41,7 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
 
 
 $(() => {
-    const chatApiEndpoint = "http://localhost:8000/messages";
+    const chatApiEndpoint = "http://localhost:8000/login";
 
     $("#signin").on("click", async () => {
         $("#signin").addClass("is-loading");
@@ -48,7 +51,7 @@ $(() => {
 
     $("#signin-register").on("click", async () => {
       
-        /*
+   
         fetch("http://localhost:8000/signup", {
             method: "GET",
             headers: {
@@ -59,7 +62,7 @@ $(() => {
             .then(res =>  {
                 console.log(res.redirect);             
             });
-    */
+  
         location.href = "http://localhost:8000/signup.html";
         
     });
