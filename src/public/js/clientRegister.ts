@@ -1,7 +1,6 @@
 import { UserInfo, isUserInfo } from "./UserInfo";
 
-
-function RegisterUserInfo(url: string, userInfo: UserInfo) {
+function registerUserInfo(url: string, userInfo: UserInfo) {
     return fetch(url, {
         method: "POST",
         body: JSON.stringify(userInfo),
@@ -12,41 +11,37 @@ function RegisterUserInfo(url: string, userInfo: UserInfo) {
     });
 }
 
-export async function Register(chatApiEndpoint: string): Promise<void> {
+export async function register(chatApiEndpoint: string): Promise<void> {
     const userInfo = {
         name: $("#name").val(),
-        pass: $("#pass").val()
+        password: $("#pass").val()
     };
 
+    console.log(userInfo);
     if (isUserInfo(userInfo)) {
         try {
-            await RegisterUserInfo(chatApiEndpoint, userInfo);
-            /*
-            if (status === 500) {
-
-                console.log("POST Failed");
+            const res = await registerUserInfo(chatApiEndpoint, userInfo);
+            const status = res.status;
+            if (status === 200) {
+                window.location.href = "/chat";
             } else {
-
                 console.log("POST Failed");
             }
-            */
         } catch (err) {
             console.log(err);
         }
 
+    } else {
+        console.log("HOGEHOGE");
     }
 
 }
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/register";
-    console.log("fegweg");
     $("#register").on("click", async () => {
-        console.log("fwfwe");
         $("#register").addClass("is-loading");
-        await Register(chatApiEndpoint);
+        await register(chatApiEndpoint);
         $("#register").removeClass("is-loading");
     });
- 
-
 });

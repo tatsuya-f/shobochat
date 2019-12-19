@@ -37,7 +37,7 @@ function compilePug() {
 function clientLogin() {
     return browserify()
         .add("src/public/js/clientLogin.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientLogin.ts"] })
         .bundle()
         .pipe(source("client_login.js"))
         .pipe(dest("dist/public/js"));
@@ -46,7 +46,7 @@ function clientLogin() {
 function clientRegister() {
     return browserify()
         .add("src/public/js/clientRegister.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientRegister.ts"] })
         .bundle()
         .pipe(source("client_register.js"))
         .pipe(dest("dist/public/js"));
@@ -55,7 +55,7 @@ function clientRegister() {
 function client() {
     return browserify()
         .add("src/public/js/client.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/*"] })
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/client.ts"] })
         .bundle()
         .pipe(source("client_bundle.js"))
         .pipe(dest("dist/public/js"));

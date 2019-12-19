@@ -20,17 +20,18 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
     if (isUserInfo(userInfo)) {
 
         try {
-            await CheckUserInfo(chatApiEndpoint, userInfo);
-            
+            const data = await CheckUserInfo(chatApiEndpoint, userInfo);
+            console.log(data.status);
+            // window.location = data;
             /*
-            if (status === 500) {
+               if (status === 500) {
 
-                console.log("POST Failed");
-            } else {
+               console.log("POST Failed");
+               } else {
 
-                console.log("POST Failed");
-            }
-            */
+               console.log("POST Failed");
+               }
+             */
         } catch (err) {
             console.log(err);
         }
@@ -43,30 +44,28 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/login";
 
-    $("#signin").on("click", async () => {
-        console.log("fwfewf");
-        $("#signin").addClass("is-loading");
+    $("#register").on("click", async () => {
+        $("#register").addClass("is-loading");
         await sendUserInfo(chatApiEndpoint);
-        $("#signin").removeClass("is-loading");
+        $("#register").removeClass("is-loading");
     });
 
-    /*
     $("#signin-register").on("click", async () => {
-      
 
-        fetch("http://localhost:8000/signup", {
+
+        fetch("http://localhost:8000/login", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
             },
             credentials: "same-origin"
-        }).then(res => res.json())
+        })
+            .then(res => res.json())
             .then(res =>  {
-                console.log(res.redirect);             
+                console.log(res.redirect);
             });
-          
+
+        location.href = "http://localhost:8000/signup.html";
+
     });
-    */
-
-
 });

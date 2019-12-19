@@ -1,11 +1,11 @@
 
 export interface UserInfo {
     name: string;
-    pass: string;
+    password: string;
 }
 
 export function isUserInfo(arg: any): arg is UserInfo {
-    return typeof arg.name === "string" && typeof arg.message === "string";
+    return typeof arg.name === "string" && typeof arg.password === "string";
 }
 
 
