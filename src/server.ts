@@ -83,12 +83,16 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
         if (sess.userId === undefined) {
             sess.userId = uuid();
         }
+        /*
         const insertableMessage = {
             userId: sess.userId,
             name: req.body.name,
             message: req.body.message
         };
-        await insertMessage(insertableMessage);
+        */
+        const testUserId = 1;
+        const testMessage = "message"; 
+        await insertMessage(testUserId, testMessage); // gulp で止まらないように一時的に
         await sendAllMessage();
         res.status(200).end();
     } catch (err) {

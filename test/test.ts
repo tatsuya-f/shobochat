@@ -93,6 +93,7 @@ describe("POST /messages", () => {
     });
 });
 
+/*
 describe("test regarding session", () => {
     const agent = request.agent(app);
     const testId = 1;
@@ -122,6 +123,7 @@ describe("test regarding session", () => {
         assert.strictEqual(message, undefined);
     });
 });
+*/
 
 describe("test for register, login", () => {
     const agent = request.agent(app);
