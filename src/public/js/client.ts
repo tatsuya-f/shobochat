@@ -7,6 +7,7 @@ import {
 } from "./messageHandler";
 import { isMessageArray } from "./Message";
 
+
 function insertTextarea(before: string, after: string) {
     const $textarea = $("#message");
     const text = $textarea.val();
@@ -123,4 +124,7 @@ $(() => {
     $("#message").on("input", () => {
         checkInput();
     });
+
+
+    
 });
