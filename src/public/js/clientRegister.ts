@@ -39,9 +39,10 @@ export async function Register(chatApiEndpoint: string): Promise<void> {
 }
 
 $(() => {
-    const chatApiEndpoint = "http://localhost:8000/messages";
-
+    const chatApiEndpoint = "http://localhost:8000/register";
+    console.log("fegweg");
     $("#register").on("click", async () => {
+        console.log("fwfwe");
         $("#register").addClass("is-loading");
         await Register(chatApiEndpoint);
         $("#register").removeClass("is-loading");

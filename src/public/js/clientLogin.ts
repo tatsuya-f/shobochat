@@ -20,8 +20,8 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
     if (isUserInfo(userInfo)) {
 
         try {
-            const data = await CheckUserInfo(chatApiEndpoint, userInfo);
-            window.location = data;
+            await CheckUserInfo(chatApiEndpoint, userInfo);
+            
             /*
             if (status === 500) {
 
@@ -44,14 +44,16 @@ $(() => {
     const chatApiEndpoint = "http://localhost:8000/login";
 
     $("#signin").on("click", async () => {
+        console.log("fwfewf");
         $("#signin").addClass("is-loading");
         await sendUserInfo(chatApiEndpoint);
         $("#signin").removeClass("is-loading");
     });
 
+    /*
     $("#signin-register").on("click", async () => {
       
-   
+
         fetch("http://localhost:8000/signup", {
             method: "GET",
             headers: {
@@ -62,12 +64,9 @@ $(() => {
             .then(res =>  {
                 console.log(res.redirect);             
             });
-  
-        location.href = "http://localhost:8000/signup.html";
-        
+          
     });
-
-
+    */
 
 
 });

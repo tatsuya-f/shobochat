@@ -162,6 +162,7 @@ app.get("/login", async (req, res) => {
     const name = req.body.name;
     const password = req.body.password;
     try {
+        console.log("fewf");
         const user = await db.getUserByName(name);
         if (user.password === password) {
             const sess = req.session;
@@ -194,6 +195,8 @@ app.post("/register", async (req, res) => {
         res.status(500).end();
     } else {  // accept; register
         try {
+            console.log("fewf");
+
             await db.insertUser({
                 name: name,
                 password: password
