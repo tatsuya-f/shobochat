@@ -145,14 +145,19 @@ app.ws("/messages", (ws, req) => {
     });
 });
 
-// app.get("/chat", (req, res) => {
-//     res.sendFile("chat.html", {
-//         root: "public"
-//     }, (err) => {
-//         console.log(err);
-//     });
-// });
-//
+
+app.get("/chat", (req, res, next) => {
+    res.sendFile("chat.html", {
+        root: "public",
+    }, (err) => {
+        if (err) {
+            next(err);
+        } else {
+            console.log("Send");
+        }
+    });
+});
+
 // app.get("/login.html", (req, res) => {
 //     res.sendFile("login.html", {
 //         root: "public"
@@ -164,6 +169,7 @@ app.ws("/messages", (ws, req) => {
 app.get("/login", async (req, res) => {
     const name = req.body.name;
     const password = req.body.password;
+    console.log("FOOBAR");
     try {
         const user = await db.getUserByName(name);
         if (user.password === password) {
@@ -173,7 +179,7 @@ app.get("/login", async (req, res) => {
             } else {
                 sess.userId = user.id;
                 sess.name = user.name;
-                res.redirect("/chat");
+                // res.redirect("/chat");
             }
         }
     } catch (err) {
@@ -190,10 +196,11 @@ app.get("/login", async (req, res) => {
 //     });
 // });
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req: Request, res: Response) => {
     const name = req.body.name;
     const password = req.body.password;
     if (await db.hasUserName(name)) { // reject
+        console.log("name has already exists; reject");
         res.status(500).end();
     } else {  // accept; register
         try {
@@ -202,21 +209,24 @@ app.post("/register", async (req, res) => {
                 password: password
             });
             const sess = req.session;
-            if (sess === undefined) { return; }
+            if (sess === undefined) {
+                console.log("req.session is undefined");
+                return;
+            }
             sess.userId = uuid();
             sess.name = name;
             res.redirect("/chat");
         } catch (err) {
-            console.log(err);
+            console.log("err", err);
             res.status(500).end();
         }
     }
-
 });
 
 (async function startServer() {
     try {
         await initializeDB();
+        await db.initializeDB();
 
         if (__filename.includes("dist")) {
             const port = app.get("port");

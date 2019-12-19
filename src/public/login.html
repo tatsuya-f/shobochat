@@ -4,10 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>しょぼちゃっと - ろぐいん</title>
+        <title>しょぼちゃっと - ろぐいん </title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
-        <link rel="stylesheet" href="css/signup.css">
+        <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="js/client_login.js"></script>
+        <link rel="stylesheet" href="css/register.css">
     </head>
     <body>
         <form>
@@ -19,24 +21,24 @@
                 </div>
             </section>
             <br>
-            <div class="field">
+            <div class="shobo-field">
                 <label class="username">なまえ</label>
                 <div class="control">
-                    <input class="input" type="text" placeholder="なまえ">
+                    <input id="name" class="input" type="text" placeholder="なまえ">
                 </div>
                 <label class="psw">あいことば</label>
                 <div class="control">
-                    <input class="input" type="password" placeholder="あいことば">
+                    <input id="pass" class="input" type="password" placeholder="あいことば">
                 </div>
                 <br>
-                <button id="signin" class="button is-primary is-rounded is-outlined">
+                <button id="login" class="button is-primary is-rounded is-outlined">
                     <i class="fas fa-user-check"></i>
                     ろぐいん
                 </button>
             </div>
             <br><br><br><br><br>
-            <div class="register-button">
-                <button id="signin-register" class="button is-primary is-rounded is-outlined">
+            <div class="shobo-jmp-register">
+                <button id="jmp-register" class="button is-primary is-rounded is-outlined">
                     <i class="far fa-arrow-alt-circle-right"></i>
                     とうろくはこちら
                 </button>
