@@ -156,6 +156,7 @@ app.get("/chat", (req, res, next) => {
 app.get("/login", async (req, res) => {
     const name = req.body.name;
     const password = req.body.password;
+    console.log("login");
     try {
         const user = await db.getUserByName(name);
         if (user.password === password) {
@@ -173,6 +174,8 @@ app.get("/login", async (req, res) => {
         res.status(500).end();
     }
 });
+
+
 
 let seed = 0;
 app.post("/register", async (req: Request, res: Response) => {
