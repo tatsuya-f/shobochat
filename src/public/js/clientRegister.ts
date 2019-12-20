@@ -1,6 +1,6 @@
 import { UserInfo, isUserInfo } from "./UserInfo";
 
-function registerUserInfo(url: string, userInfo: UserInfo) {
+function registerUserInfo(url: string, userInfo: UserInfo): Promise<number> {
     return fetch(url, {
         method: "POST",
         body: JSON.stringify(userInfo),
@@ -8,7 +8,7 @@ function registerUserInfo(url: string, userInfo: UserInfo) {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    });
+    }).then (res => res.status);
 }
 
 export async function register(chatApiEndpoint: string): Promise<void> {
@@ -20,10 +20,13 @@ export async function register(chatApiEndpoint: string): Promise<void> {
     console.log(userInfo);
     if (isUserInfo(userInfo)) {
         try {
-            const res = await registerUserInfo(chatApiEndpoint, userInfo);
-            const status = res.status;
+            const status = await registerUserInfo(chatApiEndpoint, userInfo);
+
             if (status === 200) {
-                window.location.href = "/chat";
+                alert("ちゃっとにいどうします。");
+                setTimeout(() => {
+                    window.location.href = "/chat";   
+                }, 1000);
             } else {
                 console.log("POST Failed");
             }
@@ -31,9 +34,7 @@ export async function register(chatApiEndpoint: string): Promise<void> {
             console.log(err);
         }
 
-    } else {
-        console.log("HOGEHOGE");
-    }
+    } 
 
 }
 
