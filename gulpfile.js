@@ -34,12 +34,12 @@ function compilePug() {
         .pipe(dest("dist/public"));
 }
 
-function clientLogin() {
+function clientIndex() {
     return browserify()
-        .add("src/public/js/clientLogin.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientLogin.ts"] })
+        .add("src/public/js/clientIndex.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientIndex.ts"] })
         .bundle()
-        .pipe(source("client_login.js"))
+        .pipe(source("client_index.js"))
         .pipe(dest("dist/public/js"));
 }
 
@@ -52,12 +52,21 @@ function clientRegister() {
         .pipe(dest("dist/public/js"));
 }
 
-function client() {
+function clientLogin() {
     return browserify()
-        .add("src/public/js/client.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/client.ts"] })
+        .add("src/public/js/clientLogin.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientLogin.ts"] })
         .bundle()
-        .pipe(source("client_bundle.js"))
+        .pipe(source("client_login.js"))
+        .pipe(dest("dist/public/js"));
+}
+
+function clientChat() {
+    return browserify()
+        .add("src/public/js/clientChat.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientChat.ts"] })
+        .bundle()
+        .pipe(source("client_chat.js"))
         .pipe(dest("dist/public/js"));
 }
 
@@ -80,8 +89,8 @@ function copy() {
         .pipe(dest("dist/public"));
 }
 
-exports.default = series(clean, lint, test, client, clientLogin, clientRegister, server, compilePug, copy);
+exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientChat, server, compilePug, copy);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
-exports.build = series(client, clientLogin, clientRegister, server, compilePug, copy);
+exports.build = series(clientIndex, clientRegister, clientLogin, clientChat, server, compilePug, copy);
