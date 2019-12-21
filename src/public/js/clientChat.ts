@@ -67,9 +67,6 @@ $(() => {
     $("#markdown-preview-close").on("click", () => {
         $("#markdown-preview").removeClass("is-active");
     });
-    $("#markdown-preview").on("focusout", () => {
-        $("#markdown-preview").removeClass("is-active");
-    });
 
     $("#update").on("click", () => {
     });

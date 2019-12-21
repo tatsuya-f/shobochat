@@ -1,27 +1,25 @@
 import { Message, isMessage } from "./Message";
-import { Marked } from "marked-ts";
+import * as MarkdownIt from "markdown-it";
 import { highlight } from "highlight.js";
 import * as sanitizeHtml from "sanitize-html";
 
-(() => {  // setup for highlight.js
-    Marked.setOptions({
-        highlight: (code, lang) => {
-            if (typeof lang === "string") {
-                try {
-                    return highlight(lang, code).value;
-                }
-                catch (err) {
-                    console.log(err);
-                    return code;
-                }
+const markdownit = new MarkdownIt({
+    highlight: (code, lang) => {
+        if (typeof lang === "string") {
+            try {
+                return highlight(lang, code).value;
             }
-            else {
+            catch (err) {
+                console.log(err);
                 return code;
             }
-        },
-        breaks: true
-    });
-})();
+        }
+        else {
+            return code;
+        }
+    },
+    breaks: true
+});
 
 export function hasChar(input: string): boolean {
     return input.trim() !== "";
@@ -94,7 +92,7 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
 }
 
 export function parseMarkdown(md: string): string {
-    return sanitizeHtml(Marked.parse(md), {
+    return sanitizeHtml(markdownit.render(md), {
         allowedTags: [
             "h1", "h2", "h3", "h4", "h5",
             "b", "i", "strong", "em", "strike", "del", "blockquote",
