@@ -14,7 +14,7 @@ function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
 export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
     const userInfo = {
         name: $("#name").val(),
-        pass: $("#pass").val()
+        password: $("#pass").val()
     };
 
     if (isUserInfo(userInfo)) {
