@@ -25,7 +25,6 @@ async function sendAllMessage() {
     // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
     const wss: WebSocket.Server = exWs.getWss();
     const messages = await getAllMessages();
-    console.log(messages);
 
     // 接続されている各Clientにsendする
     wss.clients.forEach(ws => {
@@ -101,12 +100,8 @@ app.post("/messages", checkLogin, async (req: Request, res: Response, next: Next
             return;
         }
 
-        console.log(sess.userId);
-        console.log(req.body.message);
         await insertMessage(sess.userId, req.body.message);
-        console.log("inserted");
         await sendAllMessage();
-        console.log("sendMessage (WebSocket)");
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -122,6 +117,7 @@ app.delete("/messages/:id", checkLogin, async (req: Request, res: Response, next
         }
         const messageId = parseInt(req.params.id);
         const message = await getMessage(messageId);
+
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
             await sendAllMessage();
@@ -147,20 +143,12 @@ app.get("/chat", checkLogin, (req: Request, res: Response, next: NextFunction) =
     });
 });
 
-app.ws("/messages", (ws, req) => {
+app.ws("/messages", (ws) => {
     // 接続完了後Client側でsendするとServerのmessage eventが発火
-    ws.on("message", async (recvJsonData) => {
+    ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            if (typeof recvJsonData !== "string") { return; }
-            const recvData = JSON.parse(recvJsonData);
-            const operation = recvData["operation"];
-            if (operation === "sessionStart") {
-                const sess = req.session;
-                if (sess === undefined) { return; }
-                // TODO: check session and already logined, if not logined yet, redirect /login
-                await sendAllMessage();
-            }
+            await sendAllMessage();
         } catch (err) {
             console.log(err);
         }

@@ -5,13 +5,16 @@ import * as fs from "fs";
 import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
 
-let cookie: Array<string>;
+//let cookie: Array<string>;
 
-async function postTestMessage(times: number): Promise<void> {
+async function postTestMessage(times: number, cookie: Array<string>): Promise<void> {
+    const agent = request.agent(app);
+
     for (let i = 0; i < times; i++) {
-        await request(app)
+        await agent
             .post("/messages")
-            .send({ name: "test_name", message: "test_message" });
+            .send({ name: "test_name", message: "test_message" })
+            .set("Cookie", cookie);
     }
 }
 
@@ -24,6 +27,9 @@ function deleteDB() {
 }
 
 describe("GET /", () => {
+    const agent = request.agent(app);
+    let cookie: Array<string>;
+
     before(async () => {
         try {
             await initializeDB();
@@ -37,21 +43,32 @@ describe("GET /", () => {
     });
 
     it("return top page", async () => {
-        const response = await request(app)
+        const response = await agent
             .get("/")
             .set("Accept", "text/html")
             .expect("Content-Type", "text/html; charset=utf-8");
         cookie = response.header["set-cookie"];
-        console.log(cookie);
     });
 });
 
-/*
 describe("GET /messages", () => {
+    const agent = request.agent(app);
+    let cookie: Array<string>;
+
     before(async () => {
         try {
             await initializeDB();
-            await postTestMessage(3);
+
+            const response = await agent.get("/")
+            cookie = response.header["set-cookie"];
+
+            await agent
+                .post("/register")
+                .send({ name: "test", password: "test"})
+
+            await postTestMessage(3, cookie);
+
+
         } catch (err) {
             console.log(err);
         }
@@ -62,9 +79,10 @@ describe("GET /messages", () => {
     });
 
     it("return messages in response.body", async () => {
-        const response = await request(app)
+        const response = await agent
             .get("/messages")
             .set("Accept", "application/json")
+            .set("Cookie", cookie)
             .expect("Content-Type", /application\/json/)
             .expect(200);
 
@@ -77,9 +95,21 @@ describe("GET /messages", () => {
 });
 
 describe("POST /messages", () => {
+
+    const agent = request.agent(app);
+    let cookie: Array<string>;
+
     before(async () => {
         try {
             await initializeDB();
+
+            const response = await agent.get("/")
+            cookie = response.header["set-cookie"];
+
+            await agent
+                .post("/register")
+                .send({ name: "test", password: "test"})
+
         } catch (err) {
             console.log(err);
         }
@@ -90,29 +120,37 @@ describe("POST /messages", () => {
     });
 
     it("returns 200 when parameters are valid", async () => {
-        await request(app)
+        await agent
             .post("/messages")
             .send({ name: "test_name", message: "test_message" })
+            .set("Cookie", cookie)
             .expect(200);
     });
 });
 
-describe("test regarding session", () => {
+describe("DELETE /messages", () => {
+    let cookie: Array<string>;
     const agent = request.agent(app);
     const testId = 1;
-    let cookie: Array<string>;
+
     before(async () => {
         try {
             await initializeDB();
+
+            const response = await agent.get("/")
+            cookie = response.header["set-cookie"];
+
+            await agent
+                .post("/register")
+                .send({ name: "test", password: "test"})
+
+            await postTestMessage(1, cookie);
+
         } catch (err) {
             console.log(err);
         }
-        const response = await agent
-            .post("/messages")
-            .send({ name: "test_name", message: "test_message" })
-            .expect(200);
-        cookie = response.header["set-cookie"];
     });
+
     after(() => {
         deleteDB();
     });
@@ -126,9 +164,8 @@ describe("test regarding session", () => {
         assert.strictEqual(message, undefined);
     });
 });
-*/
 
-describe("test for register, login", () => {
+describe("test for register and login", () => {
     const agent = request.agent(app);
     const name = "hoge";
     const password = "fuga";
@@ -142,7 +179,7 @@ describe("test for register, login", () => {
     after(() => {
         deleteDB();
     });
-    it(`register/login user with name = ${name}, password = ${password}`, async () => {
+    it(`register and login user with name = ${name}, password = ${password}`, async () => {
         {
             const response = await agent
                 .post("/register")

@@ -122,8 +122,6 @@ export function getAllMessages(): Promise<Array<Message>> {
                 reject(err);
                 return;
             }
-            console.log("in getAllMessages");
-            console.log(rows);
             resolve(rows);
         });
     });
@@ -151,7 +149,6 @@ export function insertMessage(userId: number, message: string): Promise<number> 
                     reject(err);
                     return;
                 }
-                console.log("insert success");
             });
 
             db.get("SELECT last_insert_rowid() as last_insert_rowid", (err, row) => { // カラムをaliasing
