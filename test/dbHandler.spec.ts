@@ -107,8 +107,6 @@ describe("getMessage", () => {
 
     it("returns message", async () => {
         const message = await getMessage(messageId);
-        console.log("test getMessage");
-        console.log(message);
         assert.equal(isMessage(message), true);
         assert.equal(message.id === messageId, true);
         assert.equal(message.userId=== userId, true);
@@ -138,8 +136,6 @@ describe("getAllMessages", () => {
 
     it("returns messages", async () => {
         const messages = await getAllMessages();
-        console.log("test getAllMessages");
-        console.log(messages);
         assert.equal(Array.isArray(messages), true);
         messages.forEach((m => {
             assert.equal(isMessage(m), true);

@@ -31,7 +31,7 @@ $(() => {
     let ws = new WebSocket(websocketEndPoint);
 
     ws.addEventListener("open", () => { // 接続完了後発火
-        ws.send(JSON.stringify({ operation: "sessionStart" }));
+        ws.send("");
     });
     ws.addEventListener("message", (ev) => { // サーバーがsendすると発火
         const messages = JSON.parse(ev.data);
