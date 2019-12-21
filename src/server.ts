@@ -22,7 +22,8 @@ export const app = exWs.app;
 async function sendAllMessage() {
     // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
     const wss: WebSocket.Server = exWs.getWss();
-    const messages = await getAllMessages();
+    const messages = await db.getAllMessages();
+    console.log(messages);
 
     // 接続されている各Clientにsendする
     wss.clients.forEach(ws => {
@@ -30,20 +31,37 @@ async function sendAllMessage() {
     });
 }
 
+function redirectChatWhenLoggedIn(req: Request, res: Response, next: NextFunction) {
+    const sess = req.session;
+    if (sess !== undefined && sess.isLogined) {
+        res.redirect("/chat");
+    } else {
+        next();
+    }
+}
+
+function checkLogin(req: Request, res: Response, next: NextFunction) {
+    const sess = req.session;
+    if (sess === undefined || !sess.isLogined) {
+        res.redirect("/"); // ログインしていない場合は top へ
+    } else {
+        next(); // ログインしているときは，次の middleware へ
+    }
+}
+
 app.set("port", 8000);
-app.use(express.static("public"));
 app.use(express.json());
 app.use(session({
     secret: "shoboshobo",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
         sameSite: "strict",
         maxAge: 60 * 60 * 24 * 365 // 1 year
     }
-}));
+})); // 各エンドポイントにアクセスされる際に，付与していない場合は session 用の Cookie をブラウザに付与
 
-app.get("/messages", async (req: Request, res: Response, next: NextFunction) => {
+app.get("/messages", checkLogin, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const messages = await getAllMessages();
         res.json(messages);
@@ -52,9 +70,14 @@ app.get("/messages", async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-app.post("/messages", async (req: Request, res: Response, next: NextFunction) => {
+app.post("/messages", checkLogin, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const contentType = req.header("Content-Type");
+        const sess = req.session;
+        if (sess === undefined) {
+            console.log("session not working");
+            res.status(500).end();
+            return;
+        }
 
         /*
          * post はMIME Type を偽装してシンプルなリクエストに
@@ -69,35 +92,26 @@ app.post("/messages", async (req: Request, res: Response, next: NextFunction) =>
          * 時間があったら，token を生成する方法にする
          */
         // MIME Type を偽装してシンプルなリクエストにしてきた場合の対処
+        const contentType = req.header("Content-Type");
         if (contentType !== "application/json") {
             console.log("** CSRF detected **");
             res.status(500).end();
             return;
         }
 
-        const sess = req.session;
-        if (sess === undefined) {
-            res.status(500).end();
-            return;
-        }
-        /*
-        const insertableMessage = {
-            userId: sess.userId,
-            name: req.body.name,
-            message: req.body.message
-        };
-        */
-        const testUserId = 1;
-        const testMessage = "message";
-        await insertMessage(testUserId, testMessage); // gulp で止まらないように一時的に
+        console.log(sess.userId);
+        console.log(req.body.message);
+        await insertMessage(sess.userId, req.body.message);
+        console.log("inserted");
         await sendAllMessage();
+        console.log("sendMessage (WebSocket)");
         res.status(200).end();
     } catch (err) {
         next(err);
     }
 });
 
-app.delete("/messages/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.delete("/messages/:id", checkLogin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -119,9 +133,22 @@ app.delete("/messages/:id", async (req: Request, res: Response, next: NextFuncti
     }
 });
 
+app.get("/chat", checkLogin, (req: Request, res: Response, next: NextFunction) => {
+    res.sendFile("chat.html", {
+        root: "public",
+    }, (err) => {
+        if (err) {
+            next(err);
+        } else {
+            console.log("Send");
+        }
+    });
+});
+
 app.ws("/messages", (ws, req) => {
     // 接続完了後Client側でsendするとServerのmessage eventが発火
     ws.on("message", async (recvJsonData) => {
+        console.log("WebSocket connected");
         try {
             if (typeof recvJsonData !== "string") { return; }
             const recvData = JSON.parse(recvJsonData);
@@ -140,9 +167,14 @@ app.ws("/messages", (ws, req) => {
     });
 });
 
+app.get("/", redirectChatWhenLoggedIn, (req: Request, res: Response, next: NextFunction) => {
+    next();
+});
 
-app.get("/chat", (req, res, next) => {
-    res.sendFile("chat.html", {
+app.use(express.static("public")); // GET / された後に静的ファイルを配信
+
+app.get("/login", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
+    res.sendFile("login.html", {
         root: "public",
     }, (err) => {
         if (err) {
@@ -153,21 +185,24 @@ app.get("/chat", (req, res, next) => {
     });
 });
 
-app.get("/login", async (req, res) => {
+app.post("/login", async (req: Request, res: Response) => {
+    const sess = req.session;
+    if (sess === undefined) {
+        console.log("session not working");
+        res.status(500).end();
+        return;
+    }
+
     const name = req.body.name;
     const password = req.body.password;
-    console.log("login");
     try {
         const user = await db.getUserByName(name);
         if (user.password === password) {
-            const sess = req.session;
-            if (sess === undefined) {
-                res.status(500).end();
-            } else {
-                sess.userId = user.id;
-                sess.name = user.name;
-                res.status(200).end();
-            }
+            sess.isLogined = true;
+            res.redirect("/chat");
+        } else {
+            console.log("invalid password");
+            res.status(401).end();
         }
     } catch (err) {
         console.log(err);
@@ -175,36 +210,45 @@ app.get("/login", async (req, res) => {
     }
 });
 
+app.get("/register", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
+    res.sendFile("register.html", {
+        root: "public",
+    }, (err) => {
+        if (err) {
+            next(err);
+        } else {
+            console.log("Send");
+        }
+    });
+});
 
-
-let seed = 0;
 app.post("/register", async (req: Request, res: Response) => {
+    const sess = req.session;
+    if (sess === undefined) {
+        console.log("session not working");
+        res.status(500).end();
+        return;
+    }
+
     const name = req.body.name;
     const password = req.body.password;
-    if (await db.hasUserName(name)) { // reject
-        console.log("name has already exists; reject");
-        res.status(500).end();
-    } else {  // accept; register
-        try {
-            await db.insertUser({
+    try {
+        if (!(await db.hasUserName(name))) { 
+            const userId = await db.insertUser({
                 name: name,
                 password: password
             });
-            const sess = req.session;
-            if (sess === undefined) {
-                console.log("req.session is undefined");
-                return;
-            }
-            if (sess.userId === undefined) {
-                // sess.userId = uuid();
-                sess.userId = seed++;
-            }
+            sess.userId = userId;
             sess.name = name;
-            res.status(200).end();
-        } catch (err) {
-            console.log("err", err);
-            res.status(500).end();
+            sess.isLogined = true;
+            res.redirect("/chat");
+        } else { 
+            console.log("name has already exists; reject");
+            res.status(401).end();
         }
+    } catch (err) {
+        console.log(err);
+        res.status(500).end();
     }
 });
 

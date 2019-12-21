@@ -36,6 +36,7 @@ $(() => {
     ws.addEventListener("message", (ev) => { // サーバーがsendすると発火
         const messages = JSON.parse(ev.data);
         if (isMessageArray(messages)) {
+            console.log(messages);
             showMessages(messages);
         }
     });
