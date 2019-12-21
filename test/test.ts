@@ -6,6 +6,8 @@ import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages } from "../src/dbHandler";
 import * as db from "../src/database";
 
+let cookie: Array<string>;
+
 async function postTestMessage(times: number): Promise<void> {
     for (let i = 0; i < times; i++) {
         await request(app)
@@ -40,9 +42,12 @@ describe("GET /", () => {
             .get("/")
             .set("Accept", "text/html")
             .expect("Content-Type", "text/html; charset=utf-8");
+        cookie = response.header["set-cookie"];
+        console.log(cookie);
     });
 });
 
+/*
 describe("GET /messages", () => {
     before(async () => {
         try {
@@ -93,7 +98,6 @@ describe("POST /messages", () => {
     });
 });
 
-/*
 describe("test regarding session", () => {
     const agent = request.agent(app);
     const testId = 1;
@@ -145,7 +149,7 @@ describe("test for register, login", () => {
             const response = await agent
                 .post("/register")
                 .send({ name: name, password: password })
-                .expect(200);
+                .expect(302);
             try {
                 const user = await db.getUserByName(name);
                 assert.strictEqual(user.name, name);
@@ -158,8 +162,7 @@ describe("test for register, login", () => {
             const response = await agent
                 .get("/login")
                 .send({ name: name, password: password })
-                .expect(200);
+                .expect(302);
         }
     });
 });
-
