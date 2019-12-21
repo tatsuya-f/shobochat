@@ -1,0 +1,50 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        title しょぼちゃっと - ろぐいん
+        script(
+            src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+            crossorigin="anonymous"
+            )
+        script(
+            type="text/javascript"
+            src="js/client_login.js"
+            )
+        link(
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+            )
+        link(
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+            )
+        link(
+            rel="stylesheet"
+            href="css/register.css"
+        )
+    
+    body
+        section.hero.is-primary
+            .hero-body
+                .container
+                    h1.title しょぼちゃっと ろぐいん
+        br
+        .shobo-field
+            label.username なまえ
+            .control
+                input.input#name(
+                    type="text"
+                    placeholder="なまえ"
+                    )
+            label.psw あいことば
+            input.input#pass(
+                    type="password"
+                    placeholder="あいことば"
+                    )
+            br
+            br
+            button.button.is-primary.is-rounded.is-outlined#register
+                i.fas.fa-user-plus とうろく
+                
