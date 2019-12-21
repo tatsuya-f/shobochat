@@ -3,11 +3,14 @@ import * as session from "express-session";
 import * as expressWs from "express-ws";
 import {
     initializeDB,
+    getUserByName,
+    hasUserName,
+    insertUser,
+    getMessage,
     getAllMessages,
     insertMessage,
     deleteMessage,
 } from "./dbHandler";
-import * as db from "./database";
 // import * as uuid from "uuid";
 import * as WebSocket from "ws";
 import { Request, Response, NextFunction } from "express";
@@ -21,7 +24,7 @@ export const app = exWs.app;
 async function sendAllMessage() {
     // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
     const wss: WebSocket.Server = exWs.getWss();
-    const messages = await db.getAllMessages();
+    const messages = await getAllMessages();
     console.log(messages);
 
     // 接続されている各Clientにsendする
@@ -118,7 +121,7 @@ app.delete("/messages/:id", checkLogin, async (req: Request, res: Response, next
             return;
         }
         const messageId = parseInt(req.params.id);
-        const message = await db.getMessage(messageId);
+        const message = await getMessage(messageId);
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
             await sendAllMessage();
@@ -195,7 +198,7 @@ app.post("/login", async (req: Request, res: Response) => {
     const name = req.body.name;
     const password = req.body.password;
     try {
-        const user = await db.getUserByName(name);
+        const user = await getUserByName(name);
         if (user.password === password) {
             sess.isLogined = true;
             res.redirect("/chat");
@@ -232,11 +235,8 @@ app.post("/register", async (req: Request, res: Response) => {
     const name = req.body.name;
     const password = req.body.password;
     try {
-        if (!(await db.hasUserName(name))) { 
-            const userId = await db.insertUser({
-                name: name,
-                password: password
-            });
+        if (!(await hasUserName(name))) { 
+            const userId = await insertUser(name, password);
             sess.userId = userId;
             sess.name = name;
             sess.isLogined = true;
@@ -254,7 +254,6 @@ app.post("/register", async (req: Request, res: Response) => {
 (async function startServer() {
     try {
         await initializeDB();
-        await db.initializeDB();
 
         if (__filename.includes("dist")) {
             const port = app.get("port");
