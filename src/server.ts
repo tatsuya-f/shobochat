@@ -3,7 +3,6 @@ import * as session from "express-session";
 import * as expressWs from "express-ws";
 import {
     initializeDB,
-    getMessage,
     getAllMessages,
     insertMessage,
     deleteMessage,
@@ -119,7 +118,7 @@ app.delete("/messages/:id", checkLogin, async (req: Request, res: Response, next
             return;
         }
         const messageId = parseInt(req.params.id);
-        const message = await getMessage(messageId);
+        const message = await db.getMessage(messageId);
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
             await sendAllMessage();
