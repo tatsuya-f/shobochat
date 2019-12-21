@@ -3,8 +3,7 @@ import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
 import { isMessage } from "../src/Message";
-import { initializeDB, getMessage, getAllMessages } from "../src/dbHandler";
-import * as db from "../src/database";
+import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
 
 let cookie: Array<string>;
 
@@ -136,7 +135,6 @@ describe("test for register, login", () => {
     before(async () => {
         try {
             await initializeDB();
-            await db.initializeDB();
         } catch (err) {
             console.log(err);
         }
@@ -151,7 +149,7 @@ describe("test for register, login", () => {
                 .send({ name: name, password: password })
                 .expect(302);
             try {
-                const user = await db.getUserByName(name);
+                const user = await getUserByName(name);
                 assert.strictEqual(user.name, name);
                 assert.strictEqual(user.password, password);
             } catch (err) {
