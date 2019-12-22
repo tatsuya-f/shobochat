@@ -1,4 +1,4 @@
-import { UserInfo, isUserInfo } from "./UserInfo";
+import { UserInfo, isUserInfo } from "./User";
 
 function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
     return fetch(url, {
