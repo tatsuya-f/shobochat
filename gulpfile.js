@@ -94,3 +94,6 @@ exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
 exports.build = series(clientIndex, clientRegister, clientLogin, clientChat, server, compilePug, copy);
+exports.server = series(server, copy);
+exports.client = series(clientIndex, clientRegister, clientLogin, clientChat);
+exports.pug = series(compilePug);
