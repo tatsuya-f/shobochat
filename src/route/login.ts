@@ -22,7 +22,7 @@ loginRouter.post("/", async (req: Request, res: Response) => {
     const sess = req.session;
     if (sess === undefined) {
         console.log("session not working");
-        res.status(500).end();
+        res.status(401).end();
         return;
     }
 
@@ -30,13 +30,16 @@ loginRouter.post("/", async (req: Request, res: Response) => {
     const password = req.body.password;
     try {
         const user: User = await getUserByName(name);
-        if (user.password === password) {
+        if (user === undefined) {
+            console.log("invalid username");
+            res.status(401).end();
+        } else if (user.password !== password) {
+            console.log("invalid password");
+            res.status(401).end();
+        } else {
             sess.userId = user.id;
             sess.isLoggedin = true;
             res.redirect("/chat");
-        } else {
-            console.log("invalid password");
-            res.status(401).end();
         }
     } catch (err) {
         console.log(err);

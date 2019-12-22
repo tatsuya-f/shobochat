@@ -21,7 +21,7 @@ registerRouter.post("/", async (req: Request, res: Response) => {
     const sess = req.session;
     if (sess === undefined) {
         console.log("session not working");
-        res.status(500).end();
+        res.status(401).end();
         return;
     }
 
