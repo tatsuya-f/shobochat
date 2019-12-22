@@ -1,5 +1,5 @@
 import { User } from "./User";
-import { Message, toMessage } from "./Message";
+import { Message } from "./Message";
 import { encrypt } from "./hashPassword";
 import * as sqlite from "sqlite3";
 const sqlite3 = sqlite.verbose();
@@ -9,13 +9,12 @@ export async function initializeDB(): Promise<void> {
     const userInfoTable = `userInfo(
                          id INTEGER PRIMARY KEY AUTOINCREMENT,
                          name TEXT UNIQUE NOT NULL,
-                         password TEST NOT NULL
+                         password TEXT NOT NULL
                          )`;
 
     const messagesTable = `messages (
-                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                         userId INTEGER NOT NULL,
-                         time INTEGER NOT NULL, message TEST NOT NULL,
+                         id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL,
+                         time INTEGER NOT NULL, message TEXT NOT NULL,
                          FOREIGN KEY(userId) REFERENCES userInfo(id)
                          )`;
 
@@ -124,8 +123,7 @@ export function getAllMessages(): Promise<Array<Message>> {
                 reject(err);
                 return;
             }
-            const messages = rows.map(row => toMessage(row));
-            resolve(messages);
+            resolve(rows);
         });
     });
 }
