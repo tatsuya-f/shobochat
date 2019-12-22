@@ -81,7 +81,7 @@ function server() {
 
 function test() {
     return src("test/*")
-        .pipe(mocha());
+        .pipe(mocha({exit: true}));
 }
 
 function copy() {
