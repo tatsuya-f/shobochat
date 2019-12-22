@@ -14,7 +14,7 @@ function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
 export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
     const name = String($("#name").val());
     const password = String($("#pass").val());
-    
+
     const userInfo = {
         name: name,
         password: password
@@ -29,12 +29,12 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
             if (status === 200) {
                 alert("ちゃっとにいどうします。");
                 setTimeout(() => {
-                    window.location.href = "/chat";   
+                    window.location.href = "/chat";
                 }, 1000);
             } else {
                 console.log("GET Failed");
             }
-          
+
         } catch (err) {
             console.log(err);
         }
@@ -47,7 +47,7 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/login";
 
-    $("#login").on("click", async () => { 
+    $("#login").on("click", async () => {
         console.log("clicked");
         $("#login").addClass("is-loading");
         await sendUserInfo(chatApiEndpoint);
@@ -55,6 +55,6 @@ $(() => {
     });
 
     $("#jmp-register").on("click", async () => {
-        location.href = "/register.html";
+        location.href = "/register";
     });
 });
