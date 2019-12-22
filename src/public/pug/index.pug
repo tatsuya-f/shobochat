@@ -1,40 +1,17 @@
 doctype html
 html
-    head
-        meta(charset="utf-8")
-        title しょぼちゃっと
-        script(
-            src="https://code.jquery.com/jquery-3.4.1.js"
-            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-            crossorigin="anonymous"
-            )
-        script(
-            type="text/javascript"
-            src="js/client_index.js"
-            )
-        link(
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-            )
-        link(
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
-            )
-        link(
-            rel="stylesheet"
-            href="css/page.css"
-        )
+    - var title="しょぼちゃっと"
+    - var js_file="client_index.js"
+    - var css_file="page.css"
+    include _head.pug
     body
         section.hero.is-primary
             .hero-body
                 .container
                     h1.title しょぼちゃっと
-        button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#jmp-register
-            i.far.fa-arrow-alt-circle-right とうろく
-        br
-        br
-        br
-        br
-        br
-        button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#jmp-login
-            i.far.fa-arrow-alt-circle-right ろぐいん
+        div
+            button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#jmp-register
+                i.far.fa-arrow-alt-circle-right とうろく
+        div
+            button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#jmp-login
+                i.far.fa-arrow-alt-circle-right ろぐいん

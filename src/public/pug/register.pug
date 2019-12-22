@@ -1,49 +1,10 @@
-doctype html
-html
-    head
-        meta(charset="utf-8")
-        title しょぼちゃっと - とうろく
-        script(
-            src="https://code.jquery.com/jquery-3.4.1.js"
-            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-            crossorigin="anonymous"
-            )
-        script(
-            type="text/javascript"
-            src="js/client_register.js"
-            )
-        link(
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
-            )
-        link(
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
-            )
-        link(
-            rel="stylesheet"
-            href="css/page.css"
-        )
-    
-    body
-        section.hero.is-primary
-            .hero-body
-                .container
-                    h1.title しょぼちゃっと とうろく
-        br
-        .shobo-field
-            label.username なまえ
-            .control
-                input.input#name(
-                    type="text"
-                    placeholder="なまえ"
-                    )
-            label.psw あいことば
-            input.input#pass(
-                    type="password"
-                    placeholder="あいことば"
-                    )
-            br
-            br
-            button.button.is-primary.is-rounded.is-outlined#register
-                i.fas.fa-user-plus とうろく
+extends _enter.pug
+
+block head
+    - var title="しょぼちゃっと - とうろく"
+    - var js_file="client_register.js"
+    - var css_file="page.css"
+    include _head.pug
+
+block prepend button
+    - var btn_txt="とうろく"

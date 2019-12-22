@@ -4,10 +4,9 @@
     margin: 0 auto;
 }
 
-/* .container { */
-/*     text-align: center; */
-/* } */
-
 .shobo-jmp-btn {
-    margin-left: 70%;
+    position: relative;
+    margin: 10%;
+    margin-left: 40%;
+    margin-right: 40%;
 }
