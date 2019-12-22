@@ -12,16 +12,21 @@ function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
 }
 
 export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
+    const name = String($("#name").val());
+    const password = String($("#pass").val());
+    
     const userInfo = {
-        name: $("#name").val(),
-        password: $("#pass").val()
+        name: name,
+        password: password
     };
 
+    console.log(userInfo);
     if (isUserInfo(userInfo)) {
+        console.log("fetch");
 
         try {
             const status = await CheckUserInfo(chatApiEndpoint, userInfo);
-            if (status === 500) {
+            if (status === 200) {
                 alert("ちゃっとにいどうします。");
                 setTimeout(() => {
                     window.location.href = "/chat";   
@@ -43,6 +48,7 @@ $(() => {
     const chatApiEndpoint = "http://localhost:8000/login";
 
     $("#login").on("click", async () => { 
+        console.log("clicked");
         $("#login").addClass("is-loading");
         await sendUserInfo(chatApiEndpoint);
         $("#login").removeClass("is-loading");
