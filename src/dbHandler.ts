@@ -1,5 +1,5 @@
 import { User } from "./User";
-import { Message, toMessage } from "./Message";
+import { Message } from "./Message";
 import { encrypt } from "./hashPassword";
 import * as sqlite from "sqlite3";
 const sqlite3 = sqlite.verbose();
@@ -123,8 +123,7 @@ export function getAllMessages(): Promise<Array<Message>> {
                 reject(err);
                 return;
             }
-            const messages = rows.map(row => toMessage(row));
-            resolve(messages);
+            resolve(rows);
         });
     });
 }
