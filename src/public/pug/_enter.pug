@@ -6,7 +6,7 @@ html
         section.hero.is-primary
             .hero-body
                 .container
-                    h1.title しょぼちゃっと とうろく
+                    h1.title しょぼちゃっと #{btn_txt}
         br
         .shobo-field
             label.username なまえ
@@ -21,5 +21,5 @@ html
                     placeholder="あいことば"
                     )
             block button
-                button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#register
+                button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined(id=`${id}`)
                     i.fas.fa-user-plus #{btn_txt}
