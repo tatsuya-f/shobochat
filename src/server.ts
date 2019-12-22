@@ -1,58 +1,22 @@
-import { User } from "./User";
 import * as express from "express";
 import * as session from "express-session";
-import * as expressWs from "express-ws";
-import {
-    initializeDB,
-    getUserByName,
-    hasUserName,
-    insertUser,
-    getMessage,
-    getAllMessages,
-    insertMessage,
-    deleteMessage,
-} from "./dbHandler";
-// import * as uuid from "uuid";
 import * as WebSocket from "ws";
-import { Request, Response, NextFunction } from "express";
-// import * as chat from "./route/chat";
-// import * as login from "./route/login";
-// import * as register from "./route/register";
+import { broadcastMessages } from "./webSocketHandler";
+import { initializeDB } from "./dbHandler";
+import { checkLogin } from "./loginHandler";
+import { indexRouter } from "./route/index";
+import { loginRouter } from "./route/login";
+import { registerRouter } from "./route/register";
+import { chatRouter } from "./route/chat";
+import { messagesRouter } from "./route/messages";
 
-const exWs = expressWs(express());
-export const app = exWs.app;
-
-async function sendAllMessage() {
-    // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
-    const wss: WebSocket.Server = exWs.getWss();
-    const messages = await getAllMessages();
-
-    // 接続されている各Clientにsendする
-    wss.clients.forEach(ws => {
-        ws.send(JSON.stringify(messages));
-    });
-}
-
-function redirectChatWhenLoggedIn(req: Request, res: Response, next: NextFunction) {
-    const sess = req.session;
-    if (sess !== undefined && sess.isLogined) {
-        res.redirect("/chat");
-    } else {
-        next();
-    }
-}
-
-function checkLogin(req: Request, res: Response, next: NextFunction) {
-    const sess = req.session;
-    if (sess === undefined || !sess.isLogined) {
-        res.redirect("/"); // ログインしていない場合は top へ
-    } else {
-        next(); // ログインしているときは，次の middleware へ
-    }
-}
+export const app = express();
+export const wss = new WebSocket.Server({ port: 8080 });
 
 app.set("port", 8000);
+
 app.use(express.json());
+
 app.use(session({
     secret: "shoboshobo",
     resave: false,
@@ -63,181 +27,27 @@ app.use(session({
     }
 })); // 各エンドポイントにアクセスされる際に，付与していない場合は session 用の Cookie をブラウザに付与
 
-app.get("/messages", checkLogin, async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const messages = await getAllMessages();
-        res.json(messages);
-    } catch (err) {
-        next(err);
-    }
-});
+app.use("/", indexRouter);
+app.use(express.static("public")); // GET / された後に静的ファイルを配信
 
-app.post("/messages", checkLogin, async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const sess = req.session;
-        if (sess === undefined) {
-            console.log("session not working");
-            res.status(500).end();
-            return;
-        }
+app.use("/login", loginRouter);
 
-        /*
-         * post はMIME Type を偽装してシンプルなリクエストに
-         * する可能性があるので，以下の対策をする
-         * その場合，Access-Control-Allow-Headers を
-         * 緩和してはいけない
-         *
-         * delete はシンプルなリクエストになりえないので
-         * Access-Control-Allow-Methods を
-         * 緩和しない限りは特にチェックは必要ない
-         *
-         * 時間があったら，token を生成する方法にする
-         */
-        // MIME Type を偽装してシンプルなリクエストにしてきた場合の対処
-        const contentType = req.header("Content-Type");
-        if (contentType !== "application/json") {
-            console.log("** CSRF detected **");
-            res.status(500).end();
-            return;
-        }
+app.use("/register", registerRouter);
 
-        await insertMessage(sess.userId, req.body.message);
-        await sendAllMessage();
-        res.status(200).end();
-    } catch (err) {
-        next(err);
-    }
-});
+app.use("/chat", checkLogin, chatRouter);
 
-app.delete("/messages/:id", checkLogin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        const sess = req.session;
-        if (sess === undefined) {
-            res.status(500).end();
-            return;
-        }
-        const messageId = parseInt(req.params.id);
-        const message = await getMessage(messageId);
+app.use("/messages", checkLogin, messagesRouter);
 
-        if (message.userId === sess.userId) { // accept
-            await deleteMessage(messageId);
-            await sendAllMessage();
-            res.status(200).end();
-        }
-        else { // reject
-            res.status(500).end();
-        }
-    } catch (err) {
-        next(err);
-    }
-});
-
-app.get("/chat", checkLogin, (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile("chat.html", {
-        root: "public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
-        }
-    });
-});
-
-app.ws("/messages", (ws) => {
+wss.on("connection", (ws) => {
     // 接続完了後Client側でsendするとServerのmessage eventが発火
     ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            await sendAllMessage();
+            await broadcastMessages();
         } catch (err) {
             console.log(err);
         }
     });
-    ws.on("close", () => {
-    });
-});
-
-app.get("/", redirectChatWhenLoggedIn, (req: Request, res: Response, next: NextFunction) => {
-    next();
-});
-
-app.use(express.static("public")); // GET / された後に静的ファイルを配信
-
-app.get("/login", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile("login.html", {
-        root: "public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
-        }
-    });
-});
-
-app.post("/login", async (req: Request, res: Response) => {
-    const sess = req.session;
-    if (sess === undefined) {
-        console.log("session not working");
-        res.status(500).end();
-        return;
-    }
-
-    const name = req.body.name;
-    const password = req.body.password;
-    try {
-        const user: User = await getUserByName(name);
-        if (user.password === password) {
-            sess.userId = user.id;
-            sess.isLogined = true;
-            res.redirect("/chat");
-        } else {
-            console.log("invalid password");
-            res.status(401).end();
-        }
-    } catch (err) {
-        console.log(err);
-        res.status(500).end();
-    }
-});
-
-app.get("/register", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile("register.html", {
-        root: "public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
-        }
-    });
-});
-
-app.post("/register", async (req: Request, res: Response) => {
-    const sess = req.session;
-    if (sess === undefined) {
-        console.log("session not working");
-        res.status(500).end();
-        return;
-    }
-
-    const name = req.body.name;
-    const password = req.body.password;
-    try {
-        if (!(await hasUserName(name))) { 
-            const userId = await insertUser(name, password);
-            sess.userId = userId;
-            sess.isLogined = true;
-            res.redirect("/chat");
-        } else { 
-            console.log("name has already exists; reject");
-            res.status(401).end();
-        }
-    } catch (err) {
-        console.log(err);
-        res.status(500).end();
-    }
 });
 
 (async function startServer() {

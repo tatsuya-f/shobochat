@@ -27,7 +27,7 @@ function insertTextarea(before: string, after: string) {
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/messages";
-    const websocketEndPoint = "ws://localhost:8000/messages";
+    const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
 
     ws.addEventListener("open", () => { // 接続完了後発火

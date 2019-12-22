@@ -13,6 +13,7 @@ async function postTestMessage(times: number, cookie: Array<string>): Promise<vo
     for (let i = 0; i < times; i++) {
         await agent
             .post("/messages")
+            .set("Content-Type", "application/json")
             .send({ name: "test_name", message: "test_message" })
             .set("Cookie", cookie);
     }
@@ -122,6 +123,7 @@ describe("POST /messages", () => {
     it("returns 200 when parameters are valid", async () => {
         await agent
             .post("/messages")
+            .set("Content-Type", "application/json")
             .send({ name: "test_name", message: "test_message" })
             .set("Cookie", cookie)
             .expect(200);
