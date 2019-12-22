@@ -1,0 +1,77 @@
+:root {
+    --navbar-height: 50px;
+    --input-area-height: 280px;
+    --input-area-padding: 0px;
+    --input-area-bottom: 20px;
+}
+
+nav.shobo-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: var(--navbar-height);
+}
+
+#main-footer {
+    position: fixed;
+    bottom: var(--input-area-bottom);
+    width: 90%;
+    background: transparent;
+    padding: var(--input-area-padding);
+    height: var(--input-area-height);
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.shobo-name {
+    font-size: 23px;
+    font-weight: bold;
+    display: inline;
+}
+
+.shobo-time {
+    font-size: 12px;
+    display: inline;
+}
+
+.shobo-message {
+    font-size: 20px;
+    background: transparent;
+}
+
+.shobo-main {
+    margin-top: var(--navbar-height);
+    margin-bottom: calc(var(--input-area-height) +
+                        var(--input-area-bottom) +
+                        var(--input-area-padding));
+}
+
+.shobo-textarea {
+    resize: none;
+}
+
+#queryMessage {
+    font-size: 20px;
+    display: inline-block;
+    margin-left: 10px;
+    color: red;
+}
+
+#shobo-title {
+    color: white;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+#name {
+    margin-bottom: 5px;
+}
+
+#message {
+    margin-bottom: 5px;
+}
+
+body {
+    padding: 10px;
+}

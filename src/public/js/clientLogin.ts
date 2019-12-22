@@ -12,41 +12,29 @@ function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
 }
 
 export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
-    const name = String($("#name").val());
-    const password = String($("#pass").val());
-
     const userInfo = {
-        name: name,
-        password: password
+        name: $("#name").val(),
+        password: $("#pass").val()
     };
 
     console.log(userInfo);
     if (isUserInfo(userInfo)) {
-        console.log("fetch");
-
         try {
             const status = await CheckUserInfo(chatApiEndpoint, userInfo);
             if (status === 200) {
-                alert("ちゃっとにいどうします。");
-                setTimeout(() => {
-                    window.location.href = "/chat";
-                }, 1000);
+                window.location.href = "/chat";
             } else {
                 console.log("GET Failed");
             }
-
         } catch (err) {
             console.log(err);
         }
-
     }
-
 }
 
 
 $(() => {
     const chatApiEndpoint = "http://localhost:8000/login";
-
     $("#login").on("click", async () => {
         console.log("clicked");
         $("#login").addClass("is-loading");
@@ -54,7 +42,7 @@ $(() => {
         $("#login").removeClass("is-loading");
     });
 
-    $("#jmp-register").on("click", async () => {
+    $("#jmp-register").on("click", () => {
         location.href = "/register";
     });
 });

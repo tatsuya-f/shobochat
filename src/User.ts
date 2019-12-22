@@ -1,9 +1,8 @@
-"use strict";
 
-export interface User { 
-    id: number; 
-    name: string; 
-    password: string; 
+export interface User {
+    id: number;
+    name: string;
+    password: string;
 }
 
 export function isUser(arg: any): arg is User {

@@ -21,21 +21,15 @@ export async function register(chatApiEndpoint: string): Promise<void> {
     if (isUserInfo(userInfo)) {
         try {
             const status = await registerUserInfo(chatApiEndpoint, userInfo);
-
             if (status === 200) {
-                alert("ちゃっとにいどうします。");
-                setTimeout(() => {
-                    window.location.href = "/chat";   
-                }, 1000);
+                window.location.href = "/chat";
             } else {
                 console.log("POST Failed");
             }
         } catch (err) {
             console.log(err);
         }
-
-    } 
-
+    }
 }
 
 $(() => {
