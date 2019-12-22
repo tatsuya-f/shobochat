@@ -45,6 +45,7 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
+    "crypto-ts": "^1.0.2",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "express-ws": "^4.0.0",
