@@ -15,6 +15,19 @@ export function isMessage(arg: any): arg is Message {
         typeof arg.message === "string";
 }
 
+export function toMessage(arg: any): Message {
+    if (isMessage(arg)) {
+        return arg;
+    }
+    return {
+        id: arg.id || undefined,
+        userId: arg.userId || undefined,
+        time: arg.time || undefined,
+        name: arg.name.toString(),
+        message: arg.message.toString()
+    };
+}
+
 export function isMessageArray(arg: any): arg is Array<Message> {
     if (!Array.isArray(arg)) { return false; }
     arg.forEach(m => {
