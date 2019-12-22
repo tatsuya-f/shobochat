@@ -1,3 +1,4 @@
+import { User } from "./User";
 import * as express from "express";
 import * as session from "express-session";
 import * as expressWs from "express-ws";
@@ -186,8 +187,9 @@ app.post("/login", async (req: Request, res: Response) => {
     const name = req.body.name;
     const password = req.body.password;
     try {
-        const user = await getUserByName(name);
+        const user: User = await getUserByName(name);
         if (user.password === password) {
+            sess.userId = user.id;
             sess.isLogined = true;
             res.redirect("/chat");
         } else {
@@ -226,7 +228,6 @@ app.post("/register", async (req: Request, res: Response) => {
         if (!(await hasUserName(name))) { 
             const userId = await insertUser(name, password);
             sess.userId = userId;
-            sess.name = name;
             sess.isLogined = true;
             res.redirect("/chat");
         } else { 
