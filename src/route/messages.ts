@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { 
+import {
     getMessage,
     getAllMessages,
     insertMessage,
@@ -62,9 +62,8 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
             res.status(500).end();
             return;
         }
-        const messageId = parseInt(req.params.id);
+        const messageId = req.params.id;
         const message = await getMessage(messageId);
-
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
             await broadcastMessages();

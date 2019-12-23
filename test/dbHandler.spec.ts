@@ -1,17 +1,19 @@
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
-import { Message,
-         isMessage } from "../src/Message";
+import {
+    Message,
+    isMessage } from "../src/Message";
 import { User, isUser } from "../src/User";
-import { initializeDB, 
-         getUserByName, 
-         hasUserName,
-         insertUser, 
-         getMessage,
-         getAllMessages,
-         insertMessage,
-         deleteMessage} from "../src/dbHandler";
+import {
+    initializeDB,
+    getUserByName,
+    hasUserName,
+    insertUser,
+    getMessage,
+    getAllMessages,
+    insertMessage,
+    deleteMessage } from "../src/dbHandler";
 
 const testName = "testName";
 const testPassword = "testPassword";
@@ -90,12 +92,13 @@ describe("insertUser", () => {
 
 describe("getMessage", () => {
     let userId: number;
-    let messageId: number;
+    let messageId: string;
     before(async () => {
         try {
             await initializeDB();
             userId = await insertUser(testName, testPassword);
             messageId = await insertMessage(userId, testMessage);
+            console.log("messageId: " + messageId);
         } catch (err) {
             console.log(err);
         }
@@ -109,7 +112,7 @@ describe("getMessage", () => {
         const message = await getMessage(messageId);
         assert.equal(isMessage(message), true);
         assert.equal(message.id === messageId, true);
-        assert.equal(message.userId=== userId, true);
+        assert.equal(message.userId === userId, true);
         assert.equal(message.name === testName, true);
         assert.equal(message.message === testMessage, true);
     });
@@ -167,7 +170,7 @@ describe("insertMessage", () => {
 
 describe("deleteMessage", () => {
     let userId: number;
-    let messageId: number;
+    let messageId: string;
     before(async () => {
         try {
             await initializeDB();

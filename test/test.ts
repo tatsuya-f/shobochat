@@ -134,21 +134,21 @@ describe("POST /messages", () => {
 describe("DELETE /messages", () => {
     let cookie: Array<string>;
     const agent = request.agent(app);
-    const testId = 1;
+    let testId = "not assigned yet";
 
     before(async () => {
         try {
             await initializeDB();
 
-            const response = await agent.get("/")
+            const response = await agent.get("/");
             cookie = response.header["set-cookie"];
 
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"})
+                .send({ name: "test", password: "test"});
 
             await postTestMessage(1, cookie);
-
+            testId = (await getAllMessages())[0].id as string;
         } catch (err) {
             console.log(err);
         }

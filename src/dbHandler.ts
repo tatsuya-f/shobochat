@@ -2,6 +2,7 @@ import { User } from "./User";
 import { Message } from "./Message";
 import { hash } from "./hashPassword";
 import * as sqlite from "sqlite3";
+import * as uuid from "uuid";
 const sqlite3 = sqlite.verbose();
 const databaseName = "sqlite3.db";
 
@@ -13,7 +14,8 @@ export async function initializeDB(): Promise<void> {
                          )`;
 
     const messagesTable = `messages (
-                         id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL,
+                         id TEXT PRIMARY KEY,
+                         userId INTEGER NOT NULL,
                          time INTEGER NOT NULL, message TEXT NOT NULL,
                          FOREIGN KEY(userId) REFERENCES userInfo(id)
                          )`;
@@ -93,7 +95,7 @@ export function insertUser(name: string, password: string): Promise<number> {
     });
 }
 
-export function getMessage(messageId: number): Promise<Message> {
+export function getMessage(messageId: string): Promise<Message> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
         const sql = `SELECT messages.id, userId, time, name, message
@@ -129,7 +131,7 @@ export function getAllMessages(): Promise<Array<Message>> {
 }
 
 // insert された message の message id をプロミスに入れて返します
-export function insertMessage(userId: number, message: string): Promise<number> {
+export function insertMessage(userId: number, message: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
         const time = Date.now();
@@ -137,34 +139,27 @@ export function insertMessage(userId: number, message: string): Promise<number> 
         /*
          * プレースホルダを利用すると，非NULLのエラーがでる
          * (文字列連結だと文字列"undefined"が格納されるので注意)
-         * 
+         *
          * messages.userIdはuserInfo.idを参照しているので，
          * messages.userIdにはuserInfo.idに無いものは入れられない
          */
-        const sql = "INSERT INTO messages (userId, time, message) VALUES(?, ?, ?)";
+        const sql = "INSERT INTO messages (id, userId, time, message) VALUES(?, ?, ?, ?)";
+        const id = uuid.v1();
 
         db.serialize(() => {
-            db.run(sql, [userId, time, message], (err) => {
+            db.run(sql, [id, userId, time, message], (err) => {
                 if (err) {
                     db.close();
                     reject(err);
                     return;
                 }
-            });
-
-            db.get("SELECT last_insert_rowid() as last_insert_rowid", (err, row) => { // カラムをaliasing
-                db.close();
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(row["last_insert_rowid"]); // return message id
+                resolve(id);
             });
         });
     });
 }
 
-export function deleteMessage(messageId: number): Promise<void> {
+export function deleteMessage(messageId: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
         const sql = "DELETE FROM messages where id = ?";
