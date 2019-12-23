@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "../User";
 import { redirectChatWhenLoggedIn } from "../loginHandler";
 import { getUserByName } from "../dbHandler";
-import { decrypt } from "../hashPassword";
+import { hash } from "../hashPassword";
 
 export const loginRouter = express.Router();
 
@@ -34,7 +34,7 @@ loginRouter.post("/", async (req: Request, res: Response) => {
         if (user === undefined) {
             console.log("invalid username");
             res.status(401).end();
-        } else if (decrypt(user.password) !== password) {
+        } else if (user.password !== hash(password)) {
             console.log("invalid password");
             res.status(401).end();
         } else {
