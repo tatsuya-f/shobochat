@@ -4,7 +4,7 @@ import * as assert from "assert";
 import * as fs from "fs";
 import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
-import { decrypt } from "../src/hashPassword";
+import { hash } from "../src/hashPassword";
 
 //let cookie: Array<string>;
 
@@ -191,7 +191,7 @@ describe("test for register and login", () => {
             try {
                 const user = await getUserByName(name);
                 assert.strictEqual(user.name, name);
-                assert.strictEqual(decrypt(user.password), password);
+                assert.strictEqual(user.password, hash(password));
             } catch (err) {
                 console.log(err);
             }

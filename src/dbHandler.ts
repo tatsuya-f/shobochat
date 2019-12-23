@@ -1,6 +1,6 @@
 import { User } from "./User";
 import { Message } from "./Message";
-import { encrypt } from "./hashPassword";
+import { hash } from "./hashPassword";
 import * as sqlite from "sqlite3";
 const sqlite3 = sqlite.verbose();
 const databaseName = "sqlite3.db";
@@ -74,7 +74,7 @@ export function insertUser(name: string, password: string): Promise<number> {
         const db = new sqlite3.Database(databaseName);
         const sql = "INSERT INTO userInfo (name, password) VALUES(?, ?)";
         db.serialize(() => {
-            db.run(sql, [name, encrypt(password)], (err) => {
+            db.run(sql, [name, hash(password)], (err) => {
                 if (err) {
                     db.close();
                     reject(err);
