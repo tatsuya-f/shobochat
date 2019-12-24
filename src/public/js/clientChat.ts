@@ -29,7 +29,7 @@ function insertTextarea(before: string, after: string) {
 }
 
 $(() => {
-    const chatApiEndpoint = "http://localhost:8000/messages";
+    const chatApiEndpoint = "/messages";
     const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
 

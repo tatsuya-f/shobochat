@@ -6,7 +6,7 @@ import {
     insertMessage,
     deleteMessage } from "../dbHandler";
 import { broadcastMessages } from "../webSocketHandler";
-import { isPrime, extractNumFromPrimeQ } from "../primeHandler";
+import { answerIsPrime } from "../primeHandler";
 import { shobot } from "../server";
 
 export const messagesRouter = express.Router();
@@ -50,13 +50,9 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
         }
 
         await insertMessage(sess.userId, req.body.message);
-        const num = extractNumFromPrimeQ(req.body.message);
-        if (num !== null) {
-            if (isPrime(num)) {
-                await insertMessage(shobot, `${num}はそすうだよー`);
-            } else {
-                await insertMessage(shobot, `${num}はそすうじゃないんだよなー`);
-            }
+        const primeAns = answerIsPrime(req.body.message);
+        if (primeAns !== null) {
+            await insertMessage(shobot, primeAns);
         }
         await broadcastMessages();
         res.status(200).end();

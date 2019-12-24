@@ -10,7 +10,7 @@ export function isPrime(num: number): boolean {
     return true;
 }
 
-const pattern = new RegExp(/(\d+)(は|って)素数(ですか|なの|かな|だよね|)(？|\?|。)/, "u");
+const pattern = new RegExp(/([-+0-9]+)(は|って)素数(ですか|なの|かな|だよね|)(？|\?|。|)/, "u");
 
 export function extractNumFromPrimeQ(input: string): number | null {
     const match = pattern.exec(input);
@@ -18,4 +18,17 @@ export function extractNumFromPrimeQ(input: string): number | null {
         return parseInt(match[1]);
     }
     return null;
+}
+
+export function answerIsPrime(input: string): string | null {
+    const num = extractNumFromPrimeQ(input);
+    if (num !== null) {
+        if (isPrime(num)) {
+            return `${num}はそすうだよー`;
+        } else {
+            return `${num}はそすうじゃないんだよなー`;
+        }
+    } else {
+        return null;
+    }
 }
