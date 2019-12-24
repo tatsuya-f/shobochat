@@ -18,7 +18,6 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
         password: $("#pass").val()
     };
 
-    console.log(userInfo);
     if (isUserInfo(userInfo)) {
         try {
             const status = await CheckUserInfo(chatApiEndpoint, userInfo);
@@ -35,15 +34,11 @@ export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
 
 
 $(() => {
-    const chatApiEndpoint = "http://localhost:8000/login";
+    const chatApiEndpoint = "/login";
     $("#login").on("click", async () => {
         console.log("clicked");
         $("#login").addClass("is-loading");
         await sendUserInfo(chatApiEndpoint);
         $("#login").removeClass("is-loading");
-    });
-
-    $("#jmp-register").on("click", () => {
-        location.href = "/register";
     });
 });
