@@ -1,14 +1,15 @@
 import { UserInfo, isUserInfo } from "./User";
 
-function registerUserInfo(url: string, userInfo: UserInfo): Promise<number> {
-    return fetch(url, {
+async function registerUserInfo(url: string, userInfo: UserInfo): Promise<number> {
+    const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(userInfo),
         headers: {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    }).then (res => res.status);
+    });
+    return res.status;
 }
 
 export async function register(chatApiEndpoint: string): Promise<void> {
