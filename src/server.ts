@@ -2,7 +2,7 @@ import * as express from "express";
 import * as session from "express-session";
 import * as WebSocket from "ws";
 import { broadcastMessages } from "./webSocketHandler";
-import { initializeDB } from "./dbHandler";
+import { initializeDB, insertUser } from "./dbHandler";
 import { checkLogin } from "./loginHandler";
 import { indexRouter } from "./route/index";
 import { loginRouter } from "./route/login";
@@ -50,10 +50,12 @@ wss.on("connection", (ws) => {
     });
 });
 
+export let shobot: number;
+
 (async function startServer() {
     try {
         await initializeDB();
-
+        shobot = await insertUser("しょぼっと", "shobot");
         if (__filename.includes("dist")) {
             const port = app.get("port");
             app.listen(port, () =>
