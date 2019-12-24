@@ -113,6 +113,26 @@ export function getMessage(messageId: string): Promise<Message> {
     });
 }
 
+export function getBeforeMessages(fromTime: number, n: number): Promise<Array<Message>> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        // get messages older than fromTime, and get the newest n message of them
+        const sql = `SELECT messages.id, userId, time, name, message
+                    FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
+                    WHERE time < ?
+                    ORDER BY time DESC
+                    LIMIT ?`;
+        db.all(sql, [fromTime, n], (err, row) => {
+            db.close();
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row);
+        });
+    });
+}
+
 export function getAllMessages(): Promise<Array<Message>> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);

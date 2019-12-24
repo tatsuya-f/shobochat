@@ -55,7 +55,7 @@ function postMessage(url: string, message: Message): Promise<number> {
     }).then(res => res.status);
 }
 
-function deleteMessage(url: string, messageId: number): Promise<number> {
+function deleteMessage(url: string, messageId: string): Promise<number> {
     return fetch(`${url}/${messageId}`, {
         method: "DELETE",
         headers: {
@@ -135,7 +135,7 @@ export function showMessages(messages: Array<Message>) {
 }
 
 
-export async function removeMessage(chatApiEndpoint: string, messageId: number): Promise<void> {
+export async function removeMessage(chatApiEndpoint: string, messageId: string): Promise<void> {
     const status = await deleteMessage(chatApiEndpoint, messageId);
     const $queryMessage = $("#queryMessage");
     if (status === 200) {

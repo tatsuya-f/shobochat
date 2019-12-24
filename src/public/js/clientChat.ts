@@ -100,7 +100,7 @@ $(() => {
         timer = window.setTimeout(async () => {
             if (window.confirm("削除しますか?")) {
                 let messageId = $(this).data("message-id");
-                if (typeof messageId === "number") {
+                if (typeof messageId === "string") {
                     await removeMessage(chatApiEndpoint, messageId);
                 }
             }
