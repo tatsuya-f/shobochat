@@ -1,6 +1,6 @@
 
 export interface Message {
-    id?: number;
+    id?: string;
     userId?: number;
     time?: number;
     name: string;
@@ -8,7 +8,7 @@ export interface Message {
 }
 
 export function isMessage(arg: any): arg is Message {
-    return (arg.id === undefined || typeof arg.id === "number") &&
+    return (arg.id === undefined || typeof arg.id === "string") &&
         (arg.userId === undefined || typeof arg.userId === "number") &&
         (arg.time === undefined || typeof arg.time === "number") &&
         typeof arg.name === "string" &&

@@ -1,17 +1,20 @@
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
-import { Message,
-         isMessage } from "../src/Message";
+import {
+    Message,
+    isMessage } from "../src/Message";
 import { User, isUser } from "../src/User";
-import { initializeDB, 
-         getUserByName, 
-         hasUserName,
-         insertUser, 
-         getMessage,
-         getAllMessages,
-         insertMessage,
-         deleteMessage} from "../src/dbHandler";
+import {
+    initializeDB,
+    getUserByName,
+    hasUserName,
+    insertUser,
+    getMessage,
+    getBeforeMessages,
+    getAllMessages,
+    insertMessage,
+    deleteMessage } from "../src/dbHandler";
 
 const testName = "testName";
 const testPassword = "testPassword";
@@ -41,8 +44,8 @@ describe("getUserByName", () => {
 
     it("returns User object", async () => {
         const testUser = await getUserByName(testName);
-        assert.equal(isUser(testUser), true);
-        assert.equal(testUser.name === testName, true);
+        assert.strictEqual(isUser(testUser), true);
+        assert.strictEqual(testUser.name, testName);
     });
 });
 
@@ -90,7 +93,7 @@ describe("insertUser", () => {
 
 describe("getMessage", () => {
     let userId: number;
-    let messageId: number;
+    let messageId: string;
     before(async () => {
         try {
             await initializeDB();
@@ -107,22 +110,20 @@ describe("getMessage", () => {
 
     it("returns message", async () => {
         const message = await getMessage(messageId);
-        assert.equal(isMessage(message), true);
-        assert.equal(message.id === messageId, true);
-        assert.equal(message.userId=== userId, true);
-        assert.equal(message.name === testName, true);
-        assert.equal(message.message === testMessage, true);
+        assert.strictEqual(isMessage(message), true);
+        assert.strictEqual(message.id, messageId);
+        assert.strictEqual(message.userId, userId);
+        assert.strictEqual(message.name, testName);
+        assert.strictEqual(message.message, testMessage);
     });
 });
 
 describe("getAllMessages", () => {
-    let userId: number;
-    let userId2: number;
     before(async () => {
         try {
             await initializeDB();
-            userId = await insertUser(testName, testPassword);
-            userId2 = await insertUser(testName + "2", testPassword + "2");
+            const userId = await insertUser(testName, testPassword);
+            const userId2 = await insertUser(testName + "2", testPassword + "2");
             await insertMessage(userId, testMessage);
             await insertMessage(userId2, testMessage);
         } catch (err) {
@@ -136,10 +137,51 @@ describe("getAllMessages", () => {
 
     it("returns messages", async () => {
         const messages = await getAllMessages();
-        assert.equal(Array.isArray(messages), true);
+        assert.strictEqual(Array.isArray(messages), true);
         messages.forEach((m => {
-            assert.equal(isMessage(m), true);
+            assert.strictEqual(isMessage(m), true);
         }));
+    });
+});
+
+describe("getBeforeMessages", () => {
+    before(async () => {
+        try {
+            await initializeDB();
+            const userId = await insertUser(testName, testPassword);
+            const userId2 = await insertUser(testName + "2", testPassword + "2");
+            for (let i = 0;i < 30;i++) {
+                await insertMessage(userId, `${testMessage}${2 * i}`);
+                await insertMessage(userId2, `${testMessage}${2 * i + 1}`);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("returns messages", async () => {
+        const idx = 4;
+        const n = 5;
+        const messages = await getAllMessages();
+        const time = messages[idx].time;  // this message is 55th
+        if (time !== undefined) {
+            // expected [54::-5]th message
+            const someMessages = await getBeforeMessages(time, n);
+            assert.strictEqual(Array.isArray(someMessages), true);
+            assert.strictEqual(someMessages.length, n);
+            someMessages.forEach((m => {
+                assert.strictEqual(isMessage(m), true);
+            }));
+            for (let i = 0;i < n;i++) {
+                assert.deepStrictEqual(messages[i + idx + 1], someMessages[i]);
+            }
+        } else {
+            assert.notStrictEqual(time, undefined);
+        }
     });
 });
 
@@ -161,13 +203,13 @@ describe("insertMessage", () => {
     it("returns inserted message id", async () => {
         const messageId = await insertMessage(userId, testMessage);
         const message: Message = await getMessage(messageId);
-        assert.equal(message.id === messageId, true);
+        assert.strictEqual(message.id === messageId, true);
     });
 });
 
 describe("deleteMessage", () => {
     let userId: number;
-    let messageId: number;
+    let messageId: string;
     before(async () => {
         try {
             await initializeDB();
