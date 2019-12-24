@@ -96,7 +96,7 @@ export function parseMarkdown(md: string): string {
     return sanitizeHtml(markdownit.render(md), {
         allowedTags: [
             "h1", "h2", "h3", "h4", "h5",
-            "b", "i", "strong", "em", "strike", "del", "blockquote",
+            "b", "i", "strong", "em", "strike", "del", "blockquote", "s",
             "pre", "p", "div", "code", "span",
             "tr", "th", "td", "ol", "li", "ul", "table", "thead", "tbody",
             "br",

@@ -15,8 +15,11 @@ function insertTextarea(before: string, after: string) {
     const startpos = $textarea.prop("selectionStart");
     const endpos = $textarea.prop("selectionEnd");
     const beforeCursor = text.substr(0, startpos) + before;
-    const selected = text.substr(startpos, endpos);
+    const selected = text.substr(startpos, endpos - startpos);
     const afterCursor = after + text.substr(endpos, text.length);
+    console.log("start", startpos);
+    console.log("end", endpos);
+    console.log(selected);
     $textarea.val(beforeCursor + selected + afterCursor);
     $textarea.focus();
     $textarea.prop({
