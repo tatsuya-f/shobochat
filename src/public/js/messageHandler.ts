@@ -55,14 +55,15 @@ function postMessage(url: string, message: Message): Promise<number> {
     }).then(res => res.status);
 }
 
-function deleteMessage(url: string, messageId: string): Promise<number> {
-    return fetch(`${url}/${messageId}`, {
+async function deleteMessage(url: string, messageId: string): Promise<number> {
+    const res = await fetch(`${url}/${messageId}`, {
         method: "DELETE",
         headers: {
             "Content-Length": "0"
         },
         credentials: "same-origin"
-    }).then(res => res.status);
+    });
+    return res.status;
 }
 
 export async function sendMessage(chatApiEndpoint: string): Promise<void> {
