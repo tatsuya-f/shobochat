@@ -55,6 +55,23 @@ export function getUserByName(name: string): Promise<User> {
     });
 }
 
+export function updateUser(userId: number, name: string, password: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = "UPDATE userInfo SET name = ?, password = ? WHERE id = ?";
+        db.serialize(() => {
+            db.run(sql, [name, password, userId], err => {
+                if (err) {
+                    db.close();
+                    reject(err);
+                    return;
+                }
+                resolve();
+            });
+        });
+    });
+}
+
 export function hasUserName(name: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
