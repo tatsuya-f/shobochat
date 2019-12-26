@@ -3,12 +3,13 @@ import * as fs from "fs";
 import {
     Message,
     isMessage } from "../src/Message";
-import { isUser } from "../src/User";
+import { User, isUser } from "../src/User";
 import {
     initializeDB,
     getUserByName,
     hasUserName,
     insertUser,
+    updateUser,
     getMessage,
     getBeforeMessages,
     getAllMessages,
@@ -88,6 +89,34 @@ describe("insertUser", () => {
         const id = await insertUser(testName, testPassword);
         const testUser = await getUserByName(testName);
         assert.equal(id === testUser.id, true);
+    });
+});
+
+describe("updateUser", () => {
+    let id: number;
+    let testUser: User;
+    before(async () => {
+        try {
+            await initializeDB();
+            id = await insertUser(testName, testPassword);
+            testUser = await getUserByName(testName);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("update username and password", async () => {
+        const name = "updatedname";
+        const password = "updatedpass";
+        await updateUser(id, name, password);
+        const updatedUser = await getUserByName(name);
+        testUser.name = name;
+        testUser.password = password;
+        assert.deepStrictEqual(testUser, updatedUser);
     });
 });
 
