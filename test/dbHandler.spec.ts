@@ -1,10 +1,9 @@
-import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
 import {
     Message,
     isMessage } from "../src/Message";
-import { User, isUser } from "../src/User";
+import { isUser } from "../src/User";
 import {
     initializeDB,
     getUserByName,
@@ -14,7 +13,8 @@ import {
     getBeforeMessages,
     getAllMessages,
     insertMessage,
-    deleteMessage } from "../src/dbHandler";
+    deleteMessage,
+    updateMessage } from "../src/dbHandler";
 
 const testName = "testName";
 const testPassword = "testPassword";
@@ -207,13 +207,38 @@ describe("insertMessage", () => {
     });
 });
 
-describe("deleteMessage", () => {
+describe("updateMessage", () => {
     let userId: number;
     let messageId: string;
     before(async () => {
         try {
             await initializeDB();
             userId = await insertUser(testName, testPassword);
+            messageId = await insertMessage(userId, testMessage);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+    after(() => {
+        deleteDB();
+    });
+
+    it("delete message", async () => {
+        const updatedmsg = "updated message";
+        let original = await getMessage(messageId);
+        await updateMessage(messageId, updatedmsg);
+        const updated = await getMessage(messageId);
+        original.message = updatedmsg;
+        assert.deepStrictEqual(original, updated);
+    });
+});
+
+describe("deleteMessage", () => {
+    let messageId: string;
+    before(async () => {
+        try {
+            await initializeDB();
+            const userId = await insertUser(testName, testPassword);
             messageId = await insertMessage(userId, testMessage);
         } catch (err) {
             console.log(err);
@@ -227,6 +252,6 @@ describe("deleteMessage", () => {
     it("delete message", async () => {
         await deleteMessage(messageId);
         const message = await getMessage(messageId);
-        assert.equal(message === undefined, true);
+        assert.strictEqual(message, undefined);
     });
 });

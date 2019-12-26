@@ -36,12 +36,38 @@ $(() => {
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
     });
-    ws.addEventListener("message", (ev) => { // サーバーがsendすると発火
-        const messages = JSON.parse(ev.data);
+    ws.addEventListener("message", (e) => { // サーバーがsendすると発火
+        const messages = JSON.parse(e.data);
         if (isMessageArray(messages)) {
             console.log(messages);
             showMessages(messages);
         }
+    });
+
+    $("#contextmenu").hide();
+    $(document).on("contextmenu", ".shobo-message-div", function(e) {
+        $("#contextmenu").data("message-id", $(this).data("message-id"));
+        $("#contextmenu").show();
+        $("#contextmenu").offset({
+            top: $(this).position().top + e.offsetY,
+            left: $(this).position().left + e.offsetX
+        });
+        return false;
+    });
+    $("body").on("click", () => {
+        $("#contextmenu").hide();
+    });
+    $("#delete-msg").on("click", async function() {
+        let messageId = $("#contextmenu").data("message-id");
+        if (typeof messageId === "string") {
+            console.log(messageId);
+            await removeMessage(chatApiEndpoint, messageId);
+        } else {
+            console.log(messageId);
+        }
+    });
+    $("#edit-msg").on("click", async function() {
+        // TODO
     });
 
     $(".navbar-burger").on("click", () => {
@@ -72,9 +98,6 @@ $(() => {
         $("#markdown-preview").removeClass("is-active");
     });
 
-    $("#update").on("click", () => {
-    });
-
     $("#bold-btn").on("click", () => {
         insertTextarea("**", "**");
     });
@@ -98,20 +121,6 @@ $(() => {
         });
     });
 
-    let timer: number;
-    $(document).on("mousedown", ".shobo-message-div", function() {
-        timer = window.setTimeout(async () => {
-            if (window.confirm("削除しますか?")) {
-                let messageId = $(this).data("message-id");
-                if (typeof messageId === "string") {
-                    await removeMessage(chatApiEndpoint, messageId);
-                }
-            }
-        }, 1000);
-    }).on("mouseup mouseleave", () => {
-        clearTimeout(timer);
-    });
-
     $(document).on("mouseover", ".shobo-message-div", function()  {
         $(this).addClass("has-background-grey-light");
 
@@ -125,5 +134,5 @@ $(() => {
     $("#message").on("input", () => {
         checkInput();
     });
-
 });
+

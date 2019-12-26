@@ -4,7 +4,8 @@ import {
     getMessage,
     getAllMessages,
     insertMessage,
-    deleteMessage } from "../dbHandler";
+    deleteMessage,
+    updateMessage } from "../dbHandler";
 import { broadcastMessages } from "../webSocketHandler";
 import { answerIsPrime } from "../primeHandler";
 import { shobot } from "../server";
@@ -45,7 +46,7 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
         const contentType = req.header("Content-Type");
         if (contentType !== "application/json") {
             console.log("** CSRF detected **");
-            res.status(500).end();
+            res.status(405).end();
             return;
         }
 
@@ -61,11 +62,34 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
     }
 });
 
-messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
         if (sess === undefined) {
+            console.log("session not working");
             res.status(500).end();
+            return;
+        }
+
+        const messageId = req.params.id;
+        const message = await getMessage(messageId);
+        if (message.userId === sess.userId) {
+            await updateMessage(messageId, req.body.message);
+            await broadcastMessages();
+            res.status(200).end();
+        } else {
+            res.status(405).end();
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+
+messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sess = req.session;
+        if (sess === undefined) {
+            res.status(405).end();
             return;
         }
         const messageId = req.params.id;
@@ -74,9 +98,8 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
             await deleteMessage(messageId);
             await broadcastMessages();
             res.status(200).end();
-        }
-        else { // reject
-            res.status(500).end();
+        } else { // reject
+            res.status(405).end();
         }
     } catch (err) {
         next(err);

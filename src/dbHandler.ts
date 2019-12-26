@@ -167,13 +167,30 @@ export function insertMessage(userId: number, message: string): Promise<string> 
         const id = uuid.v1();
 
         db.serialize(() => {
-            db.run(sql, [id, userId, time, message], (err) => {
+            db.run(sql, [id, userId, time, message], err => {
                 if (err) {
                     db.close();
                     reject(err);
                     return;
                 }
                 resolve(id);
+            });
+        });
+    });
+}
+
+export function updateMessage(messageId: string, message: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = "UPDATE messages SET message = ? WHERE id = ?";
+        db.serialize(() => {
+            db.run(sql, [message, messageId], err => {
+                if (err) {
+                    db.close();
+                    reject(err);
+                    return;
+                }
+                resolve();
             });
         });
     });
