@@ -131,6 +131,45 @@ describe("POST /messages", () => {
     });
 });
 
+describe("PUT /messages", () => {
+    let cookie: Array<string>;
+    const agent = request.agent(app);
+    let testId = "not assigned yet";
+
+    before(async () => {
+        try {
+            await initializeDB();
+
+            const response = await agent.get("/");
+            cookie = response.header["set-cookie"];
+
+            await agent
+                .post("/register")
+                .send({ name: "test", password: "test"});
+
+            await postTestMessage(1, cookie);
+            testId = (await getAllMessages())[0].id as string;
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("update message with id = " + testId, async () => {
+        const updatedmsg = "updated";
+        const response = await agent
+            .put("/messages/" + testId)
+            .send({ message: updatedmsg })
+            .set("Cookie", cookie)
+            .expect(200);
+        const message = await getMessage(testId);
+        assert.strictEqual(message.message, updatedmsg);
+    });
+});
+
 describe("DELETE /messages", () => {
     let cookie: Array<string>;
     const agent = request.agent(app);

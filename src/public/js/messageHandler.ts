@@ -44,15 +44,16 @@ export function isValidMessage(message: Message): boolean {
     return isValid;
 }
 
-function postMessage(url: string, message: Message): Promise<number> {
-    return fetch(url, {
+async function postMessage(url: string, message: Message): Promise<number> {
+    const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(message),
         headers: {
             "Content-Type": "application/json"
         },
         credentials: "same-origin"
-    }).then(res => res.status);
+    });
+    return res.status;
 }
 
 async function deleteMessage(url: string, messageId: string): Promise<number> {
@@ -66,7 +67,18 @@ async function deleteMessage(url: string, messageId: string): Promise<number> {
     return res.status;
 }
 
-export async function sendMessage(chatApiEndpoint: string): Promise<void> {
+// async function putMessage(url: string, messageId: string): Promise<number> {
+//     const res = await fetch(`${url}/${messageId}`, {
+//         method: "PUT",
+//         headers: {
+//             "Content-Type": "application/json"
+//         },
+//         credentials: "same-origin"
+//     });
+//     return res.status;
+// }
+
+export async function sendMessage(chatApiEndpoint: string) {
     const message = {
         name: $("#name").val(),
         message: $("#message").val()
@@ -92,6 +104,10 @@ export async function sendMessage(chatApiEndpoint: string): Promise<void> {
     $("#message").val("");
 }
 
+// export async function updateMessage(chatApiEndpoint: string) {
+//
+// }
+
 export function parseMarkdown(md: string): string {
     return sanitizeHtml(markdownit.render(md), {
         allowedTags: [
@@ -116,7 +132,8 @@ export function showMessages(messages: Array<Message>) {
         if (message.time !== undefined) {
             const time = new Date(message.time);
             const messageTag = `\
-                <div class="shobo-message-div" data-message-id=${message.id}> \
+                <div class="shobo-message-div" \
+                     data-message-id=${message.id}> \
                     <span style="font-size: 40px;"> \
                         <i class="fas fa-user-circle"></i> \
                     </span>
