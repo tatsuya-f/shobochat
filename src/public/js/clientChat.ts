@@ -86,6 +86,9 @@ $(() => {
     $("#help-close").on("click", () => {
         $("#help-popup").removeClass("is-active");
     });
+    $("#setting").on("click", () => {
+        window.location.href = "/setting";
+    });
 
     $("#markdown-preview-open").on("click", () => {
         const message = $("#message").val();

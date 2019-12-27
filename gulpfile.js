@@ -61,6 +61,15 @@ function clientLogin() {
         .pipe(dest("dist/public/js"));
 }
 
+function clientSetting() {
+    return browserify()
+        .add("src/public/js/clientSetting.ts")
+        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/public/js/clientSetting.ts"] })
+        .bundle()
+        .pipe(source("client_setting.js"))
+        .pipe(dest("dist/public/js"));
+}
+
 function clientChat() {
     return browserify()
         .add("src/public/js/clientChat.ts")
@@ -89,11 +98,11 @@ function copy() {
         .pipe(dest("dist/public"));
 }
 
-exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientChat, server, compilePug, copy);
+exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientSetting, clientChat, server, compilePug, copy);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
-exports.build = series(clientIndex, clientRegister, clientLogin, clientChat, server, compilePug, copy);
+exports.build = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat, server, compilePug, copy);
 exports.server = series(server, copy);
-exports.client = series(clientIndex, clientRegister, clientLogin, clientChat);
+exports.client = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat);
 exports.pug = series(compilePug);
