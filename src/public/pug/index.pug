@@ -1,14 +1,10 @@
 doctype html
 html
-    - var title="しょぼちゃっと"
-    - var js_file="index"
-    - var css_file="page"
-    include _head.pug
+    - var head_js_file="index"
+    - var head_css_file="page"
+    include parts/_head.pug
     body
-        section.hero.is-primary
-            .hero-body
-                .container
-                    h1.title しょぼちゃっと
+        include parts/_title.pug
         div
             button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#jmp-register
                 i.far.fa-arrow-alt-circle-right とうろく

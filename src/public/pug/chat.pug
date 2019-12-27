@@ -1,13 +1,12 @@
 doctype html
 html
-    - var title="しょぼちゃっと"
-    - var js_file="chat"
-    - var css_file="chat"
-    include _head.pug
+    - var head_js_file="chat"
+    - var head_css_file="chat"
+    include parts/_head.pug
     body
-        include _navigation.pug
+        include parts/_navigation.pug
 
-        include _popup_window.pug
+        include parts/_popup_window.pug
 
         +popup_window({
             id: "help-popup",
@@ -25,6 +24,6 @@ html
 
         div.shobo-main#messageList
 
-        include _input_area.pug
+        include parts/_input_area.pug
 
-        include _menu.pug
+        include parts/_menu.pug

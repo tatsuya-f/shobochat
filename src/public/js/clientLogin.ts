@@ -1,34 +1,21 @@
-import { UserInfo, isUserInfo } from "./User";
+import { UserClient } from "./User";
 
-async function CheckUserInfo(url: string, userInfo: UserInfo): Promise<number> {
-    const res = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify(userInfo),
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "same-origin"
-    });
-    return res.status;
-}
-
-export async function sendUserInfo(chatApiEndpoint: string): Promise<void> {
-    const userInfo = {
-        name: $("#name").val(),
-        password: $("#pass").val()
-    };
-
-    if (isUserInfo(userInfo)) {
-        try {
-            const status = await CheckUserInfo(chatApiEndpoint, userInfo);
-            if (status === 200) {
-                window.location.href = "/chat";
-            } else {
-                console.log("GET Failed");
-            }
-        } catch (err) {
-            console.log(err);
+export async function login(chatApiEndpoint: string): Promise<void> {
+    const name = $("#name").val();
+    const password = $("#pass").val();
+    if (typeof name !== "string" || typeof password !== "string") { // reject
+        return;
+    }
+    const user = new UserClient(name, password);
+    try {
+        const status = await user.post(chatApiEndpoint);
+        if (status === 200) {
+            window.location.href = "/chat";
+        } else {
+            console.log("GET Failed");
         }
+    } catch (err) {
+        console.log(err);
     }
 }
 
@@ -38,7 +25,7 @@ $(() => {
     $("#login").on("click", async () => {
         console.log("clicked");
         $("#login").addClass("is-loading");
-        await sendUserInfo(chatApiEndpoint);
+        await login(chatApiEndpoint);
         $("#login").removeClass("is-loading");
     });
 });

@@ -1,10 +1,11 @@
 import { UserClient } from "./User";
 
-export async function register(chatApiEndpoint: string): Promise<void> {
+export async function update(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
     const password = $("#pass").val();
     const passwordVerify = $("#pass-verify").val();
     if (password !== passwordVerify) {  // reject
+        console.log("not correspond passwordVerify to password");
         return;
     }
     if (typeof name !== "string" || typeof password !== "string") { // reject
@@ -12,9 +13,9 @@ export async function register(chatApiEndpoint: string): Promise<void> {
     }
     const user = new UserClient(name, password);
     try {
-        const status = await user.post(chatApiEndpoint);
+        const status = await user.put(chatApiEndpoint);
         if (status === 200) {
-            window.location.href = "/chat";
+            console.log("Success");
         } else {
             console.log("POST Failed");
         }
@@ -24,10 +25,10 @@ export async function register(chatApiEndpoint: string): Promise<void> {
 }
 
 $(() => {
-    const chatApiEndpoint = "/register";
-    $("#register").on("click", async () => {
-        $("#register").addClass("is-loading");
-        await register(chatApiEndpoint);
-        $("#register").removeClass("is-loading");
+    const chatApiEndpoint = "/setting";
+    $("#setting").on("click", async () => {
+        $("#setting").addClass("is-loading");
+        await update(chatApiEndpoint);
+        $("#setting").removeClass("is-loading");
     });
 });

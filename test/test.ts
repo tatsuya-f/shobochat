@@ -6,8 +6,6 @@ import { isMessage } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
 import { hash } from "../src/hashPassword";
 
-//let cookie: Array<string>;
-
 async function postTestMessage(times: number, cookie: Array<string>): Promise<void> {
     const agent = request.agent(app);
 

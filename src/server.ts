@@ -7,6 +7,7 @@ import { checkLogin } from "./loginHandler";
 import { indexRouter } from "./route/index";
 import { loginRouter } from "./route/login";
 import { registerRouter } from "./route/register";
+import { settingRoute } from "./route/setting";
 import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
 
@@ -33,6 +34,8 @@ app.use(express.static("public")); // GET / された後に静的ファイルを
 app.use("/login", loginRouter);
 
 app.use("/register", registerRouter);
+
+app.use("/setting", checkLogin, settingRoute);
 
 app.use("/chat", checkLogin, chatRouter);
 

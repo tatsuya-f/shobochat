@@ -4,7 +4,10 @@ head
         name="viewport"
         content="width=device-width,initial-scale=1.0,minimum-scale=1.0"
         )
-    title #{title}
+    if head_title
+        title しょぼちゃっと - #{head_title}
+    else
+        title しょぼちゃっと
     script(
         src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
@@ -12,7 +15,7 @@ head
         )
     script(
         type="application/javascript"
-        src=`js/client_${js_file}.js`
+        src=`js/client_${head_js_file}.js`
         )
     link(
         rel="stylesheet"
@@ -28,7 +31,7 @@ head
         )
     link(
         rel="stylesheet"
-        href=`css/${css_file}.css`
+        href=`css/${head_css_file}.css`
         type="text/css"
         charset="utf-8"
         )
