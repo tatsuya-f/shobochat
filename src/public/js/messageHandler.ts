@@ -13,8 +13,7 @@ const markdownit = new MarkdownIt({
                 console.log(err);
                 return code;
             }
-        }
-        else {
+        } else {
             return code;
         }
     },
@@ -200,6 +199,10 @@ function changeTimeFormat(time : Date): string {
     const hour = time.getHours();
     const minites = time.getMinutes();
 
-    return (year + "ねん" + month + "がつ" + day + "にち" + hour + "じ" + minites + "ふん");
+    return (year + "<sub>ねん</sub>" +
+            month + "<sub>がつ</sub>" +
+            day + "<sub>にち</sub>" +
+            hour + "<sub>じ</sub>" +
+            minites + "<sub>ふん</sub>");
 
 }
