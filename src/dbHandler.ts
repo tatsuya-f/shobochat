@@ -27,7 +27,7 @@ export async function initializeDB(): Promise<void> {
 function createTable(tableInfo: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
-        const sql = "CREATE TABLE IF NOT EXISTS" + " " + tableInfo;
+        const sql = `CREATE TABLE IF NOT EXISTS ${tableInfo}`;
         db.run(sql, (err) => {
             db.close();
             if (err) {
