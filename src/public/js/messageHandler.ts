@@ -131,6 +131,7 @@ export function showMessages(messages: Array<Message>) {
     messages.forEach((message) => {
         if (message.time !== undefined) {
             const time = new Date(message.time);
+            const displayTime = changeTimeFormat(time);
             const messageTag = `\
                 <div class="shobo-message-div" \
                      data-message-id=${message.id}> \
@@ -141,7 +142,7 @@ export function showMessages(messages: Array<Message>) {
                         ${escapeHTML(message.name)} \
                     </span> \
                     <span class="shobo-time"> \
-                        ${time} \
+                        ${displayTime} \
                     </span> \
                     <div class="content shobo-message"> \
                         ${parseMarkdown(message.message)} \
@@ -188,5 +189,15 @@ export async function checkInput(): Promise<void> {
     if (isMessage(message) && isValidMessage(message)) {
         $("#send").prop("disabled", false);
     }
+
+}
+
+
+export function changeTimeFormat(time : Date): string {
+    const year = time.getFullYear();
+    const month = time.getMonth() + 1;
+    const day = time.getDate();
+
+    return (year + "ねん" + month + "がつ" + day + "にち");
 
 }
