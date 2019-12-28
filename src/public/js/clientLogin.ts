@@ -4,6 +4,7 @@ export async function login(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
     const password = $("#pass").val();
     if (typeof name !== "string" || typeof password !== "string") { // reject
+        alert("なまえとあいことばはもじでいれてください。");
         return;
     }
     const user = new UserClient(name, password);
@@ -12,6 +13,7 @@ export async function login(chatApiEndpoint: string): Promise<void> {
         if (status === 200) {
             window.location.href = "/chat";
         } else {
+            alert("なまえかあいことばがちがいます。");
             console.log("GET Failed");
         }
     } catch (err) {

@@ -193,11 +193,13 @@ export async function checkInput(): Promise<void> {
 }
 
 
-export function changeTimeFormat(time : Date): string {
+function changeTimeFormat(time : Date): string {
     const year = time.getFullYear();
     const month = time.getMonth() + 1;
     const day = time.getDate();
+    const hour = time.getHours();
+    const minites = time.getMinutes();
 
-    return (year + "ねん" + month + "がつ" + day + "にち");
+    return (year + "ねん" + month + "がつ" + day + "にち" + hour + "じ" + minites + "ふん");
 
 }
