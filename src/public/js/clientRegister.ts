@@ -5,9 +5,11 @@ export async function register(chatApiEndpoint: string): Promise<void> {
     const password = $("#pass").val();
     const passwordVerify = $("#pass-verify").val();
     if (password !== passwordVerify) {  // reject
+        alert("あいことばがいっちしません。");
         return;
     }
     if (typeof name !== "string" || typeof password !== "string") { // reject
+        alert("なまえとあいことばはもじでいれてください。");
         return;
     }
     const user = new UserClient(name, password);
@@ -16,6 +18,7 @@ export async function register(chatApiEndpoint: string): Promise<void> {
         if (status === 200) {
             window.location.href = "/chat";
         } else {
+            alert("とうろくできませんでした。");
             console.log("POST Failed");
         }
     } catch (err) {

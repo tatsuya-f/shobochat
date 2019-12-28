@@ -5,10 +5,12 @@ export async function update(chatApiEndpoint: string): Promise<void> {
     const password = $("#pass").val();
     const passwordVerify = $("#pass-verify").val();
     if (password !== passwordVerify) {  // reject
+        alert("あいことばがいっちしません。");
         console.log("not correspond passwordVerify to password");
         return;
     }
     if (typeof name !== "string" || typeof password !== "string") { // reject
+        alert("なまえとあいことばはもじでいれてください。");
         return;
     }
     const user = new UserClient(name, password);
@@ -16,7 +18,9 @@ export async function update(chatApiEndpoint: string): Promise<void> {
         const status = await user.put(chatApiEndpoint);
         if (status === 200) {
             console.log("Success");
+            window.location.href = "/chat";
         } else {
+            alert("へんこうできませんでした。");
             console.log("POST Failed");
         }
     } catch (err) {
