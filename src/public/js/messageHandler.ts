@@ -1,4 +1,4 @@
-import { Message, isMessage } from "./Message";
+import { Message } from "./Message";
 import * as MarkdownIt from "markdown-it";
 import { highlight } from "highlight.js";
 import * as sanitizeHtml from "sanitize-html";
@@ -43,10 +43,25 @@ export function isValidMessage(message: Message): boolean {
     return isValid;
 }
 
-async function postMessage(url: string, message: Message): Promise<number> {
+export async function getMessage(url: string, messageId: string): Promise<Message> {
+    const res = await fetch(`${url}/${messageId}`, {
+        method: "GET",
+        headers: {
+            "Content-Length": "0"
+        },
+        credentials: "same-origin"
+    });
+    if (res.status === 200) {
+        return res.json();
+    } else {
+        throw new Error(`Failed to get Message whose id is ${messageId}`);
+    }
+}
+
+async function postMessage(url: string, message: string): Promise<number> {
     const res = await fetch(url, {
         method: "POST",
-        body: JSON.stringify(message),
+        body: JSON.stringify({ message: message }),
         headers: {
             "Content-Type": "application/json"
         },
@@ -66,24 +81,24 @@ async function deleteMessage(url: string, messageId: string): Promise<number> {
     return res.status;
 }
 
-// async function putMessage(url: string, messageId: string): Promise<number> {
-//     const res = await fetch(`${url}/${messageId}`, {
-//         method: "PUT",
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-//         credentials: "same-origin"
-//     });
-//     return res.status;
-// }
+async function putMessage(url: string, messageId: string, message: string): Promise<number> {
+    const res = await fetch(`${url}/${messageId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+            message: message
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin"
+    });
+    return res.status;
+}
 
 export async function sendMessage(chatApiEndpoint: string) {
-    const message = {
-        name: $("#name").val(),
-        message: $("#message").val()
-    };
+    const message = $("#message").val();
 
-    if (isMessage(message) && isValidMessage(message)) {
+    if (typeof message === "string" && message !== "") {
         try {
             const status = await postMessage(chatApiEndpoint, message);
             const $queryMessage = $("#queryMessage");
@@ -103,9 +118,28 @@ export async function sendMessage(chatApiEndpoint: string) {
     $("#message").val("");
 }
 
-// export async function updateMessage(chatApiEndpoint: string) {
-//
-// }
+export async function updateMessage(chatApiEndpoint: string) {
+    const message = $("#message").val();
+    const messageId = $("#input-area").data("message-id");
+    if (typeof message === "string" && message !== "") {
+        try {
+            const status = await putMessage(chatApiEndpoint, messageId, message);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage.html("メッセージを更新しました");
+                $queryMessage.css("color", "black");
+            } else {
+                $queryMessage.html("メッセージを更新できませんでした");
+                $queryMessage.css("color", "red");
+                console.log("POST Failed");
+            }
+            $("#send").prop("disabled", true);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    $("#message").val("");
+}
 
 export function parseMarkdown(md: string): string {
     return sanitizeHtml(markdownit.render(md), {
@@ -177,18 +211,14 @@ export function escapeHTML(str : string): string {
 }
 
 export async function checkInput(): Promise<void> {
-
-    $("#send").prop("disabled", true);
-
-    const message = {
-        name: $("#name").val(),
-        message: $("#message").val()
-    };
-
-    if (isMessage(message) && isValidMessage(message)) {
+    const message = $("#message").val();
+    if (typeof message === "string" && message !== "") {
         $("#send").prop("disabled", false);
+        $("#edited").prop("disabled", false);
+    } else {
+        $("#send").prop("disabled", false);
+        $("#edited").prop("disabled", true);
     }
-
 }
 
 

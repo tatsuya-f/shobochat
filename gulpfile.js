@@ -105,4 +105,5 @@ exports.test = test;
 exports.build = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat, server, compilePug, copy);
 exports.server = series(server, copy);
 exports.client = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat);
-exports.pug = series(compilePug);
+exports.pug = series(compilePug, copy);
+exports.css = series(copy);
