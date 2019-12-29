@@ -1,11 +1,7 @@
 
-footer#main-footer
-    div.box#fixed
-        input.input.is-rounded#name(
-            type="text"
-            placeholder="なまえ"
-            )
-        div.field.has-addons
+footer#input-area
+    div.box
+        div.shobo-normal-mode.shobo-edit-mode.field.has-addons
             p.control
                 button.button#bold-btn
                     span.icon.is-small
@@ -26,17 +22,29 @@ footer#main-footer
                     span.icon.is-small
                         i.fas.fa-code
                     span こーど
-        textarea.shobo-textarea.textarea#message(
+        textarea.shobo-normal-mode.shobo-edit-mode.shobo-textarea.textarea#message(
             cols="60"
             rows="2"
             placeholder="いまなにしてる？"
             )
-        button.button.is-primary.is-rounded#send(disabled)
+        button.shobo-edit-mode.button.is-primary.is-rounded#edited(disabled)
+            span.icon.is-small
+                i.fas.fa-check
+            span かんりょう
+        button.shobo-normal-mode.button.is-primary.is-rounded#send(disabled)
             span.icon.is-small
                 i.fas.fa-paper-plane
             span そうしん
-        button.button.is-primary.is-rounded#markdown-preview-open
+        button.shobo-normal-mode.shobo-edit-mode.button.is-primary.is-rounded#markdown-preview-open
             span.icon.is-small
                 i.fab.fa-markdown
             span ぷれびゅー
+        button.shobo-normal-mode.button.is-primary.is-rounded#input-area-hide
+            span.icon.is-small
+                i.fab.fa-arrow-down
+            span かくす
+        button.shobo-hidden-mode.button.is-primary.is-rounded#input-area-show
+            span.icon.is-small
+                i.fab.fa-arrow-up
+            span みせる
         div#queryMessage

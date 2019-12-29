@@ -2,7 +2,7 @@ import { app } from "../src/server";
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
-import { isMessage } from "../src/Message";
+import { isMessage, isMessageArray } from "../src/Message";
 import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
 import { hash } from "../src/hashPassword";
 
@@ -58,17 +58,12 @@ describe("GET /messages", () => {
     before(async () => {
         try {
             await initializeDB();
-
             const response = await agent.get("/")
             cookie = response.header["set-cookie"];
-
             await agent
                 .post("/register")
                 .send({ name: "test", password: "test"})
-
             await postTestMessage(3, cookie);
-
-
         } catch (err) {
             console.log(err);
         }
@@ -91,6 +86,39 @@ describe("GET /messages", () => {
         messages.forEach((m => {
             assert.strictEqual(isMessage(m), true);
         }));
+    });
+});
+
+describe("GET /messages/id", () => {
+    const agent = request.agent(app);
+    let cookie: Array<string>;
+
+    before(async () => {
+        try {
+            await initializeDB();
+            const response = await agent.get("/")
+            cookie = response.header["set-cookie"];
+            await agent
+                .post("/register")
+                .send({ name: "test", password: "test"})
+            await postTestMessage(1, cookie);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("return messages in response.body", async () => {
+        const all = await getAllMessages();
+        const response = await agent
+            .get(`/messages/${all[0].id}`)
+            .set("Cookie", cookie)
+            .expect("Content-Type", /application\/json/)
+            .expect(200);
+        assert.deepStrictEqual(all[0], response.body);
     });
 });
 
@@ -129,7 +157,7 @@ describe("POST /messages", () => {
     });
 });
 
-describe("PUT /messages", () => {
+describe("POST /messages", () => {
     let cookie: Array<string>;
     const agent = request.agent(app);
     let testId = "not assigned yet";

@@ -20,6 +20,14 @@ messagesRouter.get("/", async (req: Request, res: Response, next: NextFunction) 
         next(err);
     }
 });
+messagesRouter.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const message = await getMessage(req.params.id);
+        res.json(message);
+    } catch (err) {
+        next(err);
+    }
+});
 
 messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -1,28 +1,30 @@
 :root {
-    --navbar-height: 50px;
-    --input-area-height: 280px;
-    --input-area-padding: 0px;
-    --input-area-bottom: 20px;
+    --navbar-height: 55px;
 }
 
-nav.shobo-nav {
+/* <main parts> */
+#shobo-nav {
     position: fixed;
     top: 0;
     width: 100%;
     height: var(--navbar-height);
 }
 
-#main-footer {
-    position: fixed;
-    bottom: var(--input-area-bottom);
-    width: 90%;
-    background: transparent;
-    padding: var(--input-area-padding);
-    height: var(--input-area-height);
-    left: 0;
-    right: 0;
-    margin: auto;
+#shobo-main {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    top: var(--navbar-height);
+    height: calc(100vh - var(--input-area-height) - var(--navbar-height));
 }
+
+#input-area {
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+}
+/* </main parts> */
+
 
 .shobo-name {
     font-size: 23px;
@@ -38,13 +40,6 @@ nav.shobo-nav {
 .shobo-message {
     font-size: 20px;
     background: transparent;
-}
-
-.shobo-main {
-    margin-top: var(--navbar-height);
-    margin-bottom: calc(var(--input-area-height) +
-                        var(--input-area-bottom) +
-                        var(--input-area-padding));
 }
 
 .shobo-textarea {
@@ -70,8 +65,4 @@ nav.shobo-nav {
 
 #message {
     margin-bottom: 5px;
-}
-
-body {
-    padding: 10px;
 }
