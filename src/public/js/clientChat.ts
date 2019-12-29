@@ -161,7 +161,7 @@ $(() => {
         $("#send").removeClass("is-loading");
 
         $("#shobo-main").animate({
-            scrollTop: $("#shobo-main").height()
+            scrollTop: $("#shobo-main")[0].scrollHeight
         });
     });
     $("#edited").on("click", async () => {
