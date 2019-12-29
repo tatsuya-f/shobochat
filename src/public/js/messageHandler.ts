@@ -17,7 +17,9 @@ const markdownit = new MarkdownIt({
             return code;
         }
     },
-    breaks: true
+    breaks: true,
+    linkify: true,
+    html: true
 });
 
 export function hasChar(input: string): boolean {
@@ -149,7 +151,7 @@ export function parseMarkdown(md: string): string {
             "pre", "p", "div", "code", "span",
             "tr", "th", "td", "ol", "li", "ul", "table", "thead", "tbody",
             "br",
-            "a"],
+            "a", "img", "details", "summary"],
         allowedAttributes: {
             "a": ["href"],
             "span": ["style", "class"],
