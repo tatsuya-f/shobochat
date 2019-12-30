@@ -4,7 +4,7 @@ export interface Message {
     userId?: number;
     time?: number;
     name: string;
-    message: string;
+    content: string;
 }
 
 export function isMessage(arg: any): arg is Message {
@@ -12,7 +12,7 @@ export function isMessage(arg: any): arg is Message {
         (arg.userId === undefined || typeof arg.userId === "number") &&
         (arg.time === undefined || typeof arg.time === "number") &&
         typeof arg.name === "string" &&
-        typeof arg.message === "string";
+        typeof arg.content === "string";
 }
 
 export function toMessage(arg: any): Message {
@@ -24,7 +24,7 @@ export function toMessage(arg: any): Message {
         userId: arg.userId || undefined,
         time: arg.time || undefined,
         name: arg.name.toString(),
-        message: arg.message.toString()
+        content: arg.content.toString()
     };
 }
 

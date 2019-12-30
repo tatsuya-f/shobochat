@@ -3,6 +3,60 @@ import * as MarkdownIt from "markdown-it";
 import { highlight } from "highlight.js";
 import * as sanitizeHtml from "sanitize-html";
 
+export class HTTPHandler {
+    url: string = "/messages"
+    async get(messageId: string): Promise<Message> {
+        const res = await fetch(`${this.url}/${messageId}`, {
+            method: "GET",
+            headers: {
+                "Content-Length": "0"
+            },
+            credentials: "same-origin"
+        });
+        if (res.status === 200) {
+            return res.json();
+        } else {
+            throw new Error(`Failed to get Message whose id is ${messageId}`);
+        }
+    }
+    async post(content: string): Promise<number> {
+        const res = await fetch(this.url, {
+            method: "POST",
+            body: JSON.stringify({ content: content }),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin"
+        });
+        return res.status;
+    }
+    async delete(messageId: string): Promise<number> {
+        const res = await fetch(`${this.url}/${messageId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Length": "0"
+            },
+            credentials: "same-origin"
+        });
+        return res.status;
+    }
+    async put(messageId: string, content: string): Promise<number> {
+        const res = await fetch(`${this.url}/${messageId}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                content: content
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin"
+        });
+        return res.status;
+    }
+}
+
+export const httpHandler = new HTTPHandler();
+
 const markdownit = new MarkdownIt({
     highlight: (code, lang) => {
         if (typeof lang === "string") {
@@ -22,127 +76,6 @@ const markdownit = new MarkdownIt({
     html: true
 });
 
-export function hasChar(input: string): boolean {
-    return input.trim() !== "";
-}
-
-export function isValidMessage(message: Message): boolean {
-    let isValid = true;
-    if (!hasChar(message.name)) {
-        isValid = false;
-        $("#name").addClass("is-danger");
-    }
-    else {
-        $("#name").removeClass("is-danger");
-    }
-    if (!hasChar(message.message)) {
-        isValid = false;
-        $("#message").addClass("is-danger");
-    }
-    else {
-        $("#message").removeClass("is-danger");
-    }
-    return isValid;
-}
-
-export async function getMessage(url: string, messageId: string): Promise<Message> {
-    const res = await fetch(`${url}/${messageId}`, {
-        method: "GET",
-        headers: {
-            "Content-Length": "0"
-        },
-        credentials: "same-origin"
-    });
-    if (res.status === 200) {
-        return res.json();
-    } else {
-        throw new Error(`Failed to get Message whose id is ${messageId}`);
-    }
-}
-
-async function postMessage(url: string, message: string): Promise<number> {
-    const res = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({ message: message }),
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "same-origin"
-    });
-    return res.status;
-}
-
-async function deleteMessage(url: string, messageId: string): Promise<number> {
-    const res = await fetch(`${url}/${messageId}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Length": "0"
-        },
-        credentials: "same-origin"
-    });
-    return res.status;
-}
-
-async function putMessage(url: string, messageId: string, message: string): Promise<number> {
-    const res = await fetch(`${url}/${messageId}`, {
-        method: "PUT",
-        body: JSON.stringify({
-            message: message
-        }),
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "same-origin"
-    });
-    return res.status;
-}
-
-export async function sendMessage(chatApiEndpoint: string) {
-    const message = $("#message").val();
-
-    if (typeof message === "string" && message !== "") {
-        try {
-            const status = await postMessage(chatApiEndpoint, message);
-            const $queryMessage = $("#queryMessage");
-            if (status === 200) {
-                $queryMessage.html("メッセージを送信しました");
-                $queryMessage.css("color", "black");
-            } else {
-                $queryMessage.html("メッセージを送信できませんでした");
-                $queryMessage.css("color", "red");
-                console.log("POST Failed");
-            }
-            $("#send").prop("disabled", true);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    $("#message").val("");
-}
-
-export async function updateMessage(chatApiEndpoint: string) {
-    const message = $("#message").val();
-    const messageId = $("#input-area").data("message-id");
-    if (typeof message === "string" && message !== "") {
-        try {
-            const status = await putMessage(chatApiEndpoint, messageId, message);
-            const $queryMessage = $("#queryMessage");
-            if (status === 200) {
-                $queryMessage.html("メッセージを更新しました");
-                $queryMessage.css("color", "black");
-            } else {
-                $queryMessage.html("メッセージを更新できませんでした");
-                $queryMessage.css("color", "red");
-                console.log("POST Failed");
-            }
-            $("#send").prop("disabled", true);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    $("#message").val("");
-}
-
 export function parseMarkdown(md: string): string {
     return sanitizeHtml(markdownit.render(md), {
         allowedTags: [
@@ -158,6 +91,78 @@ export function parseMarkdown(md: string): string {
             "code": ["class"],
         },
     });
+}
+
+export function hasChar(input: string): boolean {
+    return input.trim() !== "";
+}
+
+export function isValidMessage(message: Message): boolean {
+    let isValid = true;
+    if (!hasChar(message.name)) {
+        isValid = false;
+        $("#name").addClass("is-danger");
+    }
+    else {
+        $("#name").removeClass("is-danger");
+    }
+    if (!hasChar(message.content)) {
+        isValid = false;
+        $("#message").addClass("is-danger");
+    }
+    else {
+        $("#message").removeClass("is-danger");
+    }
+    return isValid;
+}
+
+export async function sendMessage() {
+    const message = $("#message").val();
+
+    if (typeof message === "string" && message !== "") {
+        try {
+            const status = await httpHandler.post(message);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage.html("メッセージを送信しました");
+                $queryMessage.css("color", "black");
+                $("#shobo-main").animate({
+                    scrollTop: $("#shobo-main")[0].scrollHeight
+                });
+            } else {
+                $queryMessage.html("メッセージを送信できませんでした");
+                $queryMessage.css("color", "red");
+                console.log("POST Failed");
+            }
+            $("#send").prop("disabled", true);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    $("#message").val("");
+}
+
+export async function updateMessage() {
+    const message = $("#message").val();
+    const messageId = $("#input-area").data("message-id");
+    if (typeof message === "string" && message !== "") {
+        try {
+            const status = await httpHandler.put(messageId, message);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage.html("メッセージを更新しました");
+                $queryMessage.css("color", "black");
+            } else {
+                $queryMessage.html("メッセージを更新できませんでした");
+                $queryMessage.css("color", "red");
+                console.log("POST Failed");
+            }
+            $("#send").prop("disabled", true);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    $("#message").val("");
 }
 
 export function showMessages(messages: Array<Message>) {
@@ -180,7 +185,7 @@ export function showMessages(messages: Array<Message>) {
                         ${displayTime} \
                     </span> \
                     <div class="content shobo-message"> \
-                        ${parseMarkdown(message.message)} \
+                        ${parseMarkdown(message.content)} \
                     </div> \
                 </div>`;
             $messageList.prepend(messageTag);
@@ -188,9 +193,8 @@ export function showMessages(messages: Array<Message>) {
     });
 }
 
-
-export async function removeMessage(chatApiEndpoint: string, messageId: string): Promise<void> {
-    const status = await deleteMessage(chatApiEndpoint, messageId);
+export async function removeMessage(messageId: string): Promise<void> {
+    const status = await httpHandler.delete(messageId);
     const $queryMessage = $("#queryMessage");
     if (status === 200) {
         $queryMessage.html("メッセージを削除しました");
@@ -223,7 +227,6 @@ export async function checkInput(): Promise<void> {
     }
 }
 
-
 function changeTimeFormat(time : Date): string {
     const year = time.getFullYear();
     const month = time.getMonth() + 1;
@@ -236,5 +239,4 @@ function changeTimeFormat(time : Date): string {
             day + "<sub>にち</sub>" +
             hour + "<sub>じ</sub>" +
             minites + "<sub>ふん</sub>");
-
 }

@@ -13,7 +13,7 @@ async function postTestMessage(times: number, cookie: Array<string>): Promise<vo
         await agent
             .post("/messages")
             .set("Content-Type", "application/json")
-            .send({ name: "test_name", message: "test_message" })
+            .send({ name: "test_name", content: "test_message" })
             .set("Cookie", cookie);
     }
 }
@@ -58,11 +58,11 @@ describe("GET /messages", () => {
     before(async () => {
         try {
             await initializeDB();
-            const response = await agent.get("/")
+            const response = await agent.get("/");
             cookie = response.header["set-cookie"];
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"})
+                .send({ name: "test", password: "test"});
             await postTestMessage(3, cookie);
         } catch (err) {
             console.log(err);
@@ -131,12 +131,12 @@ describe("POST /messages", () => {
         try {
             await initializeDB();
 
-            const response = await agent.get("/")
+            const response = await agent.get("/");
             cookie = response.header["set-cookie"];
 
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"})
+                .send({ name: "test", password: "test"});
 
         } catch (err) {
             console.log(err);
@@ -151,7 +151,7 @@ describe("POST /messages", () => {
         await agent
             .post("/messages")
             .set("Content-Type", "application/json")
-            .send({ name: "test_name", message: "test_message" })
+            .send({ name: "test_name", content: "test_message" })
             .set("Cookie", cookie)
             .expect(200);
     });
@@ -188,11 +188,11 @@ describe("POST /messages", () => {
         const updatedmsg = "updated";
         const response = await agent
             .put("/messages/" + testId)
-            .send({ message: updatedmsg })
+            .send({ content: updatedmsg })
             .set("Cookie", cookie)
             .expect(200);
         const message = await getMessage(testId);
-        assert.strictEqual(message.message, updatedmsg);
+        assert.strictEqual(message.content, updatedmsg);
     });
 });
 
