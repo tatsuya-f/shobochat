@@ -12,6 +12,7 @@ import {
     updateUser,
     getMessage,
     getBeforeMessages,
+    getSameTimeMessages,
     getAllMessages,
     insertMessage,
     deleteMessage,
@@ -211,6 +212,33 @@ describe("getBeforeMessages", () => {
         } else {
             assert.notStrictEqual(time, undefined);
         }
+    });
+});
+
+describe("getSameTimeMessages", () => {
+    let message: Message;
+    let userId: number;
+    let messageId: string;
+    let time: number;
+    before(async () => {
+        try {
+            await initializeDB();
+            userId = await insertUser(testName, testPassword);
+            messageId = await insertMessage(userId, testMessage);
+            message = await getMessage(messageId);
+            time = message.time || 0;
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("returns message", async () => {
+        const sametime = await getSameTimeMessages(time);
+        assert.deepStrictEqual(message, sametime[0]);
     });
 });
 
