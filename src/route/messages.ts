@@ -58,8 +58,8 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
             return;
         }
 
-        await insertMessage(sess.userId, req.body.message);
-        const primeAns = answerIsPrime(req.body.message);
+        await insertMessage(sess.userId, req.body.content);
+        const primeAns = answerIsPrime(req.body.content);
         if (primeAns !== null) {
             await insertMessage(shobot, primeAns);
         }
@@ -82,7 +82,7 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
         const messageId = req.params.id;
         const message = await getMessage(messageId);
         if (message.userId === sess.userId) {
-            await updateMessage(messageId, req.body.message);
+            await updateMessage(messageId, req.body.content);
             await broadcastMessages();
             res.status(200).end();
         } else {

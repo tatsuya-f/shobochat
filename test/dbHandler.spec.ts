@@ -143,7 +143,7 @@ describe("getMessage", () => {
         assert.strictEqual(message.id, messageId);
         assert.strictEqual(message.userId, userId);
         assert.strictEqual(message.name, testName);
-        assert.strictEqual(message.message, testMessage);
+        assert.strictEqual(message.content, testMessage);
     });
 });
 
@@ -257,7 +257,7 @@ describe("updateMessage", () => {
         let original = await getMessage(messageId);
         await updateMessage(messageId, updatedmsg);
         const updated = await getMessage(messageId);
-        original.message = updatedmsg;
+        original.content = updatedmsg;
         assert.deepStrictEqual(original, updated);
     });
 });

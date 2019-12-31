@@ -1,6 +1,6 @@
 import {
+    httpHandler,
     sendMessage,
-    getMessage,
     updateMessage,
     showMessages,
     removeMessage,
@@ -38,7 +38,7 @@ function normalMode() {
     );
 }
 
-async function editMode(chatApiEndpoint: string, messageId: string) {
+async function editMode(messageId: string) {
     $(".shobo-normal-mode").hide();
     $(".shobo-hidden-mode").hide();
     $(".shobo-edit-mode").show();
@@ -46,8 +46,8 @@ async function editMode(chatApiEndpoint: string, messageId: string) {
         "--input-area-height", `${$("#input-area").outerHeight()}px`
     );
     try {
-        const msg = await getMessage(chatApiEndpoint, messageId);
-        $("#message").val(msg.message);
+        const msg = await httpHandler.get(messageId);
+        $("#message").val(msg.content);
         $("#input-area").data("message-id", messageId);
     } catch (err) {
         console.log(err);
@@ -64,7 +64,6 @@ function hiddenMode() {
 }
 
 $(() => {
-    const chatApiEndpoint = "/messages";
     const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
 
@@ -99,12 +98,12 @@ $(() => {
     $("#delete-msg").on("click", async function() {
         let messageId = $("#contextmenu").data("message-id");
         if (typeof messageId === "string") {
-            await removeMessage(chatApiEndpoint, messageId);
+            await removeMessage(messageId);
         }
     });
     $("#edit-msg").on("click", async function() {
         const messageId = $("#contextmenu").data("message-id");
-        await editMode(chatApiEndpoint, messageId);
+        await editMode(messageId);
     });
     //</left click menu>
 
@@ -157,16 +156,12 @@ $(() => {
 
     $("#send").on("click", async () => {
         $("#send").addClass("is-loading");
-        await sendMessage(chatApiEndpoint);
+        await sendMessage();
         $("#send").removeClass("is-loading");
-
-        $("#shobo-main").animate({
-            scrollTop: $("#shobo-main")[0].scrollHeight
-        });
     });
     $("#edited").on("click", async () => {
         $("#send").addClass("is-loading");
-        await updateMessage(chatApiEndpoint);
+        await updateMessage();
         $("#send").removeClass("is-loading");
         $("#input-area").data("message-id", null);
         normalMode();

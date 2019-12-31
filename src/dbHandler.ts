@@ -16,7 +16,7 @@ export async function initializeDB(): Promise<void> {
     const messagesTable = `messages (
                          id TEXT PRIMARY KEY,
                          userId INTEGER NOT NULL,
-                         time INTEGER NOT NULL, message TEXT NOT NULL,
+                         time INTEGER NOT NULL, content TEXT NOT NULL,
                          FOREIGN KEY(userId) REFERENCES userInfo(id)
                          )`;
 
@@ -115,7 +115,7 @@ export function insertUser(name: string, password: string): Promise<number> {
 export function getMessage(messageId: string): Promise<Message> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
-        const sql = `SELECT messages.id, userId, time, name, message
+        const sql = `SELECT messages.id, userId, time, name, content
                      FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
                      WHERE messages.id = ?`;
 
@@ -133,8 +133,8 @@ export function getMessage(messageId: string): Promise<Message> {
 export function getBeforeMessages(fromTime: number, n: number): Promise<Array<Message>> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
-        // get messages older than fromTime, and get the newest n message of them
-        const sql = `SELECT messages.id, userId, time, name, message
+        // get messages older than fromTime, and get the newest n messages of them
+        const sql = `SELECT messages.id, userId, time, name, content
                     FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
                     WHERE time < ?
                     ORDER BY time DESC
@@ -153,7 +153,7 @@ export function getBeforeMessages(fromTime: number, n: number): Promise<Array<Me
 export function getAllMessages(): Promise<Array<Message>> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
-        const sql = `SELECT messages.id, userId, time, name, message
+        const sql = `SELECT messages.id, userId, time, name, content
                     FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
                     ORDER BY time DESC`;
         db.all(sql, (err, rows) => { // クエリを実行して全ての結果に対して1度だけcallbackを実行する
@@ -168,7 +168,7 @@ export function getAllMessages(): Promise<Array<Message>> {
 }
 
 // insert された message の message id をプロミスに入れて返します
-export function insertMessage(userId: number, message: string): Promise<string> {
+export function insertMessage(userId: number, content: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
         const time = Date.now();
@@ -180,11 +180,11 @@ export function insertMessage(userId: number, message: string): Promise<string> 
          * messages.userIdはuserInfo.idを参照しているので，
          * messages.userIdにはuserInfo.idに無いものは入れられない
          */
-        const sql = "INSERT INTO messages (id, userId, time, message) VALUES(?, ?, ?, ?)";
+        const sql = "INSERT INTO messages (id, userId, time, content) VALUES(?, ?, ?, ?)";
         const id = uuid.v1();
 
         db.serialize(() => {
-            db.run(sql, [id, userId, time, message], err => {
+            db.run(sql, [id, userId, time, content], err => {
                 if (err) {
                     db.close();
                     reject(err);
@@ -196,12 +196,12 @@ export function insertMessage(userId: number, message: string): Promise<string> 
     });
 }
 
-export function updateMessage(messageId: string, message: string): Promise<void> {
+export function updateMessage(messageId: string, content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);
-        const sql = "UPDATE messages SET message = ? WHERE id = ?";
+        const sql = "UPDATE messages SET content = ? WHERE id = ?";
         db.serialize(() => {
-            db.run(sql, [message, messageId], err => {
+            db.run(sql, [content, messageId], err => {
                 if (err) {
                     db.close();
                     reject(err);
