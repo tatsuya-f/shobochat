@@ -181,7 +181,7 @@ export function insertMessage(userId: number, content: string): Promise<string> 
          * messages.userIdにはuserInfo.idに無いものは入れられない
          */
         const sql = "INSERT INTO messages (id, userId, time, content) VALUES(?, ?, ?, ?)";
-        const id = uuid.v1();
+        const id = uuid.v4();
 
         db.serialize(() => {
             db.run(sql, [id, userId, time, content], err => {
