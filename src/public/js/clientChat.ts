@@ -18,9 +18,6 @@ function insertTextarea(before: string, after: string) {
     const beforeCursor = text.substr(0, startpos) + before;
     const selected = text.substr(startpos, endpos - startpos);
     const afterCursor = after + text.substr(endpos, text.length);
-    console.log("start", startpos);
-    console.log("end", endpos);
-    console.log(selected);
     $textarea.val(beforeCursor + selected + afterCursor);
     $textarea.focus();
     $textarea.prop({
@@ -36,6 +33,7 @@ function normalMode() {
     document.documentElement.style.setProperty(
         "--input-area-height", `${$("#input-area").outerHeight()}px`
     );
+    $("#message").val("");
 }
 
 async function editMode(messageId: string) {
@@ -46,6 +44,7 @@ async function editMode(messageId: string) {
         "--input-area-height", `${$("#input-area").outerHeight()}px`
     );
     try {
+        $("#message").val();
         const msg = await httpHandler.get(messageId);
         $("#message").val(msg.content);
         $("#input-area").data("message-id", messageId);
@@ -87,8 +86,8 @@ $(() => {
         $("#contextmenu").data("message-id", $(this).data("message-id"));
         $("#contextmenu").show();
         $("#contextmenu").offset({
-            top: $(this).position().top + e.offsetY,
-            left: $(this).position().left + e.offsetX
+            top: e.pageY,
+            left: e.pageX
         });
         return false;
     });
@@ -174,6 +173,9 @@ $(() => {
     });
     $("#input-area-hide").on("click", () => {
         hiddenMode();
+    });
+    $("#edit-cancel").on("click", () => {
+        normalMode();
     });
     //</input area>
 
