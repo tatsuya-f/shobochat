@@ -2,11 +2,12 @@ import {
     httpHandler,
     sendMessage,
     updateMessage,
-    showMessages,
     removeMessage,
     checkInput,
-    parseMarkdown
+    parseMarkdown,
+    MessageHandler
 } from "./messageHandler";
+import  { isNotification, NotifyKind } from "./Notification";
 import { isMessageArray } from "./Message";
 
 function insertTextarea(before: string, after: string) {
@@ -65,15 +66,29 @@ function hiddenMode() {
 $(() => {
     const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
+    let messageHandler = new MessageHandler();
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
     });
     ws.addEventListener("message", (e) => { // サーバーがsendすると発火
-        const messages = JSON.parse(e.data);
-        if (isMessageArray(messages)) {
-            console.log(messages);
-            showMessages(messages);
+        const notify = JSON.parse(e.data);
+        if (!isNotification(notify)) { return; }
+        switch (notify.kind) {
+            case NotifyKind.Changed: {
+                break;
+            }
+            case NotifyKind.New: {
+                messageHandler.update();
+                break;
+            }
+            case NotifyKind.All: {
+                if (isMessageArray(notify.payload)) {
+                    messageHandler.messages = notify.payload;
+                }
+                messageHandler.showAll();
+                break;
+            }
         }
     });
 

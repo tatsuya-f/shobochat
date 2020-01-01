@@ -19,6 +19,20 @@ export class HTTPHandler {
             throw new Error(`Failed to get Message whose id is ${messageId}`);
         }
     }
+    async getNewer(time: number): Promise<Array<Message>> {
+        const res = await fetch(`${this.url}/time/${time}`, {
+            method: "GET",
+            headers: {
+                "Content-Length": "0"
+            },
+            credentials: "same-origin"
+        });
+        if (res.status === 200) {
+            return res.json();
+        } else {
+            throw new Error(`Failed to get Messages newer than ${time}`);
+        }
+    }
     async post(content: string): Promise<number> {
         const res = await fetch(this.url, {
             method: "POST",
@@ -116,6 +130,60 @@ export function isValidMessage(message: Message): boolean {
     return isValid;
 }
 
+export class MessageHandler {
+    private _messages: Array<Message>
+    private _time: number;  // last updated time
+    constructor() {
+        this._messages = [];
+        this._time = Date.now();
+    }
+    showAll() {
+        const $messageList = $("#messageList");
+        $messageList.empty();
+        this._messages.forEach((message) => {
+            if (message.time !== undefined) {
+                const time = new Date(message.time);
+                const displayTime = changeTimeFormat(time);
+                const messageTag = `\
+                    <div class="shobo-message-div" \
+                    data-message-id=${message.id}> \
+                    <span style="font-size: 40px;"> \
+                    <i class="fas fa-user-circle"></i> \
+                    </span>
+                <span class="shobo-name"> \
+                    ${escapeHTML(message.name)} \
+                    </span> \
+                    <span class="shobo-time"> \
+                    ${displayTime} \
+                    </span> \
+                    <div class="content shobo-message"> \
+                    ${parseMarkdown(message.content)} \
+                    </div> \
+                    </div>`;
+                $messageList.prepend(messageTag);
+            }
+        });
+    }
+    async update() {
+        const messages = await httpHandler.getNewer(this._time);
+        this._messages.unshift(...messages);
+        this.updateTime();
+        this.showAll();
+    }
+    updateTime() {
+        if (this._messages.length === 0) {
+            this._time = Date.now();
+        } else {
+            this._time = this._messages[0].time || Date.now();
+        }
+    }
+    set messages(messages: Array<Message>) {
+        this._messages = messages;
+        this.updateTime();
+        this.showAll();
+    }
+}
+
 export async function sendMessage() {
     const message = $("#message").val();
 
@@ -163,34 +231,6 @@ export async function updateMessage() {
         }
     }
     $("#message").val("");
-}
-
-export function showMessages(messages: Array<Message>) {
-    const $messageList = $("#messageList");
-    $messageList.empty();
-    messages.forEach((message) => {
-        if (message.time !== undefined) {
-            const time = new Date(message.time);
-            const displayTime = changeTimeFormat(time);
-            const messageTag = `\
-                <div class="shobo-message-div" \
-                     data-message-id=${message.id}> \
-                    <span style="font-size: 40px;"> \
-                        <i class="fas fa-user-circle"></i> \
-                    </span>
-                    <span class="shobo-name"> \
-                        ${escapeHTML(message.name)} \
-                    </span> \
-                    <span class="shobo-time"> \
-                        ${displayTime} \
-                    </span> \
-                    <div class="content shobo-message"> \
-                        ${parseMarkdown(message.content)} \
-                    </div> \
-                </div>`;
-            $messageList.prepend(messageTag);
-        }
-    });
 }
 
 export async function removeMessage(messageId: string): Promise<void> {
