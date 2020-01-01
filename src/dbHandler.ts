@@ -150,6 +150,24 @@ export function getBeforeMessages(fromTime: number, n: number): Promise<Array<Me
     });
 }
 
+export function getAfterMessages(fromTime: number): Promise<Array<Message>> {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(databaseName);
+        const sql = `SELECT messages.id, userId, time, name, content
+                    FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
+                    WHERE time > ?
+                    ORDER BY time DESC`;
+        db.all(sql, [fromTime], (err, row) => {
+            db.close();
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(row);
+        });
+    });
+}
+
 export function getSameTimeMessages(time: number): Promise<Array<Message>> {
     return new Promise((resolve, reject) => {
         const db = new sqlite3.Database(databaseName);

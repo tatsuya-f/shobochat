@@ -3,10 +3,13 @@ import { Request, Response, NextFunction } from "express";
 import {
     getMessage,
     getAllMessages,
+    getAfterMessages,
     insertMessage,
     deleteMessage,
     updateMessage } from "../dbHandler";
-import { broadcastMessages } from "../webSocketHandler";
+import {
+    broadcastMessages,
+    notifyNewMessage, } from "../webSocketHandler";
 import { answerIsPrime } from "../primeHandler";
 import { shobot } from "../server";
 
@@ -24,6 +27,17 @@ messagesRouter.get("/:id", async (req: Request, res: Response, next: NextFunctio
     try {
         const message = await getMessage(req.params.id);
         res.json(message);
+    } catch (err) {
+        next(err);
+    }
+});
+
+messagesRouter.get("/time/:time", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const time = parseInt(req.params.time);
+        console.log(time);
+        const messages = await getAfterMessages(time);
+        res.json(messages);
     } catch (err) {
         next(err);
     }
@@ -63,7 +77,7 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
         if (primeAns !== null) {
             await insertMessage(shobot, primeAns);
         }
-        await broadcastMessages();
+        await notifyNewMessage();
         res.status(200).end();
     } catch (err) {
         next(err);

@@ -12,6 +12,7 @@ import {
     updateUser,
     getMessage,
     getBeforeMessages,
+    getAfterMessages,
     getSameTimeMessages,
     getAllMessages,
     insertMessage,
@@ -208,6 +209,46 @@ describe("getBeforeMessages", () => {
             }));
             for (let i = 0;i < n;i++) {
                 assert.deepStrictEqual(messages[i + idx + 1], someMessages[i]);
+            }
+        } else {
+            assert.notStrictEqual(time, undefined);
+        }
+    });
+});
+
+describe("getAfterMessages", () => {
+    const n = 30;
+    before(async () => {
+        try {
+            await initializeDB();
+            const userId = await insertUser(testName, testPassword);
+            const userId2 = await insertUser(testName + "2", testPassword + "2");
+            for (let i = 0;i < n;i++) {
+                await insertMessage(userId, `${testMessage}${2 * i}`);
+                await insertMessage(userId2, `${testMessage}${2 * i + 1}`);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(() => {
+        deleteDB();
+    });
+
+    it("returns messages", async () => {
+        const idx = 4;
+        const messages = await getAllMessages();
+        const time = messages[idx].time;  // this message is 55th
+        if (time !== undefined) {
+            const someMessages = await getAfterMessages(time);
+            assert.strictEqual(Array.isArray(someMessages), true);
+            someMessages.forEach((m => {
+                assert.strictEqual(isMessage(m), true);
+            }));
+            assert.deepStrictEqual(someMessages.length, idx);
+            for (let i = 0;i < idx;i++) {
+                assert.deepStrictEqual(messages[i], someMessages[i]);
             }
         } else {
             assert.notStrictEqual(time, undefined);
