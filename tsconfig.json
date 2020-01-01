@@ -3,6 +3,8 @@
         "module": "commonjs",
         "target": "ES5",
         "alwaysStrict": true,
-        "strict": true
+        "strict": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
     }
 }

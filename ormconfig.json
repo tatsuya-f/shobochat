@@ -1,0 +1,6 @@
+{
+    type: "sqlite",
+    database: "sqlite3.db",
+    entities: [ User, Message ],
+    logging: true
+}
