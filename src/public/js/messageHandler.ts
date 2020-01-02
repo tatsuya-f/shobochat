@@ -6,7 +6,7 @@ import * as sanitizeHtml from "sanitize-html";
 export class HTTPHandler {
     url: string = "/messages"
     async get(messageId: string): Promise<Message> {
-        const res = await fetch(`${this.url}/${messageId}`, {
+        const res = await fetch(`${this.url}/id/${messageId}`, {
             method: "GET",
             headers: {
                 "Content-Length": "0"
@@ -20,7 +20,7 @@ export class HTTPHandler {
         }
     }
     async getNewer(time: number): Promise<Array<Message>> {
-        const res = await fetch(`${this.url}/time/${time}`, {
+        const res = await fetch(`${this.url}/time-after/${time}`, {
             method: "GET",
             headers: {
                 "Content-Length": "0"
@@ -31,6 +31,20 @@ export class HTTPHandler {
             return res.json();
         } else {
             throw new Error(`Failed to get Messages newer than ${time}`);
+        }
+    }
+    async getOlder(time: number, num: number): Promise<Array<Message>> {
+        const res = await fetch(`${this.url}/time-before/${time}/${num}`, {
+            method: "GET",
+            headers: {
+                "Content-Length": "0"
+            },
+            credentials: "same-origin"
+        });
+        if (res.status === 200) {
+            return res.json();
+        } else {
+            throw new Error(`Failed to get Messages older than ${time}`);
         }
     }
     async post(content: string): Promise<number> {
@@ -164,11 +178,12 @@ export class MessageHandler {
             }
         });
     }
-    async update() {
+    async getNew() {
         const messages = await httpHandler.getNewer(this._time);
         this._messages.unshift(...messages);
         this.updateTime();
         this.showAll();
+        $("#shobo-main").scrollTop($("#shobo-main")[0].scrollHeight);
     }
     updateTime() {
         if (this._messages.length === 0) {
@@ -177,10 +192,39 @@ export class MessageHandler {
             this._time = this._messages[0].time || Date.now();
         }
     }
+    async fetch(messageId: string) {
+        const message = await httpHandler.get(messageId);
+        for (let m of this._messages) {
+            if (m.id === messageId) {
+                m.content = message.content;
+            }
+        }
+        this.showAll();
+    }
+    async getOld() {
+        const messages = await httpHandler.getOlder(
+        // TODO: time
+            this._messages[this._messages.length - 1].time || 0, 5);
+        this._messages.push(...messages);
+        const $shobomain = $("#shobo-main")[0];
+        const oldScrollHeight = $shobomain.scrollHeight;
+        this.showAll();
+        // keep current position
+        $("#shobo-main").scrollTop($shobomain.scrollHeight - oldScrollHeight);
+    }
+    delete(messageId: string) {
+        this._messages = this._messages.filter(m => m.id !== messageId);
+        // keep current position
+        const oldScrollTop = $("#shobo-main")[0].scrollTop;
+        this.showAll();
+        $("#shobo-main").scrollTop(oldScrollTop);
+    }
     set messages(messages: Array<Message>) {
         this._messages = messages;
         this.updateTime();
         this.showAll();
+        // goto bottom
+        $("#shobo-main").scrollTop($("#shobo-main")[0].scrollHeight);
     }
 }
 

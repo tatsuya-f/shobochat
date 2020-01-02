@@ -1,7 +1,7 @@
 import * as express from "express";
 import * as session from "express-session";
 import * as WebSocket from "ws";
-import { broadcastMessages } from "./webSocketHandler";
+import { initMessages } from "./webSocketHandler";
 import { initializeDB, insertUser, hasUserName } from "./dbHandler";
 import { checkLogin } from "./loginHandler";
 import { indexRouter } from "./route/index";
@@ -46,7 +46,7 @@ wss.on("connection", (ws) => {
     ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            await broadcastMessages();
+            await initMessages();
         } catch (err) {
             console.log(err);
         }

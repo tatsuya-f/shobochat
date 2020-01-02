@@ -3,13 +3,15 @@ import { Request, Response, NextFunction } from "express";
 import {
     getMessage,
     getAllMessages,
+    getBeforeMessages,
     getAfterMessages,
     insertMessage,
     deleteMessage,
     updateMessage } from "../dbHandler";
 import {
-    broadcastMessages,
-    notifyNewMessage, } from "../webSocketHandler";
+    notifyNewMessage,
+    notifyChangedMessage,
+    notifyDeleteMessage, } from "../webSocketHandler";
 import { answerIsPrime } from "../primeHandler";
 import { shobot } from "../server";
 
@@ -23,7 +25,7 @@ messagesRouter.get("/", async (req: Request, res: Response, next: NextFunction) 
         next(err);
     }
 });
-messagesRouter.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const message = await getMessage(req.params.id);
         res.json(message);
@@ -32,11 +34,21 @@ messagesRouter.get("/:id", async (req: Request, res: Response, next: NextFunctio
     }
 });
 
-messagesRouter.get("/time/:time", async (req: Request, res: Response, next: NextFunction) => {
+messagesRouter.get("/time-after/:time", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const time = parseInt(req.params.time);
-        console.log(time);
         const messages = await getAfterMessages(time);
+        res.json(messages);
+    } catch (err) {
+        next(err);
+    }
+});
+
+messagesRouter.get("/time-before/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const time = parseInt(req.params.time);
+        const num = parseInt(req.params.num);
+        const messages = await getBeforeMessages(time, num);
         res.json(messages);
     } catch (err) {
         next(err);
@@ -97,7 +109,7 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
         const message = await getMessage(messageId);
         if (message.userId === sess.userId) {
             await updateMessage(messageId, req.body.content);
-            await broadcastMessages();
+            await notifyChangedMessage(messageId);
             res.status(200).end();
         } else {
             res.status(405).end();
@@ -118,7 +130,7 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
         const message = await getMessage(messageId);
         if (message.userId === sess.userId) { // accept
             await deleteMessage(messageId);
-            await broadcastMessages();
+            notifyDeleteMessage(messageId);
             res.status(200).end();
         } else { // reject
             res.status(405).end();
