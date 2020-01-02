@@ -31,7 +31,7 @@ export class MessageEntity {
     })
     content!: string;
     
-    @OneToOne(() => User)
+    @OneToOne(() => UserEntity)
     @JoinColumn()
     user!: UserEntity;
 }

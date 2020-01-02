@@ -1,6 +1,23 @@
-{
-    type: "sqlite",
-    database: "sqlite3.db",
-    entities: [ User, Message ],
-    logging: true
-}
+[
+    {
+        "name": "default",
+        "type": "sqlite",
+        "database": "sqliteDB",
+        "entities": ["./dist/server/entities/*.ts"],
+        "logging": true
+    }, 
+    {
+        "name": "userRepositoryTestConnection",
+        "type": "sqlite",
+        "database": "userRepositoryTestDB",
+        "entities": ["./src/entities/UserEntity.ts"],
+        "logging": true
+    },
+    {
+        "name": "messageRepositoryTestConnection",
+        "type": "sqlite",
+        "database": "messageRepositoryTestDB",
+        "entities": ["./src/entities/MessageEntity.ts"],
+        "logging": true
+    }
+]
