@@ -1,4 +1,4 @@
-import { getAllMessages } from "./dbHandler";
+import { getBeforeMessages } from "./dbHandler";
 import { Notification, NotifyKind } from "./Notification";
 import { wss } from "./server";
 
@@ -9,12 +9,12 @@ export function notifyClients(notification: Notification) {
     });
 }
 
-export async function broadcastMessages() {
+export async function initMessages() {
     // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
-    const messages = await getAllMessages();
+    // const messages = await getAllMessages();
     notifyClients({
-        kind: NotifyKind.All,
-        payload: messages
+        kind: NotifyKind.Init,
+        payload: await getBeforeMessages(Date.now(), 10)
     });
 }
 
@@ -24,8 +24,17 @@ export function notifyNewMessage() {
     });
 }
 
-export function notifyChangedMessage() {
+export function notifyChangedMessage(messageId: string) {
     notifyClients({
-        kind: NotifyKind.Changed
+        kind: NotifyKind.Changed,
+        payload: messageId
     });
 }
+
+export function notifyDeleteMessage(messageId: string) {
+    notifyClients({
+        kind: NotifyKind.Deleted,
+        payload: messageId
+    });
+}
+

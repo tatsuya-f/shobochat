@@ -89,7 +89,7 @@ describe("GET /messages", () => {
     });
 });
 
-describe("GET /messages/id", () => {
+describe("GET /messages/id/id", () => {
     const agent = request.agent(app);
     let cookie: Array<string>;
 
@@ -114,7 +114,7 @@ describe("GET /messages/id", () => {
     it("return messages in response.body", async () => {
         const all = await getAllMessages();
         const response = await agent
-            .get(`/messages/${all[0].id}`)
+            .get(`/messages/id/${all[0].id}`)
             .set("Cookie", cookie)
             .expect("Content-Type", /application\/json/)
             .expect(200);

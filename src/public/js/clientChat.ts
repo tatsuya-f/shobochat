@@ -64,30 +64,37 @@ function hiddenMode() {
 }
 
 $(() => {
-    const websocketEndPoint = "ws://localhost:8080";
+    const websocketEndPoint = "ws://192.168.0.216:8080";
     let ws = new WebSocket(websocketEndPoint);
     let messageHandler = new MessageHandler();
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
     });
-    ws.addEventListener("message", (e) => { // サーバーがsendすると発火
+    ws.addEventListener("message", async (e) => { // サーバーがsendすると発火
         const notify = JSON.parse(e.data);
         if (!isNotification(notify)) { return; }
         switch (notify.kind) {
-            case NotifyKind.Changed: {
-                break;
-            }
-            case NotifyKind.New: {
-                messageHandler.update();
-                break;
-            }
-            case NotifyKind.All: {
+            case NotifyKind.Init: {
                 if (isMessageArray(notify.payload)) {
                     messageHandler.messages = notify.payload;
                 }
-                messageHandler.showAll();
                 break;
+            }
+            case NotifyKind.New: {
+                await messageHandler.getNew();
+                break;
+            }
+            case NotifyKind.Changed: {
+                if (typeof notify.payload === "string") { // messageId
+                    await messageHandler.fetch(notify.payload);
+                }
+                break;
+            }
+            case NotifyKind.Deleted: {
+                if (typeof notify.payload === "string") { // messageId
+                    await messageHandler.delete(notify.payload);
+                }
             }
         }
     });
@@ -193,6 +200,34 @@ $(() => {
         normalMode();
     });
     //</input area>
+
+    //<message list>
+    async function fetchKeydownEventListener(e: JQueryEventObject) {
+        console.log(e.which);
+        if (e.which === 38) {
+            if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
+                $("#shobo-main").off("mousewheel");
+                $(document).off("keydown");
+                await messageHandler.getOld();
+                $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+                $(document).on("keydown", fetchKeydownEventListener);
+            }
+        }
+    }
+    async function fetchScrollEventListener(e: JQueryMousewheel.JQueryMousewheelEventObject) {
+        if (e.deltaY >= 1) {
+            if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
+                $("#shobo-main").off("mousewheel");
+                $(document).off("keydown");
+                await messageHandler.getOld();
+                $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+                $(document).on("keydown", fetchKeydownEventListener);
+            }
+        }
+    }
+    $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+    $(document).on("keydown", fetchKeydownEventListener);
+    //</message list>
 
     //<message highlight>
     $(document).on("mouseover", ".shobo-message-div", function()  {

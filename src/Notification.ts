@@ -1,6 +1,6 @@
 
 export enum NotifyKind {
-    New, Changed, All
+    Init, New, Changed, Deleted
 }
 
 export interface Notification {
@@ -9,7 +9,10 @@ export interface Notification {
 }
 
 export function isNotification(args: any): args is Notification {
-    return (args.kind === NotifyKind.Changed ||
-            args.kind === NotifyKind.New ||
-            args.kind === NotifyKind.All);
+    return (
+        args.kind === NotifyKind.Init ||
+        args.kind === NotifyKind.Changed ||
+        args.kind === NotifyKind.New ||
+        args.kind === NotifyKind.Deleted
+    );
 }
