@@ -64,7 +64,7 @@ function hiddenMode() {
 }
 
 $(() => {
-    const websocketEndPoint = "ws://localhost:8080";
+    const websocketEndPoint = "ws://192.168.0.216:8080";
     let ws = new WebSocket(websocketEndPoint);
     let messageHandler = new MessageHandler();
 
@@ -202,16 +202,31 @@ $(() => {
     //</input area>
 
     //<message list>
-    async function fetchEventListener(e: JQueryMousewheel.JQueryMousewheelEventObject) {
-        if (e.deltaY >= 1) {
+    async function fetchKeydownEventListener(e: JQueryEventObject) {
+        console.log(e.which);
+        if (e.which === 38) {
             if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
                 $("#shobo-main").off("mousewheel");
+                $(document).off("keydown");
                 await messageHandler.getOld();
-                $("#shobo-main").on("mousewheel", fetchEventListener);
+                $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+                $(document).on("keydown", fetchKeydownEventListener);
             }
         }
     }
-    $("#shobo-main").on("mousewheel", fetchEventListener);
+    async function fetchScrollEventListener(e: JQueryMousewheel.JQueryMousewheelEventObject) {
+        if (e.deltaY >= 1) {
+            if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
+                $("#shobo-main").off("mousewheel");
+                $(document).off("keydown");
+                await messageHandler.getOld();
+                $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+                $(document).on("keydown", fetchKeydownEventListener);
+            }
+        }
+    }
+    $("#shobo-main").on("mousewheel", fetchScrollEventListener);
+    $(document).on("keydown", fetchKeydownEventListener);
     //</message list>
 
     //<message highlight>
