@@ -27,12 +27,11 @@ export class UserRepository extends Repository<UserEntity> {
 
     // insert された user の user id をプロミスに入れて返す
     async insertAndGetId(name: string, password: string): Promise<number> {
-
         const insertResult = await this.createQueryBuilder()
             .insert()
             .into(UserEntity)
             .values([
-                { name: name, password: password }, 
+                { name: name, password: password }
             ])
             .execute();
 
@@ -40,6 +39,18 @@ export class UserRepository extends Repository<UserEntity> {
             throw new Error("insert failed");
         } else {
             return insertResult.identifiers[0].id;
+        }
+    }
+
+    async updateNameAndPassword(userId: number, name: string, password: string): Promise<void> {
+        const updateResult = await this.createQueryBuilder()
+            .update(UserEntity)
+            .set({ name: name, password: password})
+            .where("id = :id", { id: userId })
+            .execute();
+
+        if (updateResult === undefined) {
+            throw new Error("update failed");
         }
     }
 }

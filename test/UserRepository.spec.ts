@@ -3,7 +3,7 @@ import { UserEntity } from "../src/entities/UserEntity";
 import { UserRepository } from "../src/repository/UserRepository";
 import * as assert from "assert";
 import * as fs from "fs";
-import { isUser } from "../src/User";
+import { User, isUser } from "../src/User";
 
 const testName = "testName";
 const testPassword = "testPassword";
@@ -12,7 +12,7 @@ const testMessage = "testMessage";
 
 function deleteDB() {
     try {
-        fs.unlinkSync("userRepositoryTestDB");
+        fs.unlinkSync("UserRepositoryTestDB");
     } catch (err) {
         console.log(err);
     }
@@ -24,9 +24,9 @@ describe("getByName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("userRepositoryTestConnection");
+            connection = await createConnection("UserRepositoryTestConnection");
             await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("userRepositoryTestConnection").getCustomRepository(UserRepository); 
+            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -56,9 +56,9 @@ describe("hasName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("userRepositoryTestConnection");
+            connection = await createConnection("UserRepositoryTestConnection");
             await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("userRepositoryTestConnection").getCustomRepository(UserRepository); 
+            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -82,15 +82,15 @@ describe("hasName", () => {
     });
 });
 
-describe("insert", () => {
+describe("insertAndGetId", () => {
     let connection: Connection;
     let userRepository: UserRepository;
 
     before(async () => {
         try {
-            connection = await createConnection("userRepositoryTestConnection");
+            connection = await createConnection("UserRepositoryTestConnection");
             await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("userRepositoryTestConnection").getCustomRepository(UserRepository); 
+            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
         } catch (err) {
             console.log(err);
         }
@@ -113,5 +113,40 @@ describe("insert", () => {
         } else {
             assert.strictEqual(testUser === undefined, false);
         }
+    });
+});
+
+describe("updateNameAndPassword", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let id: number;
+    let testUser: User;
+
+    before(async () => {
+        try {
+            connection = await createConnection("UserRepositoryTestConnection");
+            await connection.synchronize(); // connectionOptions の entities の database schema を作成
+            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
+
+            id = await userRepository.insertAndGetId(testName, testPassword);
+            testUser = await userRepository.getByName(testName);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("update username and password", async () => {
+        const name = "updatedname";
+        const password = "updatedpass";
+        await userRepository.updateNameAndPassword(id, name, password);
+        const updatedUser = await userRepository.getByName(name);
+        testUser.name = name;
+        testUser.password = password;
+        assert.deepStrictEqual(testUser, updatedUser);
     });
 });
