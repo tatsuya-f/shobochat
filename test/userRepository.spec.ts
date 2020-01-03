@@ -50,13 +50,16 @@ describe("getByName", () => {
     });
 });
 
-/*
 describe("hasName", () => {
     let connection: Connection;
     let userRepository: UserRepository;
 
     before(async () => {
         try {
+            connection = await createConnection("userRepositoryTestConnection");
+            await connection.synchronize(); // connectionOptions の entities の database schema を作成
+            userRepository = getConnection("userRepositoryTestConnection").getCustomRepository(UserRepository); 
+
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
             user.password = testPassword;
@@ -66,7 +69,8 @@ describe("hasName", () => {
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -77,4 +81,3 @@ describe("hasName", () => {
         assert.equal(await userRepository.hasName("not exsit"), false);
     });
 });
-*/
