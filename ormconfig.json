@@ -3,21 +3,16 @@
         "name": "default",
         "type": "sqlite",
         "database": "sqliteDB",
-        "entities": ["./dist/server/entities/*.ts"],
+        "entities": ["./src/entities/*.ts"],
+        "synchronize": true,
         "logging": true
     }, 
     {
-        "name": "UserRepositoryTestConnection",
+        "name": "testConnection",
         "type": "sqlite",
-        "database": "UserRepositoryTestDB",
-        "entities": ["./src/entities/UserEntity.ts"],
-        "logging": true
-    },
-    {
-        "name": "MessageRepositoryTestConnection",
-        "type": "sqlite",
-        "database": "MessageRepositoryTestDB",
-        "entities": ["./src/entities/MessageEntity.ts"],
+        "database": "testDB",
+        "entities": ["./src/entities/*.ts"],
+        "synchronize": true,
         "logging": true
     }
 ]

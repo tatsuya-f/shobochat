@@ -1,4 +1,10 @@
-import { Connection, ConnectionOptions, createConnection, getConnection, getCustomRepository } from "typeorm";
+import { 
+    Connection, 
+    ConnectionOptions, 
+    createConnection, 
+    getConnection, 
+    getCustomRepository 
+} from "typeorm";
 import { UserEntity } from "../src/entities/UserEntity";
 import { UserRepository } from "../src/repository/UserRepository";
 import * as assert from "assert";
@@ -12,7 +18,7 @@ const testMessage = "testMessage";
 
 function deleteDB() {
     try {
-        fs.unlinkSync("UserRepositoryTestDB");
+        fs.unlinkSync("testDB");
     } catch (err) {
         console.log(err);
     }
@@ -24,9 +30,9 @@ describe("getByName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("UserRepositoryTestConnection");
-            await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -56,9 +62,9 @@ describe("hasName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("UserRepositoryTestConnection");
-            await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -88,9 +94,9 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("UserRepositoryTestConnection");
-            await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
         } catch (err) {
             console.log(err);
         }
@@ -124,9 +130,9 @@ describe("updateNameAndPassword", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("UserRepositoryTestConnection");
-            await connection.synchronize(); // connectionOptions の entities の database schema を作成
-            userRepository = getConnection("UserRepositoryTestConnection").getCustomRepository(UserRepository); 
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
 
             id = await userRepository.insertAndGetId(testName, testPassword);
             testUser = await userRepository.getByName(testName);
