@@ -81,3 +81,37 @@ describe("hasName", () => {
         assert.equal(await userRepository.hasName("not exsit"), false);
     });
 });
+
+describe("insert", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+
+    before(async () => {
+        try {
+            connection = await createConnection("userRepositoryTestConnection");
+            await connection.synchronize(); // connectionOptions の entities の database schema を作成
+            userRepository = getConnection("userRepositoryTestConnection").getCustomRepository(UserRepository); 
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns id of inserted User", async () => {
+        const id = await userRepository.insertAndGetId(testName, testPassword);
+        const id2 = await userRepository.insertAndGetId(testName + "2", testPassword);
+        const testUser = await userRepository.getByName(testName);
+        const testUser2 = await userRepository.getByName(testName + "2");
+
+        if (testUser) {
+            assert.strictEqual(id === testUser.id, true);
+            assert.strictEqual(id2 === testUser2.id, true);
+        } else {
+            assert.strictEqual(testUser === undefined, false);
+        }
+    });
+});

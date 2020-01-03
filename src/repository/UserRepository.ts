@@ -24,4 +24,22 @@ export class UserRepository extends Repository<UserEntity> {
 
         return !!user;
     }
+
+    // insert された user の user id をプロミスに入れて返す
+    async insertAndGetId(name: string, password: string): Promise<number> {
+
+        const insertResult = await this.createQueryBuilder()
+            .insert()
+            .into(UserEntity)
+            .values([
+                { name: name, password: password }, 
+            ])
+            .execute();
+
+        if (insertResult === undefined) { 
+            throw new Error("insert failed");
+        } else {
+            return insertResult.identifiers[0].id;
+        }
+    }
 }
