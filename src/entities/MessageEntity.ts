@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from "typeorm";
 import { UserEntity } from "./UserEntity";
 
 /* 
@@ -16,7 +16,9 @@ import { UserEntity } from "./UserEntity";
 @Entity()
 export class MessageEntity {
 
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn({ 
+        type: "text" 
+    })
     id!: string;
 
     @Column({

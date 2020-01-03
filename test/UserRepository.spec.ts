@@ -13,8 +13,6 @@ import { User, isUser } from "../src/User";
 
 const testName = "testName";
 const testPassword = "testPassword";
-const testMessage = "testMessage";
-
 
 function deleteDB() {
     try {
