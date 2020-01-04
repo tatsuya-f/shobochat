@@ -111,6 +111,14 @@ export class MessageRepository extends Repository<MessageEntity> {
         return messageId;
     }
 
+    public async updateContent(messageId: string, content: string): Promise<void> {
+        await this.createQueryBuilder("message")
+            .update(MessageEntity)
+            .set({ content: content })
+            .where("id = :id", { id: messageId })
+            .execute();
+    }
+
     /*
     insertAndGetId(userId, testMessage) {
     }

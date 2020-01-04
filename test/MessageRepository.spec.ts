@@ -276,7 +276,6 @@ describe("insertAndGetId", () => {
                 .getCustomRepository(MessageRepository); 
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
-            //userEntity = await userRepository.getEntityById(userId);
         } catch (err) {
             console.log(err);
         }
@@ -291,5 +290,42 @@ describe("insertAndGetId", () => {
         const messageId = await messageRepository.insertAndGetId(userId, TEST_CONTENT);
         const message: Message = await messageRepository.getById(messageId);
         assert.strictEqual(message.id === messageId, true);
+    });
+});
+
+describe("updateContent", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    let userId: number;
+    let messageId: string;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection("testConnection")
+                .getCustomRepository(MessageRepository); 
+
+            userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            messageId = await messageRepository.insertAndGetId(userId, TEST_CONTENT);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("delete message", async () => {
+        const updatedContent = "updated content";
+        let original = await messageRepository.getById(messageId);
+        await messageRepository.updateContent(messageId, updatedContent);
+        const updated = await messageRepository.getById(messageId);
+        original.content = updatedContent;
+        assert.deepStrictEqual(original, updated);
     });
 });
