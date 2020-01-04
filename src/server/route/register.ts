@@ -1,13 +1,16 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { redirectChatWhenLoggedIn } from "../loginHandler";
-import { hasUserName, insertUser } from "../dbHandler";
+import { getConnection } from "typeorm";
+import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
+import { hash } from "../handler/hashHandler";
+import { UserRepository } from "../repository/UserRepository";
 
 export const registerRouter = express.Router();
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 registerRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     res.sendFile("register.html", {
-        root: "public",
+        root: "../public",
     }, (err) => {
         if (err) {
             next(err);
@@ -25,11 +28,14 @@ registerRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
+    const userRepository = getConnection(connectionType)
+        .getCustomRepository(UserRepository); 
+
     const name = req.body.name;
     const password = req.body.password;
     try {
-        if (!(await hasUserName(name))) { 
-            const userId = await insertUser(name, password);
+        if (!(await userRepository.hasName(name))) { 
+            const userId = await userRepository.insertAndGetId(name, hash(password));
             sess.userId = userId;
             sess.isLoggedin = true;
             res.redirect("/chat");

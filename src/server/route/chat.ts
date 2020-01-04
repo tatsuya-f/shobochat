@@ -5,7 +5,7 @@ export const chatRouter = express.Router();
 
 chatRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.sendFile("chat.html", {
-        root: "public",
+        root: "../public",
     }, (err) => {
         if (err) {
             next(err);

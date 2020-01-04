@@ -1,8 +1,10 @@
 import { getConnection, EntityRepository, Repository } from "typeorm";
 import * as uuid from "uuid";
 import { UserRepository } from "../repository/UserRepository";
-import { MessageEntity } from "../entities/MessageEntity";
-import { Message } from "../Message";
+import { MessageEntity } from "../entity/MessageEntity";
+import { Message } from "../../common/Message";
+
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 @EntityRepository(MessageEntity)
 export class MessageRepository extends Repository<MessageEntity> {
@@ -91,14 +93,8 @@ export class MessageRepository extends Repository<MessageEntity> {
     }
 
     public async insertAndGetId(userId: number, content: string): Promise<string> {
-        let userRepository;
-        if (process.env.NODE_ENV === "test") {
-            userRepository = getConnection("testConnection")
-                .getCustomRepository(UserRepository); 
-        } else {
-            userRepository = getConnection()
-                .getCustomRepository(UserRepository); 
-        }
+        const userRepository = getConnection(connectionType)
+            .getCustomRepository(UserRepository); 
 
         const messageEntity: MessageEntity = this.create(); // const messageEntity = new MessageEntity() と同じ
         messageEntity.id = uuid.v4();

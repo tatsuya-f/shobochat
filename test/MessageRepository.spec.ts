@@ -6,14 +6,15 @@ import {
     getCustomRepository 
 } from "typeorm";
 import * as uuid from "uuid";
-import { UserEntity } from "../src/entities/UserEntity";
-import { UserRepository } from "../src/repository/UserRepository";
-import { MessageEntity } from "../src/entities/MessageEntity";
-import { MessageRepository } from "../src/repository/MessageRepository";
+import { UserEntity } from "../src/server/entity/UserEntity";
+import { UserRepository } from "../src/server/repository/UserRepository";
+import { MessageEntity } from "../src/server/entity/MessageEntity";
+import { MessageRepository } from "../src/server/repository/MessageRepository";
 import * as assert from "assert";
 import * as fs from "fs";
-import { Message, isMessage } from "../src/Message";
+import { Message, isMessage } from "../src/common/Message";
 
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 const TEST_NAME = "TEST_NAME";
 const TEST_PASSWORD = "TEST_PASSWORD";
 const TEST_CONTENT = "TEST_CONTENT";
@@ -47,10 +48,10 @@ describe("getById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
               .getCustomRepository(MessageRepository); 
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -83,10 +84,10 @@ describe("getAll", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -121,10 +122,10 @@ describe("getBeforeSpecifiedTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -176,10 +177,10 @@ describe("getAllAfterSpecifiedTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -231,10 +232,10 @@ describe("getByTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -269,10 +270,10 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -302,10 +303,10 @@ describe("updateById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -320,7 +321,7 @@ describe("updateById", () => {
         deleteDB();
     });
 
-    it("delete message", async () => {
+    it("update message", async () => {
         const updatedContent = "updated content";
         let original = await messageRepository.getById(messageId);
         await messageRepository.updateById(messageId, updatedContent);
@@ -337,10 +338,10 @@ describe("deleteById", () => {
     let messageId: string;
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
-            messageRepository = getConnection("testConnection")
+            messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository); 
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);

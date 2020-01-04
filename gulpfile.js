@@ -8,6 +8,7 @@ const pug = require("gulp-pug");
 const plumber = require("gulp-plumber");
 const source = require ("vinyl-source-stream");
 const tsify = require("tsify");
+const ts = require('gulp-typescript');
 
 function clean() {
     return del(["dist"]);
@@ -79,6 +80,7 @@ function clientChat() {
         .pipe(dest("dist/public/js"));
 }
 
+/*
 function server() {
     return browserify({ "node": true, "bundleExternal": false })
         .add("src/server.ts")
@@ -87,23 +89,52 @@ function server() {
         .pipe(source("server_bundle.js"))
         .pipe(dest("dist"));
 }
+*/
+
+function checkServer() {
+    const tsProject = ts.createProject("tsconfig.json");
+    const tsResult = src("src/server/**/*.ts") 
+        .pipe(tsProject());
+    return tsResult.js.pipe(dest("tmp"));
+}
+
+function checkCommon() {
+    const tsProject = ts.createProject("tsconfig.json");
+    const tsResult = src("src/common/**/*.ts") 
+        .pipe(tsProject());
+    return tsResult.js.pipe(dest("tmp"));
+}
+
+function cleanTmp() {
+    return del(["tmp"]);
+}
 
 function test() {
     return src("test/*")
         .pipe(mocha({exit: true}));
 }
 
-function copy() {
+function copyHtmlAndCss() {
     return src(["src/public/**/*.html", "src/public/**/*.css"])
         .pipe(dest("dist/public"));
 }
 
-exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientSetting, clientChat, server, compilePug, copy);
+function copyServer() {
+    return src(["src/server/**/*.ts"])
+        .pipe(dest("dist/server"));
+}
+
+function copyCommon() {
+    return src(["src/common/**/*.ts"])
+        .pipe(dest("dist/common"));
+}
+
+exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientSetting, clientChat, checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;
-exports.build = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat, server, compilePug, copy);
-exports.server = series(server, copy);
+exports.build = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat, checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
+exports.server = series(checkServer, checkCommon, cleanTmp, copyServer, copyCommon, copyHtmlAndCss);
 exports.client = series(clientIndex, clientRegister, clientLogin, clientSetting, clientChat);
-exports.pug = series(compilePug, copy);
-exports.css = series(copy);
+exports.pug = series(compilePug, copyHtmlAndCss);
+exports.css = series(copyHtmlAndCss);

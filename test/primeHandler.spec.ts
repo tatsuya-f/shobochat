@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { isPrime, extractNumFromPrimeQ } from "../src/primeHandler";
+import { isPrime, extractNumFromPrimeQ } from "../src/server/handler/primeHandler";
 
 describe("check; about prime", () => {
     describe("#isPrime(num: number)", () => {

@@ -1,12 +1,13 @@
 import * as express from "express";
-import { hasUserName, updateUser } from "../dbHandler";
-import { hash } from "../hashPassword";
+import { getCustomRepository } from "typeorm";
+import { hash } from "../handler/hashHandler";
+import { UserRepository } from "../repository/UserRepository";
 
 export const settingRoute = express.Router();
 
 settingRoute.get("/", async (req, res, next) => {
     res.sendFile("setting.html", {
-        root: "public",
+        root: "../public",
     }, (err) => {
         if (err) {
             next(err);
@@ -25,15 +26,16 @@ settingRoute.put("/", async (req, res) => {
         return;
     }
 
+    const userRepository = getCustomRepository(UserRepository); // global で宣言するとうまくいかない
     const userId = sess.userId;
     const name = req.body.name;
     const password = req.body.password;
 
     try {
-        if (await hasUserName(name)) {
+        if (await userRepository.hasName(name)) {
             res.status(401).end();
         } else {
-            updateUser(userId, name, hash(password));
+            userRepository.updateById(userId, name, hash(password));
             res.status(200).end();
         }
     } catch (err) {

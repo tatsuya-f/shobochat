@@ -64,7 +64,7 @@ function hiddenMode() {
 }
 
 $(() => {
-    const websocketEndPoint = "ws://192.168.0.216:8080";
+    const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
     let messageHandler = new MessageHandler();
 

@@ -5,12 +5,13 @@ import {
     getConnection, 
     getCustomRepository 
 } from "typeorm";
-import { UserEntity } from "../src/entities/UserEntity";
-import { UserRepository } from "../src/repository/UserRepository";
+import { UserEntity } from "../src/server/entity/UserEntity";
+import { UserRepository } from "../src/server/repository/UserRepository";
 import * as assert from "assert";
 import * as fs from "fs";
-import { User, isUser } from "../src/User";
+import { User, isUser } from "../src/common/User";
 
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 const testName = "testName";
 const testPassword = "testPassword";
 
@@ -28,8 +29,8 @@ describe("getByName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
@@ -60,8 +61,8 @@ describe("hasName", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
@@ -92,8 +93,8 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
         } catch (err) {
             console.log(err);
@@ -128,8 +129,8 @@ describe("updateById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
 
             id = await userRepository.insertAndGetId(testName, testPassword);
@@ -162,8 +163,8 @@ describe("getEntityById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection("testConnection");
-            userRepository = getConnection("testConnection")
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository); 
 
             const userEntity = userRepository.create(); // const user = new UserEntity() と同じ

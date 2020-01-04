@@ -1,1 +1,1 @@
-../../UserInfo.ts
+../../common/UserInfo.ts

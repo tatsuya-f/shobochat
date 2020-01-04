@@ -1,1 +1,1 @@
-../../Message.ts
+../../common/Message.ts
