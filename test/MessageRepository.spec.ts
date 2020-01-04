@@ -168,8 +168,7 @@ describe("getBeforeSpecifiedTime", () => {
     });
 });
 
-/*
-describe("getAfter", () => {
+describe("getAllAfterSpecifiedTime", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
@@ -183,11 +182,13 @@ describe("getAfter", () => {
             messageRepository = getConnection("testConnection")
                 .getCustomRepository(MessageRepository); 
 
-            const userId = await insertUser(testName, testPassword);
-            const userId2 = await insertUser(testName + "2", testPassword + "2");
+            const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
+            const userEntity: UserEntity = await userRepository.getEntityById(userId);
+            const userEntity2: UserEntity = await userRepository.getEntityById(userId2);
             for (let i = 0;i < n;i++) {
-                await insertMessage(userId, `${testMessage}${2 * i}`);
-                await insertMessage(userId2, `${testMessage}${2 * i + 1}`);
+                await insertMessage(messageRepository, userEntity, `${TEST_CONTENT}${2 * i}`);
+                await insertMessage(messageRepository, userEntity2, `${TEST_CONTENT}${2 * i + 1}`);
             }
         } catch (err) {
             console.log(err);
@@ -201,10 +202,10 @@ describe("getAfter", () => {
 
     it("returns messages", async () => {
         const idx = 4;
-        const messages = await getAllMessages();
+        const messages = await messageRepository.getAll();
         const time = messages[idx].time;  // this message is 55th
         if (time !== undefined) {
-            const someMessages = await getAfterMessages(time);
+            const someMessages = await messageRepository.getAllAfterSpecifiedTime(time);
             assert.strictEqual(Array.isArray(someMessages), true);
             someMessages.forEach((m => {
                 assert.strictEqual(isMessage(m), true);
@@ -218,4 +219,3 @@ describe("getAfter", () => {
         }
     });
 });
-*/
