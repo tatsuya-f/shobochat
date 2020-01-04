@@ -260,3 +260,36 @@ describe("getByTime", () => {
         });
     });
 });
+
+describe("insertAndGetId", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    let userId: number;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection("testConnection")
+                .getCustomRepository(MessageRepository); 
+
+            userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            //userEntity = await userRepository.getEntityById(userId);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns inserted message id", async () => {
+        const messageId = await messageRepository.insertAndGetId(userId, TEST_CONTENT);
+        const message: Message = await messageRepository.getById(messageId);
+        assert.strictEqual(message.id === messageId, true);
+    });
+});

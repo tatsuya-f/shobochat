@@ -8,6 +8,6 @@ before_script:
 build_job1:
     stage: build
     script:
-        - npx gulp
+        - npm test
     tags:
         - se-node-runner
