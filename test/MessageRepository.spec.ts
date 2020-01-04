@@ -114,8 +114,7 @@ describe("getAll", () => {
     });
 });
 
-/*
-describe("getBefore", () => {
+describe("getBeforeSpecifiedTime", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
@@ -149,11 +148,12 @@ describe("getBefore", () => {
     it("returns messages", async () => {
         const idx = 4;
         const n = 5;
-        const messages = await messageRepository.getAll();
-        const time = messages[idx].time;  // this message is 55th
+        const messages = await messageRepository.getAll(); // messages.length = 60 (0 ~ 59)
+
+        const time = messages[idx].time;  // this message is 55th (59-4)
         if (time !== undefined) {
             // expected [54::-5]th message
-            const someMessages = await messageRepository.getBefore(time, n);
+            const someMessages = await messageRepository.getBeforeSpecifiedTime(time, n);
             assert.strictEqual(Array.isArray(someMessages), true);
             assert.strictEqual(someMessages.length, n);
             someMessages.forEach((m => {
@@ -161,6 +161,57 @@ describe("getBefore", () => {
             }));
             for (let i = 0;i < n;i++) {
                 assert.deepStrictEqual(messages[i + idx + 1], someMessages[i]);
+            }
+        } else {
+            assert.notStrictEqual(time, undefined);
+        }
+    });
+});
+
+/*
+describe("getAfter", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    const n = 30;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection("testConnection")
+                .getCustomRepository(MessageRepository); 
+
+            const userId = await insertUser(testName, testPassword);
+            const userId2 = await insertUser(testName + "2", testPassword + "2");
+            for (let i = 0;i < n;i++) {
+                await insertMessage(userId, `${testMessage}${2 * i}`);
+                await insertMessage(userId2, `${testMessage}${2 * i + 1}`);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns messages", async () => {
+        const idx = 4;
+        const messages = await getAllMessages();
+        const time = messages[idx].time;  // this message is 55th
+        if (time !== undefined) {
+            const someMessages = await getAfterMessages(time);
+            assert.strictEqual(Array.isArray(someMessages), true);
+            someMessages.forEach((m => {
+                assert.strictEqual(isMessage(m), true);
+            }));
+            assert.deepStrictEqual(someMessages.length, idx);
+            for (let i = 0;i < idx;i++) {
+                assert.deepStrictEqual(messages[i], someMessages[i]);
             }
         } else {
             assert.notStrictEqual(time, undefined);

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { UserEntity } from "./UserEntity";
 
 /* 
@@ -33,7 +33,7 @@ export class MessageEntity {
     })
     content!: string;
     
-    @OneToOne(() => UserEntity)
+    @ManyToOne(() => UserEntity)
     @JoinColumn()
     user!: UserEntity;
 }

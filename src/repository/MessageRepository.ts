@@ -17,11 +17,7 @@ export class MessageRepository extends Repository<MessageEntity> {
     }
 
     private toMessages(messageEntitys: Array<MessageEntity>): Array<Message> {
-        let messages: Array<Message> = new Array(messageEntitys.length);
-        messageEntitys.forEach((messageEntity => {
-            messages.push(this.toMessage(messageEntity));
-        }));
-        return messages;
+        return messageEntitys.map(messageEntity => this.toMessage(messageEntity));
     }
 
     public async getById(messageId: string): Promise<Message> {
@@ -40,6 +36,7 @@ export class MessageRepository extends Repository<MessageEntity> {
     public async getAll(): Promise<Array<Message>> {
         const messageEntitys = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
+            .orderBy("time", "DESC")
             .getMany();
 
         if (messageEntitys === undefined) {
@@ -49,8 +46,7 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    /*
-    public async getBefore(fromTime: number, n: number): Promise<Array<Message>> {
+    public async getBeforeSpecifiedTime(fromTime: number, n: number): Promise<Array<Message>> {
         const messageEntitys = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .where("time < :time", { time: fromTime })
@@ -61,21 +57,9 @@ export class MessageRepository extends Repository<MessageEntity> {
         if (messageEntitys === undefined) {
             throw new Error("not found");
         } else {
-            let messages: Array<Message> = new Array(messageEntitys.length);
-            messageEntitys.forEach((m => {
-                const message: Message = {
-                    id: m.id,
-                    userId: m.user.id,
-                    time: m.time,
-                    name: m.user.name,
-                    content: m.content
-                };
-                messages.push(message);
-            }));
-            return messages;
+            return this.toMessages(messageEntitys);
         }
     }
-    */
 
     /*
     insertAndGetId(userId, testMessage) {
