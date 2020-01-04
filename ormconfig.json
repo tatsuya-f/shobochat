@@ -1,6 +1,18 @@
-{
-    type: "sqlite",
-    database: "sqlite3.db",
-    entities: [ User, Message ],
-    logging: true
-}
+[
+    {
+        "name": "default",
+        "type": "sqlite",
+        "database": "sqliteDB",
+        "entities": ["./src/entities/*.ts"],
+        "synchronize": true,
+        "logging": true
+    }, 
+    {
+        "name": "testConnection",
+        "type": "sqlite",
+        "database": "testDB",
+        "entities": ["./src/entities/*.ts"],
+        "synchronize": true,
+        "logging": true
+    }
+]
