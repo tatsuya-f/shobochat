@@ -87,7 +87,7 @@ describe("getAll", () => {
             userRepository = getConnection("testConnection")
                 .getCustomRepository(UserRepository); 
             messageRepository = getConnection("testConnection")
-              .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository); 
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
             const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
@@ -113,3 +113,58 @@ describe("getAll", () => {
         }));
     });
 });
+
+/*
+describe("getBefore", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection("testConnection")
+                .getCustomRepository(MessageRepository); 
+
+            const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
+            const userEntity: UserEntity = await userRepository.getEntityById(userId);
+            const userEntity2: UserEntity = await userRepository.getEntityById(userId2);
+            for (let i = 0;i < 30;i++) {
+                await insertMessage(messageRepository, userEntity, `${TEST_CONTENT}${2 * i}`);
+                await insertMessage(messageRepository, userEntity2, `${TEST_CONTENT}${2 * i + 1}`);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns messages", async () => {
+        const idx = 4;
+        const n = 5;
+        const messages = await messageRepository.getAll();
+        const time = messages[idx].time;  // this message is 55th
+        if (time !== undefined) {
+            // expected [54::-5]th message
+            const someMessages = await messageRepository.getBefore(time, n);
+            assert.strictEqual(Array.isArray(someMessages), true);
+            assert.strictEqual(someMessages.length, n);
+            someMessages.forEach((m => {
+                assert.strictEqual(isMessage(m), true);
+            }));
+            for (let i = 0;i < n;i++) {
+                assert.deepStrictEqual(messages[i + idx + 1], someMessages[i]);
+            }
+        } else {
+            assert.notStrictEqual(time, undefined);
+        }
+    });
+});
+*/

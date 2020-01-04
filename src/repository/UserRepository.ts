@@ -5,7 +5,7 @@ import { User } from "../User";
 @EntityRepository(UserEntity)
 export class UserRepository extends Repository<UserEntity> {
 
-    async getByName(name: string): Promise<User> {
+    public async getByName(name: string): Promise<User> {
         const user = await this.createQueryBuilder("user")
             .where("user.name = :name", { name })
             .getOne();
@@ -17,7 +17,7 @@ export class UserRepository extends Repository<UserEntity> {
         }
     }
 
-    async hasName(name: string): Promise<boolean> {
+    public async hasName(name: string): Promise<boolean> {
         const user = await this.createQueryBuilder("user")
             .where("user.name = :name", { name })
             .getOne();
@@ -26,7 +26,7 @@ export class UserRepository extends Repository<UserEntity> {
     }
 
     // insert された user の user id をプロミスに入れて返す
-    async insertAndGetId(name: string, password: string): Promise<number> {
+    public async insertAndGetId(name: string, password: string): Promise<number> {
         const insertResult = await this.createQueryBuilder()
             .insert()
             .into(UserEntity)
@@ -42,7 +42,7 @@ export class UserRepository extends Repository<UserEntity> {
         }
     }
 
-    async updateNameAndPassword(userId: number, name: string, password: string): Promise<void> {
+    public async updateNameAndPassword(userId: number, name: string, password: string): Promise<void> {
         const updateResult = await this.createQueryBuilder()
             .update(UserEntity)
             .set({ name: name, password: password})
@@ -54,7 +54,7 @@ export class UserRepository extends Repository<UserEntity> {
         }
     }
 
-    async getEntityById(userId: number): Promise<UserEntity> {
+    public async getEntityById(userId: number): Promise<UserEntity> {
         const userEntity = await this.findOne({ where: { id: userId } });
 
         if (userEntity !== undefined) {
