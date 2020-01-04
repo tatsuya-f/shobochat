@@ -42,7 +42,7 @@ export class UserRepository extends Repository<UserEntity> {
         }
     }
 
-    public async updateNameAndPassword(userId: number, name: string, password: string): Promise<void> {
+    public async updateById(userId: number, name: string, password: string): Promise<void> {
         const updateResult = await this.createQueryBuilder()
             .update(UserEntity)
             .set({ name: name, password: password})

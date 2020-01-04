@@ -120,7 +120,7 @@ describe("insertAndGetId", () => {
     });
 });
 
-describe("updateNameAndPassword", () => {
+describe("updateById", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let id: number;
@@ -147,7 +147,7 @@ describe("updateNameAndPassword", () => {
     it("update username and password", async () => {
         const name = "updatedname";
         const password = "updatedpass";
-        await userRepository.updateNameAndPassword(id, name, password);
+        await userRepository.updateById(id, name, password);
         const updatedUser = await userRepository.getByName(name);
         testUser.name = name;
         testUser.password = password;

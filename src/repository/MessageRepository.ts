@@ -111,7 +111,7 @@ export class MessageRepository extends Repository<MessageEntity> {
         return messageId;
     }
 
-    public async updateContent(messageId: string, content: string): Promise<void> {
+    public async updateById(messageId: string, content: string): Promise<void> {
         await this.createQueryBuilder("message")
             .update(MessageEntity)
             .set({ content: content })
@@ -119,8 +119,11 @@ export class MessageRepository extends Repository<MessageEntity> {
             .execute();
     }
 
-    /*
-    insertAndGetId(userId, testMessage) {
+    public async deleteById(messageId: string): Promise<void> {
+        await this.createQueryBuilder("message")
+            .delete()
+            .from(MessageEntity)
+            .where("id = :id", { id: messageId })
+            .execute();
     }
-    */
 }
