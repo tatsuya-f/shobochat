@@ -53,4 +53,14 @@ export class UserRepository extends Repository<UserEntity> {
             throw new Error("update failed");
         }
     }
+
+    async getEntityById(userId: number): Promise<UserEntity> {
+        const userEntity = await this.findOne({ where: { id: userId } });
+
+        if (userEntity !== undefined) {
+            return userEntity;
+        } else {
+            throw new Error("not found");
+        }
+    }
 }

@@ -154,3 +154,37 @@ describe("updateNameAndPassword", () => {
         assert.deepStrictEqual(testUser, updatedUser);
     });
 });
+
+describe("getEntityById", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let userId: number;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+
+            const userEntity = userRepository.create(); // const user = new UserEntity() と同じ
+            userEntity.name = testName;
+            userEntity.password = testPassword;
+            await userRepository.save(userEntity);
+            userId = userRepository.getId(userEntity);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns UserEntity object", async () => {
+        const userEntity = await userRepository.getEntityById(userId);
+        assert.strictEqual(userEntity.id, userId);
+        assert.strictEqual(userEntity.name, testName);
+        assert.strictEqual(userEntity.password, testPassword);
+    });
+});

@@ -16,7 +16,7 @@ import { Message, isMessage } from "../src/Message";
 
 const TEST_NAME = "TEST_NAME";
 const TEST_PASSWORD = "TEST_PASSWORD";
-const TEST_MESSAGE = "TEST_MESSAGE";
+const TEST_CONTENT = "TEST_CONTENT";
 
 function deleteDB() {
     try {
@@ -26,30 +26,23 @@ function deleteDB() {
     }
 }
 
-async function getUserEntity(userRepository: UserRepository, userId: number): Promise<UserEntity> {
-    const userEntity = await userRepository.findOne({ where: { id: userId } });
-
-    if (userEntity !== undefined) {
-        return userEntity;
-    } else {
-        throw new Error("not found");
-    }
-}
-
-async function insertTestUser(userRepository: UserRepository): Promise<number> {
+/*
+async function insertUser(userRepository: UserRepository, name: string, password: string): Promise<number> {
     const userEntity = userRepository.create(); // const userEntity = new UserEntity() と同じ
-    userEntity.name = TEST_NAME;
-    userEntity.password = TEST_PASSWORD;
+    userEntity.name = name;
+    userEntity.password = password;
     await userRepository.save(userEntity);
     const userId = userRepository.getId(userEntity);
     return userId;
 }
+*/
 
-async function insertTestMessage(messageRepository: MessageRepository, userEntity: UserEntity): Promise<string> {
+// for test 
+async function insertMessage(messageRepository: MessageRepository, userEntity: UserEntity, content: string): Promise<string> {
     const messageEntity = messageRepository.create(); // const messageEntity = new MessageEntity() と同じ
     messageEntity.id = uuid.v4();
     messageEntity.time = Date.now();
-    messageEntity.content = TEST_MESSAGE;
+    messageEntity.content = content;
     messageEntity.user = userEntity;
     await messageRepository.save(messageEntity);
     const messageId = messageRepository.getId(messageEntity);
@@ -71,9 +64,9 @@ describe("getById", () => {
             messageRepository = getConnection("testConnection")
               .getCustomRepository(MessageRepository); 
 
-            userId = await insertTestUser(userRepository);
-            const userEntity: UserEntity = await getUserEntity(userRepository, userId);
-            messageId = await insertTestMessage(messageRepository, userEntity);
+            userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            const userEntity: UserEntity = await userRepository.getEntityById(userId);
+            messageId = await insertMessage(messageRepository, userEntity, TEST_CONTENT);
         } catch (err) {
             console.log(err);
         }
@@ -90,7 +83,7 @@ describe("getById", () => {
         assert.strictEqual(message.id, messageId);
         assert.strictEqual(message.userId, userId);
         assert.strictEqual(message.name, TEST_NAME);
-        assert.strictEqual(message.content, TEST_MESSAGE);
+        assert.strictEqual(message.content, TEST_CONTENT);
     });
 });
 
@@ -110,8 +103,8 @@ describe("getAll", () => {
 
             const userId = await insertUser(TEST_NAME, TEST_PASSWORD);
             const userId2 = await insertUser(TEST_NAME + "2", TEST_PASSWORD + "2");
-            await insertMessage(userId, TEST_MESSAGE);
-            await insertMessage(userId2, TEST_MESSAGE);
+            await insertMessage(userId, TEST_CONTENT);
+            await insertMessage(userId2, TEST_CONTENT);
         } catch (err) {
             console.log(err);
         }
