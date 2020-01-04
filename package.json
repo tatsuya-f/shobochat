@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test npx gulp"
+    "start": "cd dist/server/ && TYPEORM_CONNECTION_TYPE=default ts-node server.ts",
+    "test": "TYPEORM_CONNECTION_TYPE=test-connection npx gulp"
   },
   "keywords": [],
   "author": "",
@@ -52,6 +53,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "express-ws": "^4.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "highlight.js": "^9.17.1",
     "markdown-it": "^10.0.0",
     "sanitize-html": "^1.20.1",

@@ -1,10 +1,22 @@
-import { app } from "../src/server";
+import { 
+    Connection, 
+    ConnectionOptions, 
+    createConnection, 
+    getConnection, 
+    getCustomRepository 
+} from "typeorm";
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
-import { isMessage, isMessageArray } from "../src/Message";
-import { initializeDB, getMessage, getAllMessages, getUserByName } from "../src/dbHandler";
-import { hash } from "../src/hashPassword";
+import { UserEntity } from "../src/server/entity/UserEntity";
+import { UserRepository } from "../src/server/repository/UserRepository";
+import { MessageEntity } from "../src/server/entity/MessageEntity";
+import { MessageRepository } from "../src/server/repository/MessageRepository";
+import { app } from "../src/server/server";
+import { isMessage, isMessageArray } from "../src/common/Message";
+import { hash } from "../src/server/handler/hashHandler";
+
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 async function postTestMessage(times: number, cookie: Array<string>): Promise<void> {
     const agent = request.agent(app);
@@ -20,25 +32,33 @@ async function postTestMessage(times: number, cookie: Array<string>): Promise<vo
 
 function deleteDB() {
     try {
-        fs.unlinkSync("sqlite3.db");
+        fs.unlinkSync("testDB");
     } catch (err) {
         console.log(err);
     }
 }
 
 describe("GET /", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
         } catch (err) {
             console.log(err);
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -52,12 +72,19 @@ describe("GET /", () => {
 });
 
 describe("GET /messages", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
             await agent
@@ -69,7 +96,8 @@ describe("GET /messages", () => {
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -90,12 +118,19 @@ describe("GET /messages", () => {
 });
 
 describe("GET /messages/id/id", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
             const response = await agent.get("/")
             cookie = response.header["set-cookie"];
             await agent
@@ -107,12 +142,13 @@ describe("GET /messages/id/id", () => {
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
     it("return messages in response.body", async () => {
-        const all = await getAllMessages();
+        const all = await messageRepository.getAll();
         const response = await agent
             .get(`/messages/id/${all[0].id}`)
             .set("Cookie", cookie)
@@ -123,13 +159,19 @@ describe("GET /messages/id/id", () => {
 });
 
 describe("POST /messages", () => {
-
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -143,7 +185,8 @@ describe("POST /messages", () => {
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -158,13 +201,20 @@ describe("POST /messages", () => {
 });
 
 describe("POST /messages", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     let cookie: Array<string>;
     const agent = request.agent(app);
     let testId = "not assigned yet";
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -174,13 +224,14 @@ describe("POST /messages", () => {
                 .send({ name: "test", password: "test"});
 
             await postTestMessage(1, cookie);
-            testId = (await getAllMessages())[0].id as string;
+            testId = (await messageRepository.getAll())[0].id as string;
         } catch (err) {
             console.log(err);
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -191,19 +242,27 @@ describe("POST /messages", () => {
             .send({ content: updatedmsg })
             .set("Cookie", cookie)
             .expect(200);
-        const message = await getMessage(testId);
+        const message = await messageRepository.getById(testId);
         assert.strictEqual(message.content, updatedmsg);
     });
 });
 
 describe("DELETE /messages", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     let cookie: Array<string>;
     const agent = request.agent(app);
     let testId = "not assigned yet";
 
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
+
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -213,13 +272,14 @@ describe("DELETE /messages", () => {
                 .send({ name: "test", password: "test"});
 
             await postTestMessage(1, cookie);
-            testId = (await getAllMessages())[0].id as string;
+            testId = (await messageRepository.getAll())[0].id as string;
         } catch (err) {
             console.log(err);
         }
     });
 
-    after(() => {
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
 
@@ -228,25 +288,40 @@ describe("DELETE /messages", () => {
             .delete("/messages/" + testId)
             .set("Cookie", cookie)
             .expect(200);
-        const message = await getMessage(testId);
-        assert.strictEqual(message, undefined);
+
+        let message;
+        try {
+            message = await messageRepository.getById(testId);
+        } catch (err) {
+            assert.strictEqual(message, undefined);
+        }
     });
 });
 
 describe("test for register and login", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
     const agent = request.agent(app);
     const name = "hoge";
     const password = "fuga";
     before(async () => {
         try {
-            await initializeDB();
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository); 
         } catch (err) {
             console.log(err);
         }
     });
-    after(() => {
+
+    after(async () => {
+        await connection.close();
         deleteDB();
     });
+
     it(`register and login user with name = ${name}, password = ${password}`, async () => {
         {
             const response = await agent
@@ -254,7 +329,7 @@ describe("test for register and login", () => {
                 .send({ name: name, password: password })
                 .expect(302);
             try {
-                const user = await getUserByName(name);
+                const user = await userRepository.getByName(name);
                 assert.strictEqual(user.name, name);
                 assert.strictEqual(user.password, hash(password));
             } catch (err) {

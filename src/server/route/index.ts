@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { redirectChatWhenLoggedIn } from "../loginHandler";
+import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
 
 export const indexRouter = express.Router();
 

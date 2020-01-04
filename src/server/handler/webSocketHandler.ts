@@ -1,6 +1,7 @@
-import { getBeforeMessages } from "./dbHandler";
-import { Notification, NotifyKind } from "./Notification";
-import { wss } from "./server";
+import { getConnection } from "typeorm";
+import { Notification, NotifyKind } from "../../common/Notification";
+import { wss } from "../server";
+import { MessageRepository } from "../repository/MessageRepository";
 
 export function notifyClients(notification: Notification) {
     // 接続されている各Clientにsendする
@@ -10,11 +11,12 @@ export function notifyClients(notification: Notification) {
 }
 
 export async function initMessages() {
-    // 接続を管理するServer．Clientと接続されるとこいつが記憶してる（実際はexWsだが）
-    // const messages = await getAllMessages();
+    const messageRepository = getConnection()
+        .getCustomRepository(MessageRepository); 
+
     notifyClients({
         kind: NotifyKind.Init,
-        payload: await getBeforeMessages(Date.now(), 10)
+        payload: await messageRepository.getBeforeSpecifiedTime(Date.now(), 10)
     });
 }
 

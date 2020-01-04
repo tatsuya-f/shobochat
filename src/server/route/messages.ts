@@ -1,33 +1,32 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import {
-    getMessage,
-    getAllMessages,
-    getBeforeMessages,
-    getAfterMessages,
-    insertMessage,
-    deleteMessage,
-    updateMessage } from "../dbHandler";
+import { getConnection } from "typeorm";
 import {
     notifyNewMessage,
     notifyChangedMessage,
-    notifyDeleteMessage, } from "../webSocketHandler";
-import { answerIsPrime } from "../primeHandler";
+    notifyDeleteMessage, } from "../handler/webSocketHandler";
+import { answerIsPrime } from "../handler/primeHandler";
 import { shobot } from "../server";
+import { MessageRepository } from "../repository/MessageRepository";
 
 export const messagesRouter = express.Router();
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 messagesRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
-        const messages = await getAllMessages();
+        const messages = await messageRepository.getAll();
         res.json(messages);
     } catch (err) {
         next(err);
     }
 });
 messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
-        const message = await getMessage(req.params.id);
+        const message = await messageRepository.getById(req.params.id);
         res.json(message);
     } catch (err) {
         next(err);
@@ -35,9 +34,11 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
 });
 
 messagesRouter.get("/time-after/:time", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
         const time = parseInt(req.params.time);
-        const messages = await getAfterMessages(time);
+        const messages = await messageRepository.getAllAfterSpecifiedTime(time);
         res.json(messages);
     } catch (err) {
         next(err);
@@ -45,10 +46,12 @@ messagesRouter.get("/time-after/:time", async (req: Request, res: Response, next
 });
 
 messagesRouter.get("/time-before/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
         const time = parseInt(req.params.time);
         const num = parseInt(req.params.num);
-        const messages = await getBeforeMessages(time, num);
+        const messages = await messageRepository.getBeforeSpecifiedTime(time, num);
         res.json(messages);
     } catch (err) {
         next(err);
@@ -84,10 +87,12 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
             return;
         }
 
-        await insertMessage(sess.userId, req.body.content);
+        const messageRepository = getConnection(connectionType)
+            .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+        await messageRepository.insertAndGetId(sess.userId, req.body.content);
         const primeAns = answerIsPrime(req.body.content);
         if (primeAns !== null) {
-            await insertMessage(shobot, primeAns);
+            await messageRepository.insertAndGetId(shobot, primeAns);
         }
         await notifyNewMessage();
         res.status(200).end();
@@ -97,6 +102,8 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
 });
 
 messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -106,9 +113,9 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
         }
 
         const messageId = req.params.id;
-        const message = await getMessage(messageId);
+        const message = await messageRepository.getById(messageId);
         if (message.userId === sess.userId) {
-            await updateMessage(messageId, req.body.content);
+            await messageRepository.updateById(messageId, req.body.content);
             await notifyChangedMessage(messageId);
             res.status(200).end();
         } else {
@@ -120,6 +127,8 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
 });
 
 messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -127,9 +136,9 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
             return;
         }
         const messageId = req.params.id;
-        const message = await getMessage(messageId);
+        const message = await messageRepository.getById(messageId);
         if (message.userId === sess.userId) { // accept
-            await deleteMessage(messageId);
+            await messageRepository.deleteById(messageId);
             notifyDeleteMessage(messageId);
             res.status(200).end();
         } else { // reject
@@ -139,5 +148,3 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 });
-
-
