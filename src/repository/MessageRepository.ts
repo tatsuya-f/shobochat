@@ -6,7 +6,6 @@ import { Message } from "../Message";
 export class MessageRepository extends Repository<MessageEntity> {
 
     async getById(messageId: string): Promise<Message> {
-
         const messageEntity = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .where("message.id = :id", { id: messageId })
@@ -24,11 +23,29 @@ export class MessageRepository extends Repository<MessageEntity> {
             };
             return message;
         }
-        /*
-        const sql = `SELECT messages.id, userId, time, name, content
-                     FROM messages INNER JOIN userInfo ON messages.userId = userInfo.id
-                     WHERE messages.id = ?`;
-         */
+    }
+
+    async getAll(): Promise<Array<Message>> {
+        const messageEntitys = await this.createQueryBuilder("message")
+            .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
+            .getMany();
+
+        if (messageEntitys === undefined) {
+            throw new Error("not found");
+        } else {
+            let messages: Array<Message> = new Array(messageEntitys.length);
+            messageEntitys.forEach((m => {
+                const message: Message = {
+                    id: m.id,
+                    userId: m.user.id,
+                    time: m.time,
+                    name: m.user.name,
+                    content: m.content
+                };
+                messages.push(message);
+            }));
+            return messages;
+        }
     }
 
     /*

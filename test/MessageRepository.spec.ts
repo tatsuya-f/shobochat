@@ -26,17 +26,6 @@ function deleteDB() {
     }
 }
 
-/*
-async function insertUser(userRepository: UserRepository, name: string, password: string): Promise<number> {
-    const userEntity = userRepository.create(); // const userEntity = new UserEntity() と同じ
-    userEntity.name = name;
-    userEntity.password = password;
-    await userRepository.save(userEntity);
-    const userId = userRepository.getId(userEntity);
-    return userId;
-}
-*/
-
 // for test 
 async function insertMessage(messageRepository: MessageRepository, userEntity: UserEntity, content: string): Promise<string> {
     const messageEntity = messageRepository.create(); // const messageEntity = new MessageEntity() と同じ
@@ -87,7 +76,6 @@ describe("getById", () => {
     });
 });
 
-/*
 describe("getAll", () => {
     let connection: Connection;
     let userRepository: UserRepository;
@@ -101,10 +89,12 @@ describe("getAll", () => {
             messageRepository = getConnection("testConnection")
               .getCustomRepository(MessageRepository); 
 
-            const userId = await insertUser(TEST_NAME, TEST_PASSWORD);
-            const userId2 = await insertUser(TEST_NAME + "2", TEST_PASSWORD + "2");
-            await insertMessage(userId, TEST_CONTENT);
-            await insertMessage(userId2, TEST_CONTENT);
+            const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
+            const userEntity: UserEntity = await userRepository.getEntityById(userId);
+            const userEntity2: UserEntity = await userRepository.getEntityById(userId2);
+            await insertMessage(messageRepository, userEntity, TEST_CONTENT);
+            await insertMessage(messageRepository, userEntity2, TEST_CONTENT);
         } catch (err) {
             console.log(err);
         }
@@ -116,11 +106,10 @@ describe("getAll", () => {
     });
 
     it("returns messages", async () => {
-        const messages = await getAllMessages();
+        const messages = await messageRepository.getAll();
         assert.strictEqual(Array.isArray(messages), true);
         messages.forEach((m => {
             assert.strictEqual(isMessage(m), true);
         }));
     });
 });
-*/
