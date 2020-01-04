@@ -75,6 +75,19 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
+    public async getAllByTime(time: number): Promise<Array<Message>> {
+        const messageEntitys = await this.createQueryBuilder("message")
+            .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
+            .where("time = :time", { time: time })
+            .getMany();
+
+        if (messageEntitys === undefined) {
+            throw new Error("not found");
+        } else {
+            return this.toMessages(messageEntitys);
+        }
+    }
+
     /*
     insertAndGetId(userId, testMessage) {
     }

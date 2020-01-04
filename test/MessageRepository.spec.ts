@@ -219,3 +219,44 @@ describe("getAllAfterSpecifiedTime", () => {
         }
     });
 });
+
+describe("getByTime", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    let message: Message;
+    let userId: number;
+    let messageId: string;
+    let time: number;
+
+    before(async () => {
+        try {
+            connection = await createConnection("testConnection");
+            userRepository = getConnection("testConnection")
+                .getCustomRepository(UserRepository); 
+            messageRepository = getConnection("testConnection")
+                .getCustomRepository(MessageRepository); 
+
+            userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            const userEntity: UserEntity = await userRepository.getEntityById(userId);
+            messageId = await insertMessage(messageRepository, userEntity, TEST_CONTENT);
+            message = await messageRepository.getById(messageId);
+            time = message.time || 0;
+
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns message", async () => {
+        const sametimeMessages = await messageRepository.getAllByTime(time);
+        sametimeMessages.forEach(sametimeMessage => {
+            assert.deepStrictEqual(message, sametimeMessage);
+        });
+    });
+});
