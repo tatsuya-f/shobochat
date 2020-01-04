@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cd dist/server/ && TYPEORM_CONNECTION_TYPE=default ts-node server.ts",
+    "start": "cd dist/server/ && TYPEORM_CONNECTION_TYPE=default npx ts-node server.ts",
     "gulp": "TYPEORM_CONNECTION_TYPE=test-connection npx gulp"
   },
   "keywords": [],
