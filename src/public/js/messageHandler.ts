@@ -1,4 +1,4 @@
-import { Message } from "./Message";
+import { Message } from "../../common/Message";
 import * as MarkdownIt from "markdown-it";
 import { highlight } from "highlight.js";
 import * as sanitizeHtml from "sanitize-html";
@@ -224,6 +224,13 @@ export class MessageHandler {
         this.showAll();
         // goto bottom
         $("#shobo-main").scrollTop($("#shobo-main")[0].scrollHeight);
+    }
+    changeUserName(oldName: string, newName: string) {
+        for (let m of this._messages) {
+            if (m.name === oldName) {
+                m.name = newName;
+            }
+        }
     }
 }
 

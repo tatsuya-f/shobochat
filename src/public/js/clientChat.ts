@@ -7,8 +7,8 @@ import {
     parseMarkdown,
     MessageHandler
 } from "./messageHandler";
-import  { isNotification, NotifyKind } from "./Notification";
-import { isMessageArray } from "./Message";
+import  { isNotification, NotifyKind } from "../../common/Notification";
+import { isMessageArray } from "../../common/Message";
 
 function insertTextarea(before: string, after: string) {
     const $textarea = $("#message");
@@ -88,26 +88,39 @@ $(() => {
         const notify = JSON.parse(e.data);
         if (!isNotification(notify)) { return; }
         switch (notify.kind) {
+            // Message notify
             case NotifyKind.Init: {
                 if (isMessageArray(notify.payload)) {
                     messageHandler.messages = notify.payload;
                 }
                 break;
             }
-            case NotifyKind.New: {
+            case NotifyKind.MsgNew: {
                 await messageHandler.getNew();
                 break;
             }
-            case NotifyKind.Changed: {
+            case NotifyKind.MsgChanged: {
                 if (typeof notify.payload === "string") { // messageId
                     await messageHandler.fetch(notify.payload);
                 }
                 break;
             }
-            case NotifyKind.Deleted: {
+            case NotifyKind.MsgDeleted: {
                 if (typeof notify.payload === "string") { // messageId
                     await messageHandler.delete(notify.payload);
                 }
+                break;
+            }
+            // User notify
+            case NotifyKind.UserChanged: {
+                if (typeof notify.payload["newName"] === "string" &&
+                   typeof notify.payload["oldName"] === "string") {
+                    messageHandler.changeUserName(
+                        notify.payload["newName"],
+                        notify.payload["oldName"]
+                    );
+                }
+                break;
             }
         }
     });

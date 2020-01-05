@@ -1,4 +1,4 @@
-import { UserClient } from "./UserClient";
+import { UserClient } from "../../common/UserClient";
 
 export async function login(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
