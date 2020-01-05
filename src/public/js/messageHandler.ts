@@ -203,8 +203,7 @@ export class MessageHandler {
     }
     async getOld() {
         const messages = await httpHandler.getOlder(
-        // TODO: time
-            this._messages[this._messages.length - 1].time || 0, 5);
+            this._messages[this._messages.length - 1].time, 5);
         this._messages.push(...messages);
         const $shobomain = $("#shobo-main")[0];
         const oldScrollHeight = $shobomain.scrollHeight;

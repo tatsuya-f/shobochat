@@ -1,6 +1,6 @@
 import { UserClient } from "./UserClient";
 
-export async function update(chatApiEndpoint: string): Promise<void> {
+async function update(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
     const password = $("#pass").val();
     const passwordVerify = $("#pass-verify").val();

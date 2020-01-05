@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-/* 
+/*
  * <各プロパティに!がついていることについて>
  * typeorm の仕様によって，各プロパティは
  * Entity の方で初期化されるが，

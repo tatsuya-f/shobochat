@@ -1,16 +1,16 @@
 
 export interface Message {
-    id?: string;
-    userId?: number;
-    time?: number;
+    id: string;
+    userId: number;
+    time: number;
     name: string;
     content: string;
 }
 
 export function isMessage(arg: any): arg is Message {
-    return (arg.id === undefined || typeof arg.id === "string") &&
-        (arg.userId === undefined || typeof arg.userId === "number") &&
-        (arg.time === undefined || typeof arg.time === "number") &&
+    return typeof arg.id === "string" &&
+        typeof arg.userId === "number" &&
+        typeof arg.time === "number" &&
         typeof arg.name === "string" &&
         typeof arg.content === "string";
 }
@@ -20,9 +20,9 @@ export function toMessage(arg: any): Message {
         return arg;
     }
     return {
-        id: arg.id || undefined,
-        userId: arg.userId || undefined,
-        time: arg.time || undefined,
+        id: arg.id,
+        userId: arg.userId,
+        time: arg.time,
         name: arg.name.toString(),
         content: arg.content.toString()
     };

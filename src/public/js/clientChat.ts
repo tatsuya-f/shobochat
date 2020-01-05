@@ -27,46 +27,59 @@ function insertTextarea(before: string, after: string) {
     });
 }
 
-function normalMode() {
-    $(".shobo-hidden-mode").hide();
-    $(".shobo-edit-mode").hide();
-    $(".shobo-normal-mode").show();
-    document.documentElement.style.setProperty(
-        "--input-area-height", `${$("#input-area").outerHeight()}px`
-    );
-    $("#message").val("");
-}
-
-async function editMode(messageId: string) {
-    $(".shobo-normal-mode").hide();
-    $(".shobo-hidden-mode").hide();
-    $(".shobo-edit-mode").show();
-    document.documentElement.style.setProperty(
-        "--input-area-height", `${$("#input-area").outerHeight()}px`
-    );
-    try {
-        $("#message").val();
-        const msg = await httpHandler.get(messageId);
-        $("#message").val(msg.content);
-        $("#input-area").data("message-id", messageId);
-    } catch (err) {
-        console.log(err);
+const StateList = ["normal", "edit", "hidden"] as const;
+type State = typeof StateList[number];
+class StateManager {
+    private _state: State = "normal"
+    constructor() {
+        this.normal();
     }
-}
-
-function hiddenMode() {
-    $(".shobo-normal-mode").hide();
-    $(".shobo-edit-mode").hide();
-    $(".shobo-hidden-mode").show();
-    document.documentElement.style.setProperty(
-        "--input-area-height", `${$("#input-area").outerHeight()}px`
-    );
+    set state(state: State) {
+        this._state = state;
+        for (const state of StateList) {
+            if (state !== this._state) {
+                $(`.shobo-${state}-mode`).hide();
+            }
+        }
+        $(`.shobo-${this.state}-mode`).show();
+    }
+    get state() {
+        return this._state;
+    }
+    normal() {
+        this.state = "normal";
+        document.documentElement.style.setProperty(
+            "--input-area-height", `${$("#input-area").outerHeight()}px`
+        );
+        $("#message").val("");
+    }
+    async edit(messageId: string) {
+        this.state = "edit";
+        document.documentElement.style.setProperty(
+            "--input-area-height", `${$("#input-area").outerHeight()}px`
+        );
+        try {
+            $("#message").val();
+            const msg = await httpHandler.get(messageId);
+            $("#message").val(msg.content);
+            $("#input-area").data("message-id", messageId);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    hidden() {
+        this.state = "hidden";
+        document.documentElement.style.setProperty(
+            "--input-area-height", `${$("#input-area").outerHeight()}px`
+        );
+    }
 }
 
 $(() => {
     const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
-    let messageHandler = new MessageHandler();
+    const messageHandler = new MessageHandler();
+    const stateManager = new StateManager();
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
@@ -99,9 +112,6 @@ $(() => {
         }
     });
 
-    // default mode
-    normalMode();
-
     //<left click menu>
     $("#contextmenu").hide();
     $(document).on("contextmenu", ".shobo-message-div", function(e) {
@@ -124,7 +134,7 @@ $(() => {
     });
     $("#edit-msg").on("click", async function() {
         const messageId = $("#contextmenu").data("message-id");
-        await editMode(messageId);
+        await stateManager.edit(messageId);
     });
     //</left click menu>
 
@@ -174,6 +184,9 @@ $(() => {
     $("#code-btn").on("click", () => {
         insertTextarea("```", "\n```");
     });
+    $("#link-btn").on("click", () => {
+        insertTextarea("[", "](https://)");
+    });
 
     $("#send").on("click", async () => {
         $("#send").addClass("is-loading");
@@ -185,19 +198,19 @@ $(() => {
         await updateMessage();
         $("#send").removeClass("is-loading");
         $("#input-area").data("message-id", null);
-        normalMode();
+        stateManager.normal();
     });
     $("#message").on("input", () => {
         checkInput();
     });
     $("#input-area-show").on("click", () => {
-        normalMode();
+        stateManager.normal();
     });
     $("#input-area-hide").on("click", () => {
-        hiddenMode();
+        stateManager.hidden();
     });
     $("#edit-cancel").on("click", () => {
-        normalMode();
+        stateManager.normal();
     });
     //</input area>
 
