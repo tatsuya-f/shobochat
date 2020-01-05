@@ -97,6 +97,7 @@ export class MessageRepository extends Repository<MessageEntity> {
             .getCustomRepository(UserRepository);
 
         const messageEntity: MessageEntity = this.create(); // const messageEntity = new MessageEntity() と同じ
+        await new Promise(resolve => setTimeout(resolve, 1));
         messageEntity.id = uuid.v4();
         messageEntity.time = Date.now();
         messageEntity.content = content;
