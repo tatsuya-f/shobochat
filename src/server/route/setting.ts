@@ -26,7 +26,7 @@ settingRoute.put("/", async (req, res) => {
         return;
     }
 
-    const userRepository = getConnection(connectionType) 
+    const userRepository = getConnection(connectionType)
         .getCustomRepository(UserRepository); // global で宣言するとうまくいかない
     const userId = sess.userId;
     const updatedName = req.body.name;

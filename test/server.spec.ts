@@ -361,7 +361,9 @@ describe("test for updata username and password", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-            userRepository.insertAndGetId(name, password);
+            await agent
+                .post("/register")
+                .send({ name, password });
         } catch (err) {
             console.log(err);
         }
@@ -376,8 +378,8 @@ describe("test for updata username and password", () => {
         {
             const response = await agent
                 .put("/setting")
-                .send({ name: changedPass, password: changedPass })
-                .expect(302);
+                .send({ name: changedName, password: changedPass })
+                .expect(200);
             try {
                 const user = await userRepository.getByName(changedName);
                 assert.strictEqual(user.name, changedName);
@@ -411,7 +413,9 @@ describe("test for update user pass", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-            userRepository.insertAndGetId(name, password);
+            await agent
+                .post("/register")
+                .send({ name, password });
         } catch (err) {
             console.log(err);
         }
@@ -428,7 +432,7 @@ describe("test for update user pass", () => {
             const response = await agent
                 .put("/setting")
                 .send({ name: name, password: changedPass })
-                .expect(302);
+                .expect(200);
             try {
                 const user = await userRepository.getByName(name);
                 assert.strictEqual(user.name, name);
@@ -440,7 +444,7 @@ describe("test for update user pass", () => {
         {
             const response = await agent
                 .get("/login")
-                .send({ name: name, password: password })
+                .send({ name: name, password: changedPass })
                 .expect(302);
         }
     });
