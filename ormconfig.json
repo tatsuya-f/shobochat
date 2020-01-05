@@ -4,15 +4,13 @@
         "type": "sqlite",
         "database": "sqliteDB",
         "entities": ["./entity/*.ts"],
-        "synchronize": true,
-        "logging": true
+        "synchronize": true
     }, 
     {
         "name": "test-connection",
         "type": "sqlite",
         "database": "testDB",
         "entities": ["./src/server/entity/*.ts"],
-        "synchronize": true,
-        "logging": true
+        "synchronize": true
     }
 ]
