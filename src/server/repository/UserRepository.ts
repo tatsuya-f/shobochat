@@ -5,6 +5,18 @@ import { User } from "../../common/User";
 @EntityRepository(UserEntity)
 export class UserRepository extends Repository<UserEntity> {
 
+    public async getById(userId: number): Promise<User> {
+        const user = await this.createQueryBuilder("user")
+            .where("user.id = :id", { id: userId  })
+            .getOne();
+
+        if (user === undefined) { // 参考：https://stackoverflow.com/questions/42453683/how-to-reject-in-async-await-syntax
+            throw new Error("not found");
+        } else {
+            return user;
+        }
+    }
+
     public async getByName(name: string): Promise<User> {
         const user = await this.createQueryBuilder("user")
             .where("user.name = :name", { name })

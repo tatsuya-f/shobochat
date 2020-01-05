@@ -23,6 +23,41 @@ function deleteDB() {
     }
 }
 
+describe("getById", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let userId: number;
+
+    before(async () => {
+        try {
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository); 
+
+            const user = userRepository.create(); // const user = new UserEntity() と同じ
+            user.name = testName;
+            user.password = testPassword;
+            await userRepository.save(user);
+            userId = userRepository.getId(user);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("returns User object", async () => {
+        const testUser = await userRepository.getById(userId);
+        assert.strictEqual(isUser(testUser), true);
+        assert.strictEqual(testUser.id, userId);
+        assert.strictEqual(testUser.name, testName);
+        assert.strictEqual(testUser.password, testPassword);
+    });
+});
+
 describe("getByName", () => {
     let connection: Connection;
     let userRepository: UserRepository;
@@ -49,9 +84,9 @@ describe("getByName", () => {
 
     it("returns User object", async () => {
         const testUser = await userRepository.getByName(testName);
-        console.log(testUser);
         assert.strictEqual(isUser(testUser), true);
         assert.strictEqual(testUser.name, testName);
+        assert.strictEqual(testUser.password, testPassword);
     });
 });
 
