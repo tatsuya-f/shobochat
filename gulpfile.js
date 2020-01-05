@@ -10,6 +10,8 @@ const source = require ("vinyl-source-stream");
 const tsify = require("tsify");
 const ts = require('gulp-typescript');
 
+const tsProject = ts.createProject("tsconfig.json");
+
 function clean() {
     return del(["dist"]);
 }
@@ -80,27 +82,14 @@ function clientChat() {
         .pipe(dest("dist/public/js"));
 }
 
-/*
-function server() {
-    return browserify({ "node": true, "bundleExternal": false })
-        .add("src/server.ts")
-        .plugin(tsify, { "extends": "./tsconfig", "include": ["src/*"] })
-        .bundle()
-        .pipe(source("server_bundle.js"))
-        .pipe(dest("dist"));
-}
-*/
-
 function checkServer() {
-    const tsProject = ts.createProject("tsconfig.json");
-    const tsResult = src("src/server/**/*.ts") 
+    const tsResult = src("src/server/**/*.ts")
         .pipe(tsProject());
     return tsResult.js.pipe(dest("tmp"));
 }
 
 function checkCommon() {
-    const tsProject = ts.createProject("tsconfig.json");
-    const tsResult = src("src/common/**/*.ts") 
+    const tsResult = src("src/common/**/*.ts")
         .pipe(tsProject());
     return tsResult.js.pipe(dest("tmp"));
 }

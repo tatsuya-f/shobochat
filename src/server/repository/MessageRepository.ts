@@ -30,7 +30,7 @@ export class MessageRepository extends Repository<MessageEntity> {
             .where("message.id = :id", { id: messageId })
             .getOne();
 
-        if (messageEntity === undefined) { 
+        if (messageEntity === undefined) {
             throw new Error("not found");
         } else {
             return this.toMessage(messageEntity);
@@ -82,7 +82,7 @@ export class MessageRepository extends Repository<MessageEntity> {
     public async getAllByTime(time: number): Promise<Array<Message>> {
         const messageEntitys = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
-            .where("time = :time", { time: time })
+            .where("time = :time", { time })
             .getMany();
 
         if (messageEntitys === undefined) {
@@ -94,7 +94,7 @@ export class MessageRepository extends Repository<MessageEntity> {
 
     public async insertAndGetId(userId: number, content: string): Promise<string> {
         const userRepository = getConnection(connectionType)
-            .getCustomRepository(UserRepository); 
+            .getCustomRepository(UserRepository);
 
         const messageEntity: MessageEntity = this.create(); // const messageEntity = new MessageEntity() と同じ
         messageEntity.id = uuid.v4();
@@ -110,7 +110,7 @@ export class MessageRepository extends Repository<MessageEntity> {
     public async updateById(messageId: string, content: string): Promise<void> {
         await this.createQueryBuilder("message")
             .update(MessageEntity)
-            .set({ content: content })
+            .set({ content })
             .where("id = :id", { id: messageId })
             .execute();
     }

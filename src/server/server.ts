@@ -59,10 +59,10 @@ export let shobot: number;
 
 (async function startServer() {
     try {
-        if (__filename.includes("dist")) { // 以下はテスト時には実行されない
+        if (__filename.endsWith("/dist/server/server.ts")) { // 以下はテスト時には実行されない
             await createConnection(connectionType); // テスト時にはテスト側でcreateする
             const userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             const shobotName = "しょぼっと";
             if (!await userRepository.hasName(shobotName)) {

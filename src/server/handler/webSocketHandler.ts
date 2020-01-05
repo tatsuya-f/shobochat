@@ -12,11 +12,12 @@ export function notifyClients(notification: Notification) {
 
 export async function initMessages() {
     const messageRepository = getConnection()
-        .getCustomRepository(MessageRepository); 
+        .getCustomRepository(MessageRepository);
+    const numInitMessage = 10;
 
     notifyClients({
         kind: NotifyKind.Init,
-        payload: await messageRepository.getBeforeSpecifiedTime(Date.now(), 10)
+        payload: await messageRepository.getBeforeSpecifiedTime(Date.now(), numInitMessage)
     });
 }
 

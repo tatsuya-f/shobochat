@@ -1,9 +1,9 @@
-import { 
-    Connection, 
-    ConnectionOptions, 
-    createConnection, 
-    getConnection, 
-    getCustomRepository 
+import {
+    Connection,
+    ConnectionOptions,
+    createConnection,
+    getConnection,
+    getCustomRepository
 } from "typeorm";
 import * as request from "supertest";
 import * as assert from "assert";
@@ -49,9 +49,9 @@ describe("GET /", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
         } catch (err) {
             console.log(err);
         }
@@ -82,9 +82,9 @@ describe("GET /messages", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
             await agent
@@ -128,9 +128,9 @@ describe("GET /messages/id/id", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
             const response = await agent.get("/")
             cookie = response.header["set-cookie"];
             await agent
@@ -169,9 +169,9 @@ describe("POST /messages", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -212,9 +212,9 @@ describe("POST /messages", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -259,9 +259,9 @@ describe("DELETE /messages", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
 
 
             const response = await agent.get("/");
@@ -309,9 +309,9 @@ describe("test for register and login", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository); 
+                .getCustomRepository(MessageRepository);
         } catch (err) {
             console.log(err);
         }
@@ -332,6 +332,107 @@ describe("test for register and login", () => {
                 const user = await userRepository.getByName(name);
                 assert.strictEqual(user.name, name);
                 assert.strictEqual(user.password, hash(password));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        {
+            const response = await agent
+                .get("/login")
+                .send({ name: name, password: password })
+                .expect(302);
+        }
+    });
+});
+
+describe("test for updata username and password", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    const changedName = "hoge2";
+    const changedPass = "fuga2";
+    before(async () => {
+        try {
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository);
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository);
+            userRepository.insertAndGetId(name, password);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it(`change user: name = ${name}, password = ${password} -> ${changedName}, password = ${changedPass}`, async () => {
+        {
+            const response = await agent
+                .put("/setting")
+                .send({ name: changedPass, password: changedPass })
+                .expect(302);
+            try {
+                const user = await userRepository.getByName(changedName);
+                assert.strictEqual(user.name, changedName);
+                assert.strictEqual(user.password, hash(changedPass));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        {
+            const response = await agent
+                .get("/login")
+                .send({ name: changedName, password: changedPass })
+                .expect(302);
+        }
+    });
+});
+
+describe("test for update user pass", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    const changedName = "hoge2";
+    const changedPass = "fuga2";
+    before(async () => {
+        try {
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository);
+            messageRepository = getConnection(connectionType)
+                .getCustomRepository(MessageRepository);
+            userRepository.insertAndGetId(name, password);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it(`change user: name = ${name}, password = ${password} -> password = ${changedPass}`, async () => {
+        {
+            const changedPass = "fuga2";
+            const response = await agent
+                .put("/setting")
+                .send({ name: name, password: changedPass })
+                .expect(302);
+            try {
+                const user = await userRepository.getByName(name);
+                assert.strictEqual(user.name, name);
+                assert.strictEqual(user.password, hash(changedPass));
             } catch (err) {
                 console.log(err);
             }

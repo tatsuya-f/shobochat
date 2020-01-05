@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { UserEntity } from "./UserEntity";
 
-/* 
+/*
  * <各プロパティに!がついていることについて>
  * typeorm の仕様によって，各プロパティは
  * Entity の方で初期化されるが，
@@ -16,8 +16,8 @@ import { UserEntity } from "./UserEntity";
 @Entity()
 export class MessageEntity {
 
-    @PrimaryColumn({ 
-        type: "text" 
+    @PrimaryColumn({
+        type: "text"
     })
     id!: string;
 
@@ -32,7 +32,7 @@ export class MessageEntity {
         nullable: false
     })
     content!: string;
-    
+
     @ManyToOne(() => UserEntity)
     @JoinColumn()
     user!: UserEntity;

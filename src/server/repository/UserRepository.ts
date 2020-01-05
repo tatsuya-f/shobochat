@@ -43,11 +43,11 @@ export class UserRepository extends Repository<UserEntity> {
             .insert()
             .into(UserEntity)
             .values([
-                { name: name, password: password }
+                { name, password }
             ])
             .execute();
 
-        if (insertResult === undefined) { 
+        if (insertResult === undefined) {
             throw new Error("insert failed");
         } else {
             return insertResult.identifiers[0].id;
@@ -57,7 +57,7 @@ export class UserRepository extends Repository<UserEntity> {
     public async updateById(userId: number, name: string, password: string): Promise<void> {
         const updateResult = await this.createQueryBuilder()
             .update(UserEntity)
-            .set({ name: name, password: password})
+            .set({ name, password })
             .where("id = :id", { id: userId })
             .execute();
 

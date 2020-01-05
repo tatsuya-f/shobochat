@@ -1,9 +1,9 @@
-import { 
-    Connection, 
-    ConnectionOptions, 
-    createConnection, 
-    getConnection, 
-    getCustomRepository 
+import {
+    Connection,
+    ConnectionOptions,
+    createConnection,
+    getConnection,
+    getCustomRepository
 } from "typeorm";
 import { UserEntity } from "../src/server/entity/UserEntity";
 import { UserRepository } from "../src/server/repository/UserRepository";
@@ -32,7 +32,7 @@ describe("getById", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -66,7 +66,7 @@ describe("getByName", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -130,7 +130,7 @@ describe("insertAndGetId", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
         } catch (err) {
             console.log(err);
         }
@@ -166,7 +166,7 @@ describe("updateById", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             id = await userRepository.insertAndGetId(testName, testPassword);
             testUser = await userRepository.getByName(testName);
@@ -200,7 +200,7 @@ describe("getEntityById", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             const userEntity = userRepository.create(); // const user = new UserEntity() と同じ
             userEntity.name = testName;
