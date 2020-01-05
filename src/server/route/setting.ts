@@ -1,9 +1,10 @@
 import * as express from "express";
-import { getCustomRepository } from "typeorm";
+import { getConnection } from "typeorm";
 import { hash } from "../handler/hashHandler";
 import { UserRepository } from "../repository/UserRepository";
 
 export const settingRoute = express.Router();
+const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 settingRoute.get("/", async (req, res, next) => {
     res.sendFile("setting.html", {
@@ -17,7 +18,6 @@ settingRoute.get("/", async (req, res, next) => {
     });
 });
 
-
 settingRoute.put("/", async (req, res) => {
     const sess = req.session;
     if (sess === undefined) {
@@ -26,16 +26,24 @@ settingRoute.put("/", async (req, res) => {
         return;
     }
 
-    const userRepository = getCustomRepository(UserRepository); // global で宣言するとうまくいかない
+    const userRepository = getConnection(connectionType) 
+        .getCustomRepository(UserRepository); // global で宣言するとうまくいかない
     const userId = sess.userId;
-    const name = req.body.name;
-    const password = req.body.password;
+    const updatedName = req.body.name;
+    const updatedPassword = req.body.password;
 
     try {
-        if (await userRepository.hasName(name)) {
-            res.status(401).end();
-        } else {
-            userRepository.updateById(userId, name, hash(password));
+        const registredUser = await userRepository.getById(userId);
+
+        if (updatedName !== registredUser.name) { // update name and password
+            if (await userRepository.hasName(updatedName)) {
+                res.status(401).end(); // already registered name
+            } else {
+                await userRepository.updateById(userId, updatedName, hash(updatedPassword));
+                res.status(200).end();
+            }
+        } else { // update only password
+            await userRepository.updateById(userId, registredUser.name, hash(updatedPassword));
             res.status(200).end();
         }
     } catch (err) {
