@@ -23,21 +23,30 @@ export async function initMessages() {
 
 export function notifyNewMessage() {
     notifyClients({
-        kind: NotifyKind.New,
+        kind: NotifyKind.MsgNew,
     });
 }
 
 export function notifyChangedMessage(messageId: string) {
     notifyClients({
-        kind: NotifyKind.Changed,
+        kind: NotifyKind.MsgChanged,
         payload: messageId
     });
 }
 
 export function notifyDeleteMessage(messageId: string) {
     notifyClients({
-        kind: NotifyKind.Deleted,
+        kind: NotifyKind.MsgDeleted,
         payload: messageId
+    });
+}
+
+export function notifyChangedUsername(oldName: string, newName: string) {
+    notifyClients({
+        kind: NotifyKind.UserChanged,
+        payload: {
+            oldName, newName
+        }
     });
 }
 
