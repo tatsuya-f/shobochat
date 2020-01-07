@@ -163,9 +163,6 @@ $(() => {
         $(".navbar-burger").toggleClass("is-active");
         $(".navbar-menu").toggleClass("is-active");
     });
-    $("help-popup").on("focusout", () => {
-        $("#help-popup").removeClass("is-active");
-    });
     $("#help-close").on("click", () => {
         $("#help-popup").removeClass("is-active");
     });
