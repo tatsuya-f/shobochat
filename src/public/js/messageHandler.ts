@@ -2,88 +2,9 @@ import { Message } from "../../common/Message";
 import * as MarkdownIt from "markdown-it";
 import { highlight } from "highlight.js";
 import * as sanitizeHtml from "sanitize-html";
-
-export class HTTPHandler {
-    url: string = "/messages"
-    async get(messageId: string): Promise<Message> {
-        const res = await fetch(`${this.url}/id/${messageId}`, {
-            method: "GET",
-            headers: {
-                "Content-Length": "0"
-            },
-            credentials: "same-origin"
-        });
-        if (res.status === 200) {
-            return res.json();
-        } else {
-            throw new Error(`Failed to get Message whose id is ${messageId}`);
-        }
-    }
-    async getNewer(time: number): Promise<Array<Message>> {
-        const res = await fetch(`${this.url}/time-after/${time}`, {
-            method: "GET",
-            headers: {
-                "Content-Length": "0"
-            },
-            credentials: "same-origin"
-        });
-        if (res.status === 200) {
-            return res.json();
-        } else {
-            throw new Error(`Failed to get Messages newer than ${time}`);
-        }
-    }
-    async getOlder(time: number, num: number): Promise<Array<Message>> {
-        const res = await fetch(`${this.url}/time-before/${time}/${num}`, {
-            method: "GET",
-            headers: {
-                "Content-Length": "0"
-            },
-            credentials: "same-origin"
-        });
-        if (res.status === 200) {
-            return res.json();
-        } else {
-            throw new Error(`Failed to get Messages older than ${time}`);
-        }
-    }
-    async post(content: string): Promise<number> {
-        const res = await fetch(this.url, {
-            method: "POST",
-            body: JSON.stringify({ content: content }),
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "same-origin"
-        });
-        return res.status;
-    }
-    async delete(messageId: string): Promise<number> {
-        const res = await fetch(`${this.url}/${messageId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Length": "0"
-            },
-            credentials: "same-origin"
-        });
-        return res.status;
-    }
-    async put(messageId: string, content: string): Promise<number> {
-        const res = await fetch(`${this.url}/${messageId}`, {
-            method: "PUT",
-            body: JSON.stringify({
-                content: content
-            }),
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "same-origin"
-        });
-        return res.status;
-    }
-}
-
-export const httpHandler = new HTTPHandler();
+import { httpHandler } from "./HTTPHandler";
+//@ts-ignore
+import * as fa from "markdown-it-fontawesome";  // There are no type definition files
 
 const markdownit = new MarkdownIt({
     highlight: (code, lang) => {
@@ -102,7 +23,7 @@ const markdownit = new MarkdownIt({
     breaks: true,
     linkify: true,
     html: true
-});
+}).use(fa);
 
 export function parseMarkdown(md: string): string {
     return sanitizeHtml(markdownit.render(md), {
@@ -115,6 +36,7 @@ export function parseMarkdown(md: string): string {
             "a", "img", "details", "summary"],
         allowedAttributes: {
             "a": ["href"],
+            "i": ["class"],
             "span": ["style", "class"],
             "code": ["class"],
         },
@@ -308,12 +230,12 @@ export function escapeHTML(str : string): string {
 
 export async function checkInput(): Promise<void> {
     const message = $("#message").val();
-    if (typeof message === "string" && message !== "") {
-        $("#send").prop("disabled", false);
-        $("#edited").prop("disabled", false);
+    if (typeof message !== "string" || message === "") {
+        $("#send").prop("disabled", true);
+        $("#edited").prop("disabled", true);
     } else {
         $("#send").prop("disabled", false);
-        $("#edited").prop("disabled", true);
+        $("#edited").prop("disabled", false);
     }
 }
 
