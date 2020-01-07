@@ -1,5 +1,4 @@
 import {
-    httpHandler,
     sendMessage,
     updateMessage,
     removeMessage,
@@ -7,7 +6,8 @@ import {
     parseMarkdown,
     MessageHandler
 } from "./messageHandler";
-import  { isNotification, NotifyKind } from "../../common/Notification";
+import { httpHandler } from "./HTTPHandler";
+import { isNotification, NotifyKind } from "../../common/Notification";
 import { isMessageArray } from "../../common/Message";
 
 function insertTextarea(before: string, after: string) {
@@ -25,6 +25,7 @@ function insertTextarea(before: string, after: string) {
         "selectionStart": beforeCursor.length,
         "selectionEnd": beforeCursor.length
     });
+    checkInput();
 }
 
 const StateList = ["normal", "edit", "hidden"] as const;
@@ -213,7 +214,7 @@ $(() => {
         $("#input-area").data("message-id", null);
         stateManager.normal();
     });
-    $("#message").on("input", () => {
+    $("#message").on("keyup", () => {
         checkInput();
     });
     $("#input-area-show").on("click", () => {
@@ -229,7 +230,6 @@ $(() => {
 
     //<message list>
     async function fetchKeydownEventListener(e: JQueryEventObject) {
-        console.log(e.which);
         if (e.which === 38) {
             if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
                 $("#shobo-main").off("mousewheel");

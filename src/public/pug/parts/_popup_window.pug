@@ -14,4 +14,7 @@ mixin popup_window(arg)
                     div.content
                         case arg.kind
                             when "help"
-                                include:markdown-it ../markdown/help.md
+                                include:markdown-it(
+                                    plugins=["markdown-it-fontawesome"]
+                                    breaks
+                                    ) ../markdown/help.md
