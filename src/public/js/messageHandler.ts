@@ -81,20 +81,19 @@ export class MessageHandler {
                 const time = new Date(message.time);
                 const displayTime = changeTimeFormat(time);
                 const messageTag = `\
-                    <div class="shobo-message-div" \
-                    data-message-id=${message.id}> \
-                    <span style="font-size: 40px;"> \
-                    <i class="fas fa-user-circle"></i> \
-                    </span>
-                <span class="shobo-name"> \
-                    ${escapeHTML(message.name)} \
-                    </span> \
-                    <span class="shobo-time"> \
-                    ${displayTime} \
-                    </span> \
-                    <div class="content shobo-message"> \
-                    ${parseMarkdown(message.content)} \
-                    </div> \
+                    <div class="shobo-message-div" data-message-id=${message.id}> \
+                        <span style="font-size: 40px;"> \
+                            <i class="fas fa-user-circle"></i> \
+                        </span>
+                        <span class="shobo-name"> \
+                            ${escapeHTML(message.name)} \
+                        </span> \
+                        <span class="shobo-time"> \
+                            ${displayTime} \
+                        </span> \
+                        <div class="content shobo-message"> \
+                            ${parseMarkdown(message.content)} \
+                        </div> \
                     </div>`;
                 $messageList.prepend(messageTag);
             }
@@ -156,6 +155,8 @@ export class MessageHandler {
     }
 }
 
+const queryMessageDuration = 3000;
+
 export async function sendMessage() {
     const message = $("#message").val();
 
@@ -164,14 +165,22 @@ export async function sendMessage() {
             const status = await httpHandler.post(message);
             const $queryMessage = $("#queryMessage");
             if (status === 200) {
-                $queryMessage.html("メッセージを送信しました");
-                $queryMessage.css("color", "black");
+                $queryMessage
+                    .css("color", "black")
+                    .html("メッセージを送信しました")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
                 $("#shobo-main").animate({
                     scrollTop: $("#shobo-main")[0].scrollHeight
                 });
             } else {
-                $queryMessage.html("メッセージを送信できませんでした");
-                $queryMessage.css("color", "red");
+                $queryMessage
+                    .css("color", "red")
+                    .html("メッセージを送信できませんでした")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
                 console.log("POST Failed");
             }
             $("#send").prop("disabled", true);
@@ -190,11 +199,19 @@ export async function updateMessage() {
             const status = await httpHandler.put(messageId, message);
             const $queryMessage = $("#queryMessage");
             if (status === 200) {
-                $queryMessage.html("メッセージを更新しました");
-                $queryMessage.css("color", "black");
+                $queryMessage
+                    .css("color", "black")
+                    .html("メッセージを更新しました")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
             } else {
-                $queryMessage.html("メッセージを更新できませんでした");
-                $queryMessage.css("color", "red");
+                $queryMessage
+                    .css("color", "red")
+                    .html("メッセージを更新できませんでした")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
                 console.log("POST Failed");
             }
             $("#send").prop("disabled", true);
@@ -209,11 +226,19 @@ export async function removeMessage(messageId: string): Promise<void> {
     const status = await httpHandler.delete(messageId);
     const $queryMessage = $("#queryMessage");
     if (status === 200) {
-        $queryMessage.html("メッセージを削除しました");
-        $queryMessage.css("color", "black");
+        $queryMessage
+            .css("color", "black")
+            .html("メッセージを削除しました")
+            .fadeIn("fast")
+            .delay(queryMessageDuration)
+            .fadeOut("fast");
     } else {
-        $queryMessage.html("メッセージを削除できませんでした");
-        $queryMessage.css("color", "red");
+        $queryMessage
+            .css("color", "red")
+            .html("メッセージを削除できませんでした")
+            .fadeIn("fast")
+            .delay(queryMessageDuration)
+            .fadeOut("fast");
         console.log("DELETE Failed");
     }
 }
