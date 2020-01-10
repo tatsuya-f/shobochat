@@ -2,8 +2,14 @@ import { EntityRepository, Repository } from "typeorm";
 import { ChannelEntity } from "../entity/ChannelEntity";
 import { Channel } from "../../common/Channel";
 
-@EntityRepository(ChannelEntity)
-export class ChannelRepository extends Repository<ChannelEntity> {
+@EntityRepository()
+export class ChannelRepository {
+
+    /*
+     * getCustomRepository を使って
+     * TypeORM 側で初期化すること
+     */
+    constructor(private manager: EntityManager) {}
 
     private toChannel(channelEntity: ChannelEntity): Channel {
         const channel = {
@@ -14,35 +20,35 @@ export class ChannelRepository extends Repository<ChannelEntity> {
     }
 
     private toChannels(channelEntities: Array<ChannelEntity>): Array<Channel> {
-        return channelEntities.map(channelEntity => this.toChannel(channelEntity));
+        return channelEntities.map(channelEntity => this.manager.toChannel(channelEntity));
     }
 
     public async getAll() {
-        const channelEntities = await this.createQueryBuilder("channel")
+        const channelEntities = await this.manager.createQueryBuilder("channel")
             .orderBy("name", "ASC")
             .getMany();
         if (channelEntities === undefined) {
             throw new Error("not found");
         } else {
-            return this.toChannels(channelEntities);
+            return this.manager.toChannels(channelEntities);
         }
     }
 
     public async getById(channelId: number): Promise<Channel> {
-        const channelEntity = await this.createQueryBuilder("channel")
+        const channelEntity = await this.manager.createQueryBuilder("channel")
             .where("channel.id = :id", { id: channelId })
             .getOne();
 
         if (channelEntity === undefined) {
             throw new Error("not found");
         } else {
-            return this.toChannel(channelEntity);
+            return this.manager.toChannel(channelEntity);
         }
     }
 
 
     public async getByName(name: string): Promise<Channel> {
-        const channel = await this.createQueryBuilder("channel")
+        const channel = await this.manager.createQueryBuilder("channel")
             .where("channel.name = :name", { name })
             .getOne();
 
@@ -54,7 +60,7 @@ export class ChannelRepository extends Repository<ChannelEntity> {
     }
 
     public async insertAndGetId(name: string): Promise<number> {
-        const insertResult = await this.createQueryBuilder()
+        const insertResult = await this.manager.createQueryBuilder()
             .insert()
             .into(ChannelEntity)
             .values([{ name }])
@@ -67,7 +73,7 @@ export class ChannelRepository extends Repository<ChannelEntity> {
     }
 
     public async hasName(name: string): Promise<boolean> {
-        const channel = await this.createQueryBuilder("channel")
+        const channel = await this.manager.createQueryBuilder("channel")
             .where("channel.name = :name", { name })
             .getOne();
 
@@ -75,7 +81,7 @@ export class ChannelRepository extends Repository<ChannelEntity> {
     }
 
     public async getEntityById(channelId: number): Promise<ChannelEntity> {
-        const channelEntity = await this.findOne({ where: { id: channelId } });
+        const channelEntity = await this.manager.findOne({ where: { id: channelId } });
 
         if (channelEntity !== undefined) {
             return channelEntity;

@@ -10,6 +10,12 @@ const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 @EntityRepository(MessageEntity)
 export class MessageRepository {
 
+    /*
+     * getCustomRepository を使って
+     * TypeORM 側で初期化すること
+     */
+    constructor(private manager: EntityManager) {}
+
     private toMessage(messageEntity: MessageEntity): Message {
         const message: Message = {
             id: messageEntity.id,
@@ -25,12 +31,6 @@ export class MessageRepository {
     private toMessages(messageEntities: Array<MessageEntity>): Array<Message> {
         return messageEntities.map(messageEntity => this.toMessage(messageEntity));
     }
-
-    /*
-     * getCustomRepository を使って
-     * TypeORM 側で初期化すること
-     */
-    constructor(private manager: EntityManager) {}
 
     async getById(messageId: string): Promise<Message> {
         const messageEntity = await this.manager.createQueryBuilder(MessageEntity, "message")
