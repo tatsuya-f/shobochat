@@ -1,5 +1,6 @@
 import { equal } from "assert";
-import { hasChar } from "../src/public/js/messageHandler";
+import { hasChar } from "../src/public/js/utils";
+
 describe("hasChar", function() {
     describe("#hasChar(a: string)", function() {
         it("should return true when input is ABC", function() {

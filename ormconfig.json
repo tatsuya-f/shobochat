@@ -5,7 +5,7 @@
         "database": "sqliteDB",
         "entities": ["./entity/*.ts"],
         "synchronize": true
-    }, 
+    },
     {
         "name": "test-connection",
         "type": "sqlite",

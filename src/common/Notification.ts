@@ -1,7 +1,8 @@
 
 export enum NotifyKind {
     Init, MsgNew, MsgChanged, MsgDeleted,
-    UserChanged
+    UserChanged,
+    ChanNew, ChanDeleted, ChanChanged
 }
 
 export interface Notification {
@@ -15,6 +16,11 @@ export function isNotification(args: any): args is Notification {
         args.kind === NotifyKind.MsgChanged ||
         args.kind === NotifyKind.MsgNew ||
         args.kind === NotifyKind.MsgDeleted ||
-        args.kind === NotifyKind.UserChanged
+
+        args.kind === NotifyKind.UserChanged ||
+
+        args.kind === NotifyKind.ChanNew ||
+        args.kind === NotifyKind.ChanDeleted ||
+        args.kind === NotifyKind.ChanChanged
     );
 }

@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { UserEntity } from "./UserEntity";
+import { ChannelEntity } from "./ChannelEntity";
 
 /*
  * <各プロパティに!がついていることについて>
@@ -36,4 +37,11 @@ export class MessageEntity {
     @ManyToOne(() => UserEntity)
     @JoinColumn()
     user!: UserEntity;
+
+    @ManyToOne(() => ChannelEntity)
+    @JoinColumn([{
+        name: "channelName",
+        referencedColumnName: "name"
+    }])
+    channel!: ChannelEntity;
 }

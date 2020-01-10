@@ -2,6 +2,7 @@ import { getConnection } from "typeorm";
 import { Notification, NotifyKind } from "../../common/Notification";
 import { wss } from "../server";
 import { MessageRepository } from "../repository/MessageRepository";
+import { ChannelRepository } from "../repository/ChannelRepository";
 
 export function notifyClients(notification: Notification) {
     // 接続されている各Clientにsendする
@@ -10,34 +11,49 @@ export function notifyClients(notification: Notification) {
     });
 }
 
-export async function initMessages() {
+export async function initMessages(channel: string) {
     const messageRepository = getConnection()
         .getCustomRepository(MessageRepository);
+    const channelRepository = getConnection()
+        .getCustomRepository(ChannelRepository);
     const numInitMessage = 10;
 
     notifyClients({
         kind: NotifyKind.Init,
-        payload: await messageRepository.getBeforeSpecifiedTime(Date.now(), numInitMessage)
+        payload: {
+            messages: await messageRepository
+                .getBeforeSpecifiedTime(channel, Date.now(), numInitMessage),
+            channels: await channelRepository.getAll()
+        }
     });
 }
 
-export function notifyNewMessage() {
+export function notifyNewMessage(channel: string) {
     notifyClients({
         kind: NotifyKind.MsgNew,
+        payload: {
+            channel
+        }
     });
 }
 
-export function notifyChangedMessage(messageId: string) {
+export function notifyChangedMessage(channel: string, messageId: string) {
     notifyClients({
         kind: NotifyKind.MsgChanged,
-        payload: messageId
+        payload: {
+            messageId,
+            channel
+        }
     });
 }
 
-export function notifyDeleteMessage(messageId: string) {
+export function notifyDeleteMessage(channel: string, messageId: string) {
     notifyClients({
         kind: NotifyKind.MsgDeleted,
-        payload: messageId
+        payload: {
+            messageId,
+            channel
+        }
     });
 }
 

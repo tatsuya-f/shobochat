@@ -1,7 +1,16 @@
-
 import { Message } from "../../common/Message";
+import { defaultChannel } from "../../common/Channel";
+
 export class HTTPHandler {
-    url: string = "/messages"
+    private url: string = "/messages"
+    private _channel = defaultChannel;
+    set channel(channel: string) {
+        if (this._channel === channel) { return; }
+        this._channel = channel;
+    }
+    get channel(): string {
+        return this._channel;
+    }
     async get(messageId: string): Promise<Message> {
         const res = await fetch(`${this.url}/id/${messageId}`, {
             method: "GET",
@@ -17,7 +26,7 @@ export class HTTPHandler {
         }
     }
     async getNewer(time: number): Promise<Array<Message>> {
-        const res = await fetch(`${this.url}/time-after/${time}`, {
+        const res = await fetch(`${this.url}/time-after/${this._channel}/${time}`, {
             method: "GET",
             headers: {
                 "Content-Length": "0"
@@ -27,11 +36,11 @@ export class HTTPHandler {
         if (res.status === 200) {
             return res.json();
         } else {
-            throw new Error(`Failed to get Messages newer than ${time}`);
+            throw new Error(`${this._channel}: Failed to get Messages newer than ${time}`);
         }
     }
     async getOlder(time: number, num: number): Promise<Array<Message>> {
-        const res = await fetch(`${this.url}/time-before/${time}/${num}`, {
+        const res = await fetch(`${this.url}/time-before/${this._channel}/${time}/${num}`, {
             method: "GET",
             headers: {
                 "Content-Length": "0"
@@ -41,11 +50,11 @@ export class HTTPHandler {
         if (res.status === 200) {
             return res.json();
         } else {
-            throw new Error(`Failed to get Messages older than ${time}`);
+            throw new Error(`${this._channel}: Failed to get ${num} Messages older than ${time}`);
         }
     }
     async post(content: string): Promise<number> {
-        const res = await fetch(this.url, {
+        const res = await fetch(`${this.url}/${this._channel}`, {
             method: "POST",
             body: JSON.stringify({ content: content }),
             headers: {
@@ -80,4 +89,3 @@ export class HTTPHandler {
     }
 }
 
-export const httpHandler = new HTTPHandler();

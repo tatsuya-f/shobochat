@@ -11,9 +11,13 @@ import { settingRoute } from "./route/setting";
 import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
 import { UserRepository } from "./repository/UserRepository";
+import { ChannelRepository } from "./repository/ChannelRepository";
+import { defaultChannel } from "../common/Channel";
 
 export const app = express();
 export const wss = new WebSocket.Server({ port: 8080 });
+export let shobot: number;
+
 const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 app.set("port", 8000);
@@ -48,14 +52,12 @@ wss.on("connection", (ws) => {
     ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            await initMessages();
+            await initMessages(defaultChannel);
         } catch (err) {
             console.log(err);
         }
     });
 });
-
-export let shobot: number;
 
 (async function startServer() {
     try {
@@ -63,11 +65,19 @@ export let shobot: number;
             await createConnection(connectionType); // テスト時にはテスト側でcreateする
             const userRepository = getConnection(connectionType)
                 .getCustomRepository(UserRepository);
+            const channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
 
             const shobotName = "しょぼっと";
             if (!await userRepository.hasName(shobotName)) {
                 shobot = await userRepository
                     .insertAndGetId(shobotName, "shobot");
+            } else {
+                shobot = (await userRepository.getByName(shobotName)).id;
+            }
+
+            if (!await channelRepository.hasName(defaultChannel)) {
+                await channelRepository.insertAndGetId(defaultChannel);
             }
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする
