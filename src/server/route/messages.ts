@@ -13,6 +13,19 @@ import { ChannelRepository } from "../repository/ChannelRepository";
 export const messagesRouter = express.Router();
 const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
+const numInitMessage = 10;
+messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    try {
+        const channel = req.params.channel;
+        const messages = await messageRepository
+            .getBeforeSpecifiedTime(channel, Date.now(), numInitMessage);
+        res.json(messages);
+    } catch (err) {
+        next(err);
+    }
+});
 messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
@@ -34,7 +47,6 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 });
-
 messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない

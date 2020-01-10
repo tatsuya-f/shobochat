@@ -1,4 +1,5 @@
 export const defaultChannel = "general";
+export const defaultChannelList = [defaultChannel, "random"];
 
 export interface Channel {
     id: number;

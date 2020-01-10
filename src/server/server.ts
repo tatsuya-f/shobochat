@@ -12,7 +12,7 @@ import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
 import { UserRepository } from "./repository/UserRepository";
 import { ChannelRepository } from "./repository/ChannelRepository";
-import { defaultChannel } from "../common/Channel";
+import { defaultChannelList } from "../common/Channel";
 
 export const app = express();
 export const wss = new WebSocket.Server({ port: 8080 });
@@ -52,7 +52,7 @@ wss.on("connection", (ws) => {
     ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            await initMessages(defaultChannel);
+            await initMessages();
         } catch (err) {
             console.log(err);
         }
@@ -75,9 +75,10 @@ wss.on("connection", (ws) => {
             } else {
                 shobot = (await userRepository.getByName(shobotName)).id;
             }
-
-            if (!await channelRepository.hasName(defaultChannel)) {
-                await channelRepository.insertAndGetId(defaultChannel);
+            for (const channel of defaultChannelList) {
+                if (!await channelRepository.hasName(channel)) {
+                    await channelRepository.insertAndGetId(channel);
+                }
             }
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする

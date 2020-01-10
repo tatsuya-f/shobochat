@@ -1,7 +1,6 @@
 import { getConnection } from "typeorm";
 import { Notification, NotifyKind } from "../../common/Notification";
 import { wss } from "../server";
-import { MessageRepository } from "../repository/MessageRepository";
 import { ChannelRepository } from "../repository/ChannelRepository";
 
 export function notifyClients(notification: Notification) {
@@ -11,18 +10,12 @@ export function notifyClients(notification: Notification) {
     });
 }
 
-export async function initMessages(channel: string) {
-    const messageRepository = getConnection()
-        .getCustomRepository(MessageRepository);
+export async function initMessages() {
     const channelRepository = getConnection()
         .getCustomRepository(ChannelRepository);
-    const numInitMessage = 10;
-
     notifyClients({
         kind: NotifyKind.Init,
         payload: {
-            messages: await messageRepository
-                .getBeforeSpecifiedTime(channel, Date.now(), numInitMessage),
             channels: await channelRepository.getAll()
         }
     });
