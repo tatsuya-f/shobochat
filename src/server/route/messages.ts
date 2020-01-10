@@ -8,15 +8,30 @@ import {
 import { answerIsPrime } from "../handler/primeHandler";
 import { shobot } from "../server";
 import { MessageRepository } from "../repository/MessageRepository";
+import { ChannelRepository } from "../repository/ChannelRepository";
 
 export const messagesRouter = express.Router();
 const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
-messagesRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
+const numInitMessage = 10;
+messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
-        const messages = await messageRepository.getAll();
+        const channel = req.params.channel;
+        const messages = await messageRepository
+            .getBeforeSpecifiedTime(channel, Date.now(), numInitMessage);
+        res.json(messages);
+    } catch (err) {
+        next(err);
+    }
+});
+messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository = getConnection(connectionType)
+        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    try {
+        const channel = req.params.channel;
+        const messages = await messageRepository.getAll(channel);
         res.json(messages);
     } catch (err) {
         next(err);
@@ -32,33 +47,34 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 });
-
-messagesRouter.get("/time-after/:time", async (req: Request, res: Response, next: NextFunction) => {
+messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
+        const channel = req.params.channel;
         const time = parseInt(req.params.time);
-        const messages = await messageRepository.getAllAfterSpecifiedTime(time);
+        const messages = await messageRepository.getAllAfterSpecifiedTime(channel, time);
         res.json(messages);
     } catch (err) {
         next(err);
     }
 });
 
-messagesRouter.get("/time-before/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
+messagesRouter.get("/time-before/:channel/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
     try {
+        const channel = req.params.channel;
         const time = parseInt(req.params.time);
         const num = parseInt(req.params.num);
-        const messages = await messageRepository.getBeforeSpecifiedTime(time, num);
+        const messages = await messageRepository.getBeforeSpecifiedTime(channel, time, num);
         res.json(messages);
     } catch (err) {
         next(err);
     }
 });
 
-messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
+messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -86,24 +102,26 @@ messagesRouter.post("/", async (req: Request, res: Response, next: NextFunction)
             res.status(405).end();
             return;
         }
-
+        const channel = req.params.channel;
         const messageRepository = getConnection(connectionType)
             .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
-        await messageRepository.insertAndGetId(sess.userId, req.body.content);
+        await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         const primeAns = answerIsPrime(req.body.content);
         if (primeAns !== null) {
-            await messageRepository.insertAndGetId(shobot, primeAns);
+            await messageRepository.insertAndGetId(channel, shobot, primeAns);
         }
-        await notifyNewMessage();
+        await notifyNewMessage(channel);
         res.status(200).end();
     } catch (err) {
         next(err);
     }
 });
 
-messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
+messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository: MessageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const channelRepository: ChannelRepository = getConnection(connectionType)
+        .getCustomRepository(ChannelRepository);
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -111,12 +129,17 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
             res.status(500).end();
             return;
         }
-
+        const channel = req.params.channel;
+        if (!channelRepository.hasName(channel)) {
+            console.log(`no such a channel named ${channel}`);
+            res.status(405).end();
+            return;
+        }
         const messageId = req.params.id;
         const message = await messageRepository.getById(messageId);
-        if (message.userId === sess.userId) {
+        if (message.userId === sess.userId) { // reject
             await messageRepository.updateById(messageId, req.body.content);
-            await notifyChangedMessage(messageId);
+            await notifyChangedMessage(channel, messageId);
             res.status(200).end();
         } else {
             res.status(405).end();
@@ -126,9 +149,11 @@ messagesRouter.put("/:id", async (req: Request, res: Response, next: NextFunctio
     }
 });
 
-messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
+messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const messageRepository: MessageRepository = getConnection(connectionType)
         .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const channelRepository: ChannelRepository = getConnection(connectionType)
+        .getCustomRepository(ChannelRepository);
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -136,10 +161,16 @@ messagesRouter.delete("/:id", async (req: Request, res: Response, next: NextFunc
             return;
         }
         const messageId = req.params.id;
+        const channel = req.params.channel;
+        if (!channelRepository.hasName(channel)) { // reject
+            console.log(`no such a channel named ${channel}`);
+            res.status(405).end();
+            return;
+        }
         const message = await messageRepository.getById(messageId);
         if (message.userId === sess.userId) { // accept
             await messageRepository.deleteById(messageId);
-            notifyDeleteMessage(messageId);
+            notifyDeleteMessage(channel, messageId);
             res.status(200).end();
         } else { // reject
             res.status(405).end();

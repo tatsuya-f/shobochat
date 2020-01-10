@@ -1,6 +1,7 @@
 import { getConnection, EntityRepository, Repository } from "typeorm";
 import * as uuid from "uuid";
 import { UserRepository } from "../repository/UserRepository";
+import { ChannelRepository } from "../repository/ChannelRepository";
 import { MessageEntity } from "../entity/MessageEntity";
 import { Message } from "../../common/Message";
 
@@ -13,6 +14,7 @@ export class MessageRepository extends Repository<MessageEntity> {
         const message: Message = {
             id: messageEntity.id,
             userId: messageEntity.user.id,
+            channelName: messageEntity.channel.name,
             time: messageEntity.time,
             name: messageEntity.user.name,
             content: messageEntity.content
@@ -27,9 +29,9 @@ export class MessageRepository extends Repository<MessageEntity> {
     public async getById(messageId: string): Promise<Message> {
         const messageEntity = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
+            .innerJoinAndSelect("message.channel", "channel")
             .where("message.id = :id", { id: messageId })
             .getOne();
-
         if (messageEntity === undefined) {
             throw new Error("not found");
         } else {
@@ -37,9 +39,11 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async getAll(): Promise<Array<Message>> {
+    public async getAll(channelName: string): Promise<Array<Message>> {
         const messageEntitys = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
+            .innerJoinAndSelect("message.channel", "channel")
+            .where("message.channel.name = :channelName", { channelName })
             .orderBy("time", "DESC")
             .getMany();
 
@@ -50,51 +54,65 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async getBeforeSpecifiedTime(fromTime: number, n: number): Promise<Array<Message>> {
-        const messageEntitys = await this.createQueryBuilder("message")
+    public async getBeforeSpecifiedTime(channelName: string, fromTime: number, n: number): Promise<Array<Message>> {
+        const messageEntities = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
-            .where("time < :time", { time: fromTime })
+            .innerJoinAndSelect("message.channel", "channel")
+            .where("time < :time AND message.channelName = :channelName", {
+                time: fromTime,
+                channelName
+            })
             .orderBy("time", "DESC")
             .limit(n)
             .getMany();
 
-        if (messageEntitys === undefined) {
+        if (messageEntities === undefined) {
             throw new Error("not found");
         } else {
-            return this.toMessages(messageEntitys);
+            return this.toMessages(messageEntities);
         }
     }
 
-    public async getAllAfterSpecifiedTime(fromTime: number): Promise<Array<Message>> {
-        const messageEntitys = await this.createQueryBuilder("message")
+    public async getAllAfterSpecifiedTime(channelName: string, fromTime: number): Promise<Array<Message>> {
+        const messageEntities = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
-            .where("time > :time", { time: fromTime })
+            .innerJoinAndSelect("message.channel", "channel")
+            .where("time > :time AND message.channelName = :channelName", {
+                time: fromTime,
+                channelName
+            })
             .orderBy("time", "DESC")
             .getMany();
 
-        if (messageEntitys === undefined) {
+        if (messageEntities === undefined) {
             throw new Error("not found");
         } else {
-            return this.toMessages(messageEntitys);
+            return this.toMessages(messageEntities);
         }
     }
 
-    public async getAllByTime(time: number): Promise<Array<Message>> {
-        const messageEntitys = await this.createQueryBuilder("message")
+    public async getAllByTime(channelName: string, time: number): Promise<Array<Message>> {
+        const messageEntities = await this.createQueryBuilder("message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
-            .where("time = :time", { time })
+            .innerJoinAndSelect("message.channel", "channel")
+            .where("time = :time AND message.channelName = :channelName", {
+                time,
+                channelName
+            })
             .getMany();
 
-        if (messageEntitys === undefined) {
+        if (messageEntities === undefined) {
             throw new Error("not found");
         } else {
-            return this.toMessages(messageEntitys);
+            return this.toMessages(messageEntities);
         }
     }
 
-    public async insertAndGetId(userId: number, content: string): Promise<string> {
+    public async insertAndGetId(channelName: string, userId: number, content: string): Promise<string> {
         const userRepository = getConnection(connectionType)
             .getCustomRepository(UserRepository);
+        const channelRepository = getConnection(connectionType)
+            .getCustomRepository(ChannelRepository);
 
         const messageEntity: MessageEntity = this.create(); // const messageEntity = new MessageEntity() と同じ
         await new Promise(resolve => setTimeout(resolve, 1));
@@ -102,6 +120,7 @@ export class MessageRepository extends Repository<MessageEntity> {
         messageEntity.time = Date.now();
         messageEntity.content = content;
         messageEntity.user = await userRepository.getEntityById(userId);
+        messageEntity.channel = await channelRepository.getByName(channelName);
         await this.save(messageEntity);
 
         const messageId = this.getId(messageEntity);

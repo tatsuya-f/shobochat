@@ -12,18 +12,20 @@ import { UserEntity } from "../src/server/entity/UserEntity";
 import { UserRepository } from "../src/server/repository/UserRepository";
 import { MessageEntity } from "../src/server/entity/MessageEntity";
 import { MessageRepository } from "../src/server/repository/MessageRepository";
+import { ChannelRepository } from "../src/server/repository/ChannelRepository";
 import { app } from "../src/server/server";
 import { isMessage, isMessageArray } from "../src/common/Message";
 import { hash } from "../src/server/handler/hashHandler";
 
+const TEST_CHAN = "test-chan";
 const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
-async function postTestMessage(times: number, cookie: Array<string>): Promise<void> {
+async function postTestMessage(channel: string, times: number, cookie: Array<string>): Promise<void> {
     const agent = request.agent(app);
 
     for (let i = 0; i < times; i++) {
         await agent
-            .post("/messages")
+            .post(`/messages/${channel}`)
             .set("Content-Type", "application/json")
             .send({ name: "test_name", content: "test_message" })
             .set("Cookie", cookie);
@@ -71,10 +73,11 @@ describe("GET /", () => {
     });
 });
 
-describe("GET /messages", () => {
+describe("GET /messages/all/channel", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
@@ -85,12 +88,16 @@ describe("GET /messages", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
+            channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
             await agent
                 .post("/register")
                 .send({ name: "test", password: "test"});
-            await postTestMessage(3, cookie);
+            await postTestMessage(TEST_CHAN, 3, cookie);
+
         } catch (err) {
             console.log(err);
         }
@@ -103,7 +110,7 @@ describe("GET /messages", () => {
 
     it("return messages in response.body", async () => {
         const response = await agent
-            .get("/messages")
+            .get(`/messages/all/${TEST_CHAN}`)
             .set("Accept", "application/json")
             .set("Cookie", cookie)
             .expect("Content-Type", /application\/json/)
@@ -121,6 +128,7 @@ describe("GET /messages/id/id", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
@@ -131,12 +139,15 @@ describe("GET /messages/id/id", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-            const response = await agent.get("/")
+            channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(TEST_CHAN);
+            const response = await agent.get("/");
             cookie = response.header["set-cookie"];
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"})
-            await postTestMessage(1, cookie);
+                .send({ name: "test", password: "test"});
+            await postTestMessage(TEST_CHAN, 1, cookie);
         } catch (err) {
             console.log(err);
         }
@@ -148,7 +159,7 @@ describe("GET /messages/id/id", () => {
     });
 
     it("return messages in response.body", async () => {
-        const all = await messageRepository.getAll();
+        const all = await messageRepository.getAll(TEST_CHAN);
         const response = await agent
             .get(`/messages/id/${all[0].id}`)
             .set("Cookie", cookie)
@@ -158,10 +169,11 @@ describe("GET /messages/id/id", () => {
     });
 });
 
-describe("POST /messages", () => {
+describe("POST /messages/channel", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
     const agent = request.agent(app);
     let cookie: Array<string>;
 
@@ -172,7 +184,9 @@ describe("POST /messages", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-
+            channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
 
@@ -192,7 +206,7 @@ describe("POST /messages", () => {
 
     it("returns 200 when parameters are valid", async () => {
         await agent
-            .post("/messages")
+            .post(`/messages/${TEST_CHAN}`)
             .set("Content-Type", "application/json")
             .send({ name: "test_name", content: "test_message" })
             .set("Cookie", cookie)
@@ -200,10 +214,11 @@ describe("POST /messages", () => {
     });
 });
 
-describe("POST /messages", () => {
+describe("PUT /messages/channel/id", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
     let cookie: Array<string>;
     const agent = request.agent(app);
     let testId = "not assigned yet";
@@ -215,7 +230,9 @@ describe("POST /messages", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-
+            channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
 
@@ -223,8 +240,8 @@ describe("POST /messages", () => {
                 .post("/register")
                 .send({ name: "test", password: "test"});
 
-            await postTestMessage(1, cookie);
-            testId = (await messageRepository.getAll())[0].id as string;
+            await postTestMessage(TEST_CHAN, 1, cookie);
+            testId = (await messageRepository.getAll(TEST_CHAN))[0].id as string;
         } catch (err) {
             console.log(err);
         }
@@ -238,7 +255,7 @@ describe("POST /messages", () => {
     it("update message with id = " + testId, async () => {
         const updatedmsg = "updated";
         const response = await agent
-            .put("/messages/" + testId)
+            .put(`/messages/${TEST_CHAN}/${testId}`)
             .send({ content: updatedmsg })
             .set("Cookie", cookie)
             .expect(200);
@@ -247,10 +264,11 @@ describe("POST /messages", () => {
     });
 });
 
-describe("DELETE /messages", () => {
+describe("DELETE /messages/channel/id", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
     let cookie: Array<string>;
     const agent = request.agent(app);
     let testId = "not assigned yet";
@@ -262,7 +280,9 @@ describe("DELETE /messages", () => {
                 .getCustomRepository(UserRepository);
             messageRepository = getConnection(connectionType)
                 .getCustomRepository(MessageRepository);
-
+            channelRepository = getConnection(connectionType)
+                .getCustomRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(TEST_CHAN);
 
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -271,8 +291,8 @@ describe("DELETE /messages", () => {
                 .post("/register")
                 .send({ name: "test", password: "test"});
 
-            await postTestMessage(1, cookie);
-            testId = (await messageRepository.getAll())[0].id as string;
+            await postTestMessage(TEST_CHAN, 1, cookie);
+            testId = (await messageRepository.getAll(TEST_CHAN))[0].id as string;
         } catch (err) {
             console.log(err);
         }
@@ -285,7 +305,7 @@ describe("DELETE /messages", () => {
 
     it("delete message with id = " + testId, async () => {
         const response = await agent
-            .delete("/messages/" + testId)
+            .delete(`/messages/${TEST_CHAN}/${testId}`)
             .set("Cookie", cookie)
             .expect(200);
 

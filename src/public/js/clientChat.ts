@@ -1,14 +1,48 @@
-import {
-    sendMessage,
-    updateMessage,
-    removeMessage,
-    checkInput,
-    parseMarkdown,
-    MessageHandler
-} from "./messageHandler";
-import { httpHandler } from "./HTTPHandler";
+import { HTTPHandler } from "./HTTPHandler";
 import { isNotification, NotifyKind } from "../../common/Notification";
-import { isMessageArray } from "../../common/Message";
+import { Message } from "../../common/Message";
+import { Channel, isChannelArray } from "../../common/Channel";
+import { MessageManager } from "./MessageManager";
+import { StateManager } from "./StateManager";
+import { hasChar, parseMarkdown } from "./utils";
+
+export function isValidMessage(message: Message): boolean {
+    let isValid = true;
+    if (!hasChar(message.name)) {
+        isValid = false;
+        $("#name").addClass("is-danger");
+    }
+    else {
+        $("#name").removeClass("is-danger");
+    }
+    if (!hasChar(message.content)) {
+        isValid = false;
+        $("#message").addClass("is-danger");
+    }
+    else {
+        $("#message").removeClass("is-danger");
+    }
+    return isValid;
+}
+
+export function setChannelList(channels: Array<Channel>) {
+    const $channelList = $("#channel-list");
+    $channelList.empty();
+    for (const channel of channels) {
+        $channelList.append(`<a class="shobo-channel navbar-item">${channel.name}</a>`);
+    }
+}
+
+export async function checkInput(): Promise<void> {
+    const message = $("#message").val();
+    if (typeof message !== "string" || message === "") {
+        $("#send").prop("disabled", true);
+        $("#edited").prop("disabled", true);
+    } else {
+        $("#send").prop("disabled", false);
+        $("#edited").prop("disabled", false);
+    }
+}
 
 function insertTextarea(before: string, after: string) {
     const $textarea = $("#message");
@@ -28,59 +62,13 @@ function insertTextarea(before: string, after: string) {
     checkInput();
 }
 
-const StateList = ["normal", "edit", "hidden"] as const;
-type State = typeof StateList[number];
-class StateManager {
-    private _state: State = "normal"
-    constructor() {
-        this.normal();
-    }
-    set state(state: State) {
-        this._state = state;
-        for (const state of StateList) {
-            if (state !== this._state) {
-                $(`.shobo-${state}-mode`).hide();
-            }
-        }
-        $(`.shobo-${this.state}-mode`).show();
-    }
-    get state() {
-        return this._state;
-    }
-    normal() {
-        this.state = "normal";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
-        $("#message").val("");
-    }
-    async edit(messageId: string) {
-        this.state = "edit";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
-        try {
-            $("#message").val();
-            const msg = await httpHandler.get(messageId);
-            $("#message").val(msg.content);
-            $("#input-area").data("message-id", messageId);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    hidden() {
-        this.state = "hidden";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
-    }
-}
 
 $(() => {
     const websocketEndPoint = "ws://localhost:8080";
     let ws = new WebSocket(websocketEndPoint);
-    const messageHandler = new MessageHandler();
-    const stateManager = new StateManager();
+    let httpHandler = new HTTPHandler();
+    const messageManager = new MessageManager(httpHandler);
+    const stateManager = new StateManager(httpHandler);
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
@@ -91,24 +79,37 @@ $(() => {
         switch (notify.kind) {
             // Message notify
             case NotifyKind.Init: {
-                if (isMessageArray(notify.payload)) {
-                    messageHandler.messages = notify.payload;
+                if (isChannelArray(notify.payload.channels)) {
+                    setChannelList(notify.payload.channels);
                 }
+                await messageManager.initialize();
                 break;
             }
             case NotifyKind.MsgNew: {
-                await messageHandler.getNew();
+                const channel = notify.payload.channel;
+                if (typeof channel !== "string") { break; }
+                if (channel !== messageManager.channel) { break; }
+
+                await messageManager.getNew();
                 break;
             }
             case NotifyKind.MsgChanged: {
-                if (typeof notify.payload === "string") { // messageId
-                    await messageHandler.fetch(notify.payload);
+                const channel = notify.payload.channel;
+                if (typeof channel !== "string") { break; }
+                if (channel !== messageManager.channel) { break; }
+
+                if (typeof notify.payload.messageId === "string") {
+                    await messageManager.fetch(notify.payload.messageId);
                 }
                 break;
             }
             case NotifyKind.MsgDeleted: {
-                if (typeof notify.payload === "string") { // messageId
-                    await messageHandler.delete(notify.payload);
+                const channel = notify.payload.channel;
+                if (typeof channel !== "string") { break; }
+                if (channel !== messageManager.channel) { break; }
+
+                if (typeof notify.payload.messageId === "string") {
+                    await messageManager.onDeleteEvent(notify.payload.messageId);
                 }
                 break;
             }
@@ -116,13 +117,14 @@ $(() => {
             case NotifyKind.UserChanged: {
                 if (typeof notify.payload["newName"] === "string" &&
                    typeof notify.payload["oldName"] === "string") {
-                    messageHandler.changeUserName(
+                    messageManager.onChangeUserNameEvent(
                         notify.payload["newName"],
                         notify.payload["oldName"]
                     );
                 }
                 break;
             }
+            // Channel notify
         }
     });
 
@@ -143,7 +145,7 @@ $(() => {
     $("#delete-msg").on("click", async function() {
         let messageId = $("#contextmenu").data("message-id");
         if (typeof messageId === "string") {
-            await removeMessage(messageId);
+            await messageManager.delete(messageId);
         }
     });
     $("#edit-msg").on("click", async function() {
@@ -168,6 +170,10 @@ $(() => {
     });
     $("#setting").on("click", () => {
         window.location.href = "/setting";
+    });
+    $(document).on("click", ".shobo-channel", function () {
+        console.log($(this).text());
+        messageManager.setChannel($(this).text());
     });
     //</navigation>
 
@@ -201,12 +207,12 @@ $(() => {
 
     $("#send").on("click", async () => {
         $("#send").addClass("is-loading");
-        await sendMessage();
+        await messageManager.send();
         $("#send").removeClass("is-loading");
     });
     $("#edited").on("click", async () => {
         $("#send").addClass("is-loading");
-        await updateMessage();
+        await messageManager.update();
         $("#send").removeClass("is-loading");
         $("#input-area").data("message-id", null);
         stateManager.normal();
@@ -231,7 +237,7 @@ $(() => {
             if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
                 $("#shobo-main").off("mousewheel");
                 $(document).off("keydown");
-                await messageHandler.getOld();
+                await messageManager.getOld();
                 $("#shobo-main").on("mousewheel", fetchScrollEventListener);
                 $(document).on("keydown", fetchKeydownEventListener);
             }
@@ -242,7 +248,7 @@ $(() => {
             if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
                 $("#shobo-main").off("mousewheel");
                 $(document).off("keydown");
-                await messageHandler.getOld();
+                await messageManager.getOld();
                 $("#shobo-main").on("mousewheel", fetchScrollEventListener);
                 $(document).on("keydown", fetchKeydownEventListener);
             }

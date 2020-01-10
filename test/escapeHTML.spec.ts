@@ -1,5 +1,5 @@
 import { equal } from "assert";
-import { escapeHTML } from "../src/public/js/messageHandler";
+import { escapeHTML } from "../src/public/js/utils";
 
 describe("escapeHTML", function() {
     describe("#escapeHTML(str: string)", function() {

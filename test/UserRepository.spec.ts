@@ -98,7 +98,7 @@ describe("hasName", () => {
         try {
             connection = await createConnection(connectionType);
             userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository); 
+                .getCustomRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -115,10 +115,10 @@ describe("hasName", () => {
     });
 
     it("return true when user exists", async () => {
-        assert.equal(await userRepository.hasName(testName), true);
+        assert.strictEqual(await userRepository.hasName(testName), true);
     });
     it("returns false when user doesn't exist", async () => {
-        assert.equal(await userRepository.hasName("not exsit"), false);
+        assert.strictEqual(await userRepository.hasName("not exsit"), false);
     });
 });
 
