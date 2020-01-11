@@ -96,10 +96,10 @@ export class MessagesHTTPHandler {
 
 export class SettingHTTPHandler {
     async putUsername(username: string): Promise<number> {
-        const res = await fetch(`/setting/username/${username}`, {
+        const res = await fetch("/setting/username/", {
             method: "PUT",
             body: JSON.stringify({
-                "Content-Length": "0"
+                name: username
             }),
             headers: {
                 "Content-Type": "application/json"
@@ -109,10 +109,10 @@ export class SettingHTTPHandler {
         return res.status;
     }
     async putUserpass(userpass: string): Promise<number> {
-        const res = await fetch(`/setting/${userpass}`, {
+        const res = await fetch("/setting/userpass", {
             method: "PUT",
             body: JSON.stringify({
-                "Content-Length": "0"
+                password: userpass
             }),
             headers: {
                 "Content-Type": "application/json"

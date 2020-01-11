@@ -61,6 +61,7 @@ export class SettingStateManager {
     private httpHandler: SettingHTTPHandler;
     constructor(httpHandler: SettingHTTPHandler) {
         this.httpHandler = httpHandler;
+        this.state = "username";
     }
     set state(state: SettingState) {
         this._state = state;
@@ -85,29 +86,64 @@ export class SettingStateManager {
         this.state = "channel-add";
     }
     async apply() {
+        const queryMessageDuration = 3000;
         switch (this.state) {
             // about user
             case "username": {
                 const username = $("#username").val();
+                const $queryMessage = $("#setting-status-message");
                 if (typeof username === "string") {
-                    this.httpHandler.putUsername(username);
+                    try {
+                        const state = await this.httpHandler.putUsername(username);
+                        if (state === 200) {
+                            $queryMessage
+                                .css("color", "black")
+                                .html("ユーザー名を変更しました")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
+                        } else {
+                            $queryMessage
+                                .css("color", "red")
+                                .html("ユーザー名を変更できませんでした")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
+                        }
+                    } catch (err) {
+                        console.log(err);
+                    }
                 }
                 break;
             }
             case "userpass": {
                 const userpass = $("#userpass").val();
                 const userpassVerify = $("#userpass-verify").val();
+                const $queryMessage = $("#setting-status-message");
                 if (userpass !== userpassVerify) {
-                    alert("あいことばがいっちしません。");
+                    $queryMessage
+                        .css("color", "red")
+                        .html("あいことばが一致しません")
+                        .fadeIn("fast")
+                        .delay(queryMessageDuration)
+                        .fadeOut("fast");
                 } else if (typeof userpass === "string") {
                     try {
                         const status = await this.httpHandler.putUserpass(userpass);
                         if (status === 200) {
-                            console.log("Success");
-                            // window.location.href = "/chat";
+                            $queryMessage
+                                .css("color", "red")
+                                .html("あいことばを変更しました")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
                         } else {
-                            alert("へんこうできませんでした。");
-                            console.log("POST Failed");
+                            $queryMessage
+                                .css("color", "red")
+                                .html("あいことばを変更できませんでした")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
                         }
                     } catch (err) {
                         console.log(err);
@@ -119,8 +155,28 @@ export class SettingStateManager {
             // about channel
             case "channel-add": {
                 const newChannel = $("#new-channel-name").val();
+                const $queryMessage = $("#setting-status-message");
                 if (typeof newChannel === "string") {
-                    this.httpHandler.postChannel(newChannel);
+                    try {
+                        const state = await this.httpHandler.postChannel(newChannel);
+                        if (state === 200) {
+                            $queryMessage
+                                .css("color", "black")
+                                .html("チャンネルを追加しました")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
+                        } else {
+                            $queryMessage
+                                .css("color", "red")
+                                .html("チャンネルの追加ができませんでした")
+                                .fadeIn("fast")
+                                .delay(queryMessageDuration)
+                                .fadeOut("fast");
+                        }
+                    } catch (err) {
+                        console.log(err);
+                    }
                 }
                 break;
             }
