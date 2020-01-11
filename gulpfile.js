@@ -1,4 +1,4 @@
-const { src, dest, series } = require("gulp");
+const { task, watch, src, dest, series, parallel } = require("gulp");
 const del = require("del");
 const browserify = require("browserify");
 const notify = require("gulp-notify");
@@ -8,9 +8,10 @@ const pug = require("gulp-pug");
 const plumber = require("gulp-plumber");
 const source = require ("vinyl-source-stream");
 const tsify = require("tsify");
-const ts = require('gulp-typescript');
-
+const ts = require("gulp-typescript");
 const tsProject = ts.createProject("tsconfig.json");
+const kill = require("tree-kill");
+
 
 function clean() {
     return del(["dist"]);
@@ -118,7 +119,32 @@ function copyCommon() {
         .pipe(dest("dist/common"));
 }
 
-exports.default = series(clean, lint, test, clientIndex, clientRegister, clientLogin, clientSetting, clientChat, checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
+task("watch", () => {
+    series(clean, lint, test,
+        parallel(clientIndex, clientRegister, clientLogin, clientSetting, clientChat),
+        checkServer, checkCommon,
+        cleanTmp,
+        compilePug, copyHtmlAndCss,
+        copyServer, copyCommon)();
+    watch("src/server/**/*.ts", series(
+        lint, checkServer, cleanTmp, copyServer, cleanTmp,
+    ));
+    watch("src/public/js/**/*.ts", series(
+        lint,
+        clientIndex, clientRegister, clientLogin, clientSetting, clientChat, cleanTmp,
+    ));
+    watch("src/common/**/*.ts", series(
+        lint,
+        checkServer, cleanTmp, copyServer,
+        clientIndex, clientRegister, clientLogin, clientSetting, clientChat,
+        copyCommon, cleanTmp,
+    ));
+    watch("src/public/pug/**/*.pug", series(compilePug));
+    watch("src/public/css/**/*.css", series(copyHtmlAndCss));
+    watch("test/**/*.ts", series(test));
+});
+
+exports.default = series(clean, lint, test, parallel(clientIndex, clientRegister, clientLogin, clientSetting, clientChat), checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;

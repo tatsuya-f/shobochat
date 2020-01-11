@@ -156,7 +156,40 @@ describe("insertAndGetId", () => {
     });
 });
 
-describe("updateById", () => {
+describe("updatePassById", () => {
+    let connection: Connection;
+    let userRepository: UserRepository;
+    let id: number;
+    let testUser: User;
+
+    before(async () => {
+        try {
+            connection = await createConnection(connectionType);
+            userRepository = getConnection(connectionType)
+                .getCustomRepository(UserRepository);
+
+            id = await userRepository.insertAndGetId(testName, testPassword);
+            testUser = await userRepository.getByName(testName);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await connection.close();
+        deleteDB();
+    });
+
+    it("update username and password", async () => {
+        const password = "updatedpass";
+        await userRepository.updatePassById(id, password);
+        const updatedUser = await userRepository.getByName(testName);
+        testUser.password = password;
+        assert.deepStrictEqual(testUser, updatedUser);
+    });
+});
+
+describe("updateNameById", () => {
     let connection: Connection;
     let userRepository: UserRepository;
     let id: number;
@@ -182,11 +215,9 @@ describe("updateById", () => {
 
     it("update username and password", async () => {
         const name = "updatedname";
-        const password = "updatedpass";
-        await userRepository.updateById(id, name, password);
+        await userRepository.updateNameById(id, name);
         const updatedUser = await userRepository.getByName(name);
         testUser.name = name;
-        testUser.password = password;
         assert.deepStrictEqual(testUser, updatedUser);
     });
 });

@@ -1,7 +1,9 @@
 import { getConnection } from "typeorm";
+import * as WebSocket from "ws";
 import { Notification, NotifyKind } from "../../common/Notification";
 import { wss } from "../server";
 import { ChannelRepository } from "../repository/ChannelRepository";
+import { Channel } from "../../common/Channel";
 
 export function notifyClients(notification: Notification) {
     // 接続されている各Clientにsendする
@@ -10,15 +12,15 @@ export function notifyClients(notification: Notification) {
     });
 }
 
-export async function initMessages() {
+export async function initMessages(ws: WebSocket) {
     const channelRepository = getConnection()
         .getCustomRepository(ChannelRepository);
-    notifyClients({
+    ws.send(JSON.stringify({
         kind: NotifyKind.Init,
         payload: {
             channels: await channelRepository.getAll()
         }
-    });
+    }));
 }
 
 export function notifyNewMessage(channel: string) {
@@ -59,3 +61,9 @@ export function notifyChangedUsername(oldName: string, newName: string) {
     });
 }
 
+export function notifyNewChannel(channels: Array<Channel>) {
+    notifyClients({
+        kind: NotifyKind.ChanNew,
+        payload: channels
+    });
+}

@@ -345,7 +345,7 @@ describe("test for register and login", () => {
     });
 });
 
-describe("test for updata username and password", () => {
+describe("test for updata username", () => {
     let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
@@ -353,7 +353,6 @@ describe("test for updata username and password", () => {
     const name = "hoge";
     const password = "fuga";
     const changedName = "hoge2";
-    const changedPass = "fuga2";
     before(async () => {
         try {
             databaseManager = await DatabaseManager.getInstance();
@@ -373,16 +372,15 @@ describe("test for updata username and password", () => {
         deleteDB();
     });
 
-    it(`change user: name = ${name}, password = ${password} -> ${changedName}, password = ${changedPass}`, async () => {
+    it(`change user name = ${name} -> ${changedName}`, async () => {
         {
             const response = await agent
-                .put("/setting")
-                .send({ name: changedName, password: changedPass })
+                .put("/setting/username")
+                .send({ name: changedName })
                 .expect(200);
             try {
                 const user = await userRepository.getByName(changedName);
                 assert.strictEqual(user.name, changedName);
-                assert.strictEqual(user.password, hash(changedPass));
             } catch (err) {
                 console.log(err);
             }
@@ -390,20 +388,19 @@ describe("test for updata username and password", () => {
         {
             const response = await agent
                 .get("/login")
-                .send({ name: changedName, password: changedPass })
+                .send({ name: changedName, password: password })
                 .expect(302);
         }
     });
 });
 
-describe("test for update user pass", () => {
+describe("test for update userpass", () => {
     let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
     const name = "hoge";
     const password = "fuga";
-    const changedName = "hoge2";
     const changedPass = "fuga2";
     before(async () => {
         try {
@@ -424,16 +421,15 @@ describe("test for update user pass", () => {
         deleteDB();
     });
 
-    it(`change user: name = ${name}, password = ${password} -> password = ${changedPass}`, async () => {
+    it(`change user password ${password} -> ${changedPass}`, async () => {
         {
             const changedPass = "fuga2";
             const response = await agent
-                .put("/setting")
-                .send({ name: name, password: changedPass })
+                .put("/setting/userpass")
+                .send({ password: changedPass })
                 .expect(200);
             try {
                 const user = await userRepository.getByName(name);
-                assert.strictEqual(user.name, name);
                 assert.strictEqual(user.password, hash(changedPass));
             } catch (err) {
                 console.log(err);

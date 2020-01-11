@@ -60,10 +60,22 @@ export class UserRepository {
         }
     }
 
-    async updateById(userId: number, name: string, password: string): Promise<void> {
+    async updateNameById(userId: number, name: string): Promise<void> {
         const updateResult = await this.manager.createQueryBuilder()
             .update(UserEntity)
-            .set({ name, password })
+            .set({ name })
+            .where("id = :id", { id: userId })
+            .execute();
+
+        if (updateResult === undefined) {
+            throw new Error("update failed");
+        }
+    }
+
+    async updatePassById(userId: number, password: string): Promise<void> {
+        const updateResult = await this.manager.createQueryBuilder()
+            .update(UserEntity)
+            .set({ password })
             .where("id = :id", { id: userId })
             .execute();
 

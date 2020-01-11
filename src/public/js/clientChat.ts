@@ -1,9 +1,9 @@
-import { HTTPHandler } from "./HTTPHandler";
+import { MessagesHTTPHandler } from "./HTTPHandler";
 import { isNotification, NotifyKind } from "../../common/Notification";
 import { Message } from "../../common/Message";
 import { Channel, isChannelArray } from "../../common/Channel";
 import { MessageManager } from "./MessageManager";
-import { StateManager } from "./StateManager";
+import { ChatStateManager } from "./StateManager";
 import { hasChar, parseMarkdown } from "./utils";
 
 export function isValidMessage(message: Message): boolean {
@@ -25,11 +25,11 @@ export function isValidMessage(message: Message): boolean {
     return isValid;
 }
 
-export function setChannelList(channels: Array<Channel>) {
+function setChannelList(channels: Array<Channel>) {
     const $channelList = $("#channel-list");
-    $channelList.empty();
+    $channelList.children(".shobo-channel").remove();
     for (const channel of channels) {
-        $channelList.append(`<a class="shobo-channel navbar-item">${channel.name}</a>`);
+        $channelList.prepend(`<a id="channel-${channel.name}" class="shobo-channel navbar-item">${channel.name}</a>`);
     }
 }
 
@@ -62,13 +62,105 @@ function insertTextarea(before: string, after: string) {
     checkInput();
 }
 
+const queryMessageDuration = 3000;
+
+async function requestDelete(messageManager: MessageManager) {
+    const messageId = $("#contextmenu").data("message-id");
+    if (typeof messageId === "string") {
+        try {
+            console.log(messageId);
+            const status = await messageManager.delete(messageId);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage
+                    .css("color", "black")
+                    .html("メッセージを削除しました")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+            } else {
+                $queryMessage
+                    .css("color", "red")
+                    .html("メッセージを削除できませんでした")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
+
+async function requestSend(messageManager: MessageManager) {
+    const content = $("#message").val();
+    try {
+        if (typeof content === "string" && content !== "") {
+            const status = await messageManager.send(content);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage
+                    .css("color", "black")
+                    .html("メッセージを送信しました")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+                $("#shobo-main").animate({
+                    scrollTop: $("#shobo-main")[0].scrollHeight
+                });
+                $("#message").val("");
+            } else {
+                $queryMessage
+                    .css("color", "red")
+                    .html("メッセージを送信できませんでした")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+                console.log("POST Failed");
+            }
+            $("#send").prop("disabled", true);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function requestChange(messageManager: MessageManager) {
+    const messageId = $("#input-area").data("message-id");
+    const content = $("#message").val();
+    if (typeof content === "string" &&
+        typeof messageId === "string" &&
+        content !== "") {
+        try {
+            const status = await messageManager.update(messageId, content);
+            const $queryMessage = $("#queryMessage");
+            if (status === 200) {
+                $queryMessage
+                    .css("color", "black")
+                    .html("メッセージを更新しました")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+            } else {
+                $queryMessage
+                    .css("color", "red")
+                    .html("メッセージを更新できませんでした")
+                    .fadeIn("fast")
+                    .delay(queryMessageDuration)
+                    .fadeOut("fast");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+}
 
 $(() => {
     const websocketEndPoint = "ws://localhost:8080";
-    let ws = new WebSocket(websocketEndPoint);
-    let httpHandler = new HTTPHandler();
+    const ws = new WebSocket(websocketEndPoint);
+    const httpHandler = new MessagesHTTPHandler();
     const messageManager = new MessageManager(httpHandler);
-    const stateManager = new StateManager(httpHandler);
+    const stateManager = new ChatStateManager(httpHandler);
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
@@ -115,21 +207,30 @@ $(() => {
             }
             // User notify
             case NotifyKind.UserChanged: {
-                if (typeof notify.payload["newName"] === "string" &&
-                   typeof notify.payload["oldName"] === "string") {
+                if (typeof notify.payload.newName === "string" &&
+                   typeof notify.payload.oldName === "string") {
                     messageManager.onChangeUserNameEvent(
-                        notify.payload["newName"],
-                        notify.payload["oldName"]
+                        notify.payload.oldName,
+                        notify.payload.newName
                     );
                 }
                 break;
             }
             // Channel notify
+            case NotifyKind.ChanNew: {
+                if (isChannelArray(notify.payload)) {
+                    setChannelList(notify.payload);
+                }
+            }
         }
     });
 
     //<left click menu>
     $("#contextmenu").hide();
+    $("body").on("click", () => {
+        $("#contextmenu").hide();
+    });
+
     $(document).on("contextmenu", ".shobo-message-div", function(e) {
         $("#contextmenu").data("message-id", $(this).data("message-id"));
         $("#contextmenu").show();
@@ -139,16 +240,10 @@ $(() => {
         });
         return false;
     });
-    $("body").on("click", () => {
-        $("#contextmenu").hide();
+    $("#delete-msg-btn").on("click", async () => {
+        requestDelete(messageManager);
     });
-    $("#delete-msg").on("click", async function() {
-        let messageId = $("#contextmenu").data("message-id");
-        if (typeof messageId === "string") {
-            await messageManager.delete(messageId);
-        }
-    });
-    $("#edit-msg").on("click", async function() {
+    $("#edit-msg-btn").on("click", async () => {
         const messageId = $("#contextmenu").data("message-id");
         await stateManager.edit(messageId);
     });
@@ -172,8 +267,9 @@ $(() => {
         window.location.href = "/setting";
     });
     $(document).on("click", ".shobo-channel", function () {
-        console.log($(this).text());
         messageManager.setChannel($(this).text());
+        $(".navbar-burger").toggleClass("is-active");
+        $(".navbar-menu").toggleClass("is-active");
     });
     //</navigation>
 
@@ -207,12 +303,12 @@ $(() => {
 
     $("#send").on("click", async () => {
         $("#send").addClass("is-loading");
-        await messageManager.send();
+        requestSend(messageManager);
         $("#send").removeClass("is-loading");
     });
     $("#edited").on("click", async () => {
         $("#send").addClass("is-loading");
-        await messageManager.update();
+        await requestChange(messageManager);
         $("#send").removeClass("is-loading");
         $("#input-area").data("message-id", null);
         stateManager.normal();

@@ -1,4 +1,4 @@
-import { HTTPHandler } from "./HTTPHandler";
+import { MessagesHTTPHandler } from "./HTTPHandler";
 import { Message } from "../../common/Message";
 import { defaultChannel } from "../../common/Channel";
 import { escapeHTML, changeTimeFormat, parseMarkdown } from "./utils";
@@ -7,20 +7,17 @@ export class MessageManager {
     private _messages: Array<Message>
     private time: number;  // last updated time
     private _channel: string;
-    private httpHandler: HTTPHandler;
-    constructor(httpHandler: HTTPHandler) {
+    private httpHandler: MessagesHTTPHandler;
+    constructor(httpHandler: MessagesHTTPHandler) {
         this.httpHandler = httpHandler;
         this._messages = [];
         this.time = Date.now();
         this._channel = defaultChannel;
     }
     async setChannel(channel: string) {
+        if (this._channel === channel) { return; }
         this._channel = channel;
-        try {
-            this.messages = await this.httpHandler.getInit(this.channel);
-        } catch (err) {
-            console.log(err);
-        }
+        await this.initialize();
     }
     get channel(): string {
         return this._channel;
@@ -32,38 +29,44 @@ export class MessageManager {
             console.log(err);
         }
     }
-    showAll() {
+    messageTag(message: Message): string {
+        const time = new Date(message.time);
+        const displayTime = changeTimeFormat(time);
+        const messageTag = `\
+            <div class="shobo-message-div" data-message-id=${message.id}> \
+                <span style="font-size: 40px;"> \
+                    <i class="fas fa-user-circle"></i> \
+                </span>
+                <span class="shobo-name"> \
+                    ${escapeHTML(message.name)} \
+                </span> \
+                <span class="shobo-time"> \
+                    ${displayTime} \
+                </span> \
+                <div class="content shobo-message"> \
+                    ${parseMarkdown(message.content)} \
+                </div> \
+            </div>`;
+        return messageTag;
+    }
+    private showAll() {
         const $messageList = $("#messageList");
         $messageList.empty();
         this._messages.forEach((message) => {
-            const time = new Date(message.time);
-            const displayTime = changeTimeFormat(time);
-            const messageTag = `\
-                <div class="shobo-message-div" data-message-id=${message.id}> \
-                    <span style="font-size: 40px;"> \
-                        <i class="fas fa-user-circle"></i> \
-                    </span>
-                    <span class="shobo-name"> \
-                        ${escapeHTML(message.name)} \
-                    </span> \
-                    <span class="shobo-time"> \
-                        ${displayTime} \
-                    </span> \
-                    <div class="content shobo-message"> \
-                        ${parseMarkdown(message.content)} \
-                    </div> \
-                </div>`;
-            $messageList.prepend(messageTag);
+            $messageList.prepend(this.messageTag(message));
         });
     }
     async getNew() {
         const messages = await this.httpHandler.getNewer(this._channel, this.time);
         this._messages.unshift(...messages);
         this.updateTime();
-        this.showAll();
+        const $messageList = $("#messageList");
+        for (const message of messages) {
+            $messageList.append(this.messageTag(message));
+        }
         $("#shobo-main").scrollTop($("#shobo-main")[0].scrollHeight);
     }
-    updateTime() {
+    private updateTime() {
         if (this._messages.length === 0) {
             this.time = Date.now();
         } else {
@@ -71,13 +74,20 @@ export class MessageManager {
         }
     }
     async fetch(messageId: string) {
-        const message = await this.httpHandler.get(messageId);
-        for (let m of this._messages) {
-            if (m.id === messageId) {
-                m.content = message.content;
+        try {
+            const message = await this.httpHandler.get(messageId);
+            for (let i = 0;i < this._messages.length;i++) {
+                if (this._messages[i].id === messageId) {
+                    this._messages[i].content = message.content;
+                    $("#messageList").children()
+                        .eq(this._messages.length - 1 - i)
+                        .replaceWith(this.messageTag(message));
+                    break;
+                }
             }
+        } catch (err) {
+            console.log(err);
         }
-        this.showAll();
     }
     async getOld() {
         const messages = await this.httpHandler.getOlder(
@@ -86,118 +96,60 @@ export class MessageManager {
         this._messages.push(...messages);
         const $shobomain = $("#shobo-main")[0];
         const oldScrollHeight = $shobomain.scrollHeight;
-        this.showAll();
+        for (const message of messages) {
+            $("#messageList").prepend(this.messageTag(message));
+        }
         // keep current position
         $("#shobo-main").scrollTop($shobomain.scrollHeight - oldScrollHeight);
     }
     onDeleteEvent(messageId: string) {
-        this._messages = this._messages.filter(m => m.id !== messageId);
-        // keep current position
-        const oldScrollTop = $("#shobo-main")[0].scrollTop;
-        this.showAll();
-        $("#shobo-main").scrollTop(oldScrollTop);
-    }
-    onChangeUserNameEvent(oldName: string, newName: string) {
-        for (let m of this._messages) {
-            if (m.name === oldName) {
-                m.name = newName;
+        for (let i = 0;i < this._messages.length;i++) {
+            if (this._messages[i].id === messageId) {
+                const oldScrollTop = $("#shobo-main")[0].scrollTop;
+                $("#messageList").children()
+                    .eq(this._messages.length - 1 - i)
+                    .remove();
+                this._messages.splice(i, 1);
+                $("#shobo-main").scrollTop(oldScrollTop);
+                break;
             }
         }
+        // keep current position
     }
-    set messages(messages: Array<Message>) {
+    onChangeUserNameEvent(oldName: string, newName: string) {
+        console.log(oldName, newName);
+        for (let i = 0;i < this._messages.length;i++) {
+            if (this._messages[i].name === oldName) {
+                this._messages[i].name = newName;
+            }
+        }
+        this.showAll();
+    }
+    private set messages(messages: Array<Message>) {
         this._messages = messages;
         this.updateTime();
         this.showAll();
         // goto bottom
         $("#shobo-main").scrollTop($("#shobo-main")[0].scrollHeight);
     }
-    async delete(messageId: string) {
-        const queryMessageDuration = 3000;
-        const status = await this.httpHandler.delete(this._channel, messageId);
-        const $queryMessage = $("#queryMessage");
-        if (status === 200) {
-            $queryMessage
-                .css("color", "black")
-                .html("メッセージを削除しました")
-                .fadeIn("fast")
-                .delay(queryMessageDuration)
-                .fadeOut("fast");
+
+    // http wrapper
+    async delete(messageId: string): Promise<number> {
+        return await this.httpHandler.delete(this._channel, messageId);
+    }
+
+    async update(messageId: string, content: string): Promise<number> {
+        if (typeof messageId === "string" && content !== "") {
+            $("#send").prop("disabled", true);
+            $("#message").val("");
+            return await this.httpHandler.put(this.channel, messageId, content);
         } else {
-            $queryMessage
-                .css("color", "red")
-                .html("メッセージを削除できませんでした")
-                .fadeIn("fast")
-                .delay(queryMessageDuration)
-                .fadeOut("fast");
-            console.log("DELETE Failed");
+            throw new Error("either messageId or content is not string");
         }
     }
 
-    async update() {
-        const queryMessageDuration = 3000;
-        const message = $("#message").val();
-        const messageId = $("#input-area").data("message-id");
-        if (typeof message === "string" && message !== "") {
-            try {
-                const status = await this.httpHandler.put(this._channel, messageId, message);
-                const $queryMessage = $("#queryMessage");
-                if (status === 200) {
-                    $queryMessage
-                        .css("color", "black")
-                        .html("メッセージを更新しました")
-                        .fadeIn("fast")
-                        .delay(queryMessageDuration)
-                        .fadeOut("fast");
-                } else {
-                    $queryMessage
-                        .css("color", "red")
-                        .html("メッセージを更新できませんでした")
-                        .fadeIn("fast")
-                        .delay(queryMessageDuration)
-                        .fadeOut("fast");
-                    console.log("POST Failed");
-                }
-                $("#send").prop("disabled", true);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        $("#message").val("");
-    }
-
-    async send() {
-        const queryMessageDuration = 3000;
-        const message = $("#message").val();
-        if (typeof message === "string" && message !== "") {
-            try {
-                const status = await this.httpHandler.post(this._channel, message);
-                const $queryMessage = $("#queryMessage");
-                if (status === 200) {
-                    $queryMessage
-                        .css("color", "black")
-                        .html("メッセージを送信しました")
-                        .fadeIn("fast")
-                        .delay(queryMessageDuration)
-                        .fadeOut("fast");
-                    $("#shobo-main").animate({
-                        scrollTop: $("#shobo-main")[0].scrollHeight
-                    });
-                } else {
-                    $queryMessage
-                        .css("color", "red")
-                        .html("メッセージを送信できませんでした")
-                        .fadeIn("fast")
-                        .delay(queryMessageDuration)
-                        .fadeOut("fast");
-                    console.log("POST Failed");
-                }
-                $("#send").prop("disabled", true);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        $("#message").val("");
-
+    async send(content: string): Promise<number> {
+        return await this.httpHandler.post(this._channel, content);
     }
 }
 
