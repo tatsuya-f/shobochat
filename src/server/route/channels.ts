@@ -14,7 +14,7 @@ channelsRouter.post("/:channel", async (req: Request, res: Response, next: NextF
         if (await channelRepository.hasName(channel)) {
             res.status(405).end();
         } else {
-            const id = await channelRepository.insertAndGetId(channel);
+            await channelRepository.insertAndGetId(channel);
             notifyNewChannel(await channelRepository.getAll());
             res.status(200).end();
         }
