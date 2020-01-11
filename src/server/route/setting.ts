@@ -1,11 +1,10 @@
 import * as express from "express";
-import { getConnection } from "typeorm";
 import { hash } from "../handler/hashHandler";
+import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../repository/UserRepository";
 import { notifyChangedUsername } from "../handler/webSocketHandler";
 
 export const settingRoute = express.Router();
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 settingRoute.get("/", async (req, res, next) => {
     res.sendFile("setting.html", {
@@ -27,8 +26,9 @@ settingRoute.put("/", async (req, res) => {
         return;
     }
 
-    const userRepository = getConnection(connectionType)
-        .getCustomRepository(UserRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const userRepository = databaseManager.getRepository(UserRepository);
+
     const userId = sess.userId;
     const newName = req.body.name;
     const updatedPassword = req.body.password;

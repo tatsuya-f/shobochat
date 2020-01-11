@@ -1,8 +1,8 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { getCustomRepository } from "typeorm";
 import { hash } from "../handler/hashHandler";
 import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
+import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../repository/UserRepository";
 import { User } from "../../common/User";
 
@@ -28,7 +28,9 @@ loginRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
-    const userRepository = getCustomRepository(UserRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const userRepository = databaseManager.getRepository(UserRepository); 
+
     const name = req.body.name;
     const password = req.body.password;
     try {

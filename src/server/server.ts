@@ -1,7 +1,6 @@
 import * as express from "express";
 import * as session from "express-session";
 import * as WebSocket from "ws";
-import { createConnection, getConnection } from "typeorm";
 import { initMessages } from "./handler/webSocketHandler";
 import { checkLogin } from "./handler/loginHandler";
 import { indexRouter } from "./route/index";
@@ -10,6 +9,7 @@ import { registerRouter } from "./route/register";
 import { settingRoute } from "./route/setting";
 import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
+import { DatabaseManager } from "./database/DatabaseManager";
 import { UserRepository } from "./repository/UserRepository";
 import { ChannelRepository } from "./repository/ChannelRepository";
 import { defaultChannelList } from "../common/Channel";
@@ -17,8 +17,6 @@ import { defaultChannelList } from "../common/Channel";
 export const app = express();
 export const wss = new WebSocket.Server({ port: 8080 });
 export let shobot: number;
-
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 app.set("port", 8000);
 
@@ -62,11 +60,9 @@ wss.on("connection", (ws) => {
 (async function startServer() {
     try {
         if (__filename.endsWith("/dist/server/server.ts")) { // 以下はテスト時には実行されない
-            await createConnection(connectionType); // テスト時にはテスト側でcreateする
-            const userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            const channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            const databaseManager: DatabaseManager = await DatabaseManager.getInstance();
+            const userRepository: UserRepository = databaseManager.getRepository(UserRepository);
+            const channelRepository: ChannelRepository = databaseManager.getRepository(ChannelRepository);
 
             const shobotName = "しょぼっと";
             if (!await userRepository.hasName(shobotName)) {

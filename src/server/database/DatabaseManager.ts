@@ -8,6 +8,7 @@ export class DatabaseManager {
     private constructor() {}
 
     private async setConnection(connectionName: string = "default") {
+        console.log(connectionName);
         this.connection = await createConnection(connectionName);
     }
 

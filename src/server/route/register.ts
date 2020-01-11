@@ -1,12 +1,11 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { getConnection } from "typeorm";
 import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
 import { hash } from "../handler/hashHandler";
+import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../repository/UserRepository";
 
 export const registerRouter = express.Router();
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 registerRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     res.sendFile("register.html", {
@@ -28,8 +27,8 @@ registerRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
-    const userRepository = getConnection(connectionType)
-        .getCustomRepository(UserRepository); 
+    const databaseManager = await DatabaseManager.getInstance();
+    const userRepository = databaseManager.getRepository(UserRepository);
 
     const name = req.body.name;
     const password = req.body.password;
