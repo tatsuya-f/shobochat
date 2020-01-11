@@ -25,9 +25,9 @@ async function postTestMessage(channel: string, times: number, cookie: Array<str
     }
 }
 
-function deleteDB() {
+function deleteDB(databasePath: string) {
     try {
-        fs.unlinkSync("testDB");
+        fs.unlinkSync(databasePath);
     } catch (err) {
         console.log(err);
     }
@@ -52,7 +52,7 @@ describe("GET /", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("return top page", async () => {
@@ -94,7 +94,7 @@ describe("GET /messages/all/channel", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("return messages in response.body", async () => {
@@ -142,7 +142,7 @@ describe("GET /messages/id/id", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("return messages in response.body", async () => {
@@ -186,7 +186,7 @@ describe("POST /messages/channel", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns 200 when parameters are valid", async () => {
@@ -232,7 +232,7 @@ describe("PUT /messages/channel/id", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("update message with id = " + testId, async () => {
@@ -281,7 +281,7 @@ describe("DELETE /messages/channel/id", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("delete message with id = " + testId, async () => {
@@ -319,7 +319,7 @@ describe("test for register and login", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it(`register and login user with name = ${name}, password = ${password}`, async () => {
@@ -369,7 +369,7 @@ describe("test for updata username", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it(`change user name = ${name} -> ${changedName}`, async () => {
@@ -418,7 +418,7 @@ describe("test for update userpass", () => {
 
     after(async () => {
         await databaseManager.closeConnection();
-        deleteDB();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it(`change user password ${password} -> ${changedPass}`, async () => {

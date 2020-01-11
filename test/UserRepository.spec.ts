@@ -1,38 +1,30 @@
-import {
-    Connection,
-    ConnectionOptions,
-    createConnection,
-    getConnection,
-    getCustomRepository
-} from "typeorm";
-import { UserEntity } from "../src/server/entity/UserEntity";
-import { UserRepository } from "../src/server/repository/UserRepository";
 import * as assert from "assert";
 import * as fs from "fs";
+import { DatabaseManager } from "../src/server/database/DatabaseManager";
+import { UserEntity } from "../src/server/entity/UserEntity";
+import { UserRepository } from "../src/server/repository/UserRepository";
 import { User, isUser } from "../src/common/User";
 
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 const testName = "testName";
 const testPassword = "testPassword";
 
-function deleteDB() {
+function deleteDB(databasePath: string) {
     try {
-        fs.unlinkSync("testDB");
+        fs.unlinkSync(databasePath);
     } catch (err) {
         console.log(err);
     }
 }
 
 describe("getById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let userId: number;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -45,8 +37,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns User object", async () => {
@@ -59,14 +51,13 @@ describe("getById", () => {
 });
 
 describe("getByName", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -78,8 +69,8 @@ describe("getByName", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns User object", async () => {
@@ -91,14 +82,13 @@ describe("getByName", () => {
 });
 
 describe("hasName", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
             user.name = testName;
@@ -110,8 +100,8 @@ describe("hasName", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("return true when user exists", async () => {
@@ -123,22 +113,22 @@ describe("hasName", () => {
 });
 
 describe("insertAndGetId", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+                
         } catch (err) {
             console.log(err);
         }
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns id of inserted User", async () => {
@@ -157,16 +147,15 @@ describe("insertAndGetId", () => {
 });
 
 describe("updatePassById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let id: number;
     let testUser: User;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
 
             id = await userRepository.insertAndGetId(testName, testPassword);
             testUser = await userRepository.getByName(testName);
@@ -176,8 +165,8 @@ describe("updatePassById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("update username and password", async () => {
@@ -190,16 +179,15 @@ describe("updatePassById", () => {
 });
 
 describe("updateNameById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let id: number;
     let testUser: User;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
 
             id = await userRepository.insertAndGetId(testName, testPassword);
             testUser = await userRepository.getByName(testName);
@@ -209,8 +197,8 @@ describe("updateNameById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("update username and password", async () => {
@@ -223,16 +211,15 @@ describe("updateNameById", () => {
 });
 
 describe("getEntityById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let userId: number;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+                
             const userEntity = userRepository.create(); // const user = new UserEntity() と同じ
             userEntity.name = testName;
             userEntity.password = testPassword;
@@ -244,8 +231,8 @@ describe("getEntityById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns UserEntity object", async () => {
