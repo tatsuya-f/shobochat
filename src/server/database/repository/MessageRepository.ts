@@ -1,11 +1,10 @@
 import * as uuid from "uuid";
 import { EntityManager, EntityRepository } from "typeorm";
-import { DatabaseManager } from "../database/DatabaseManager";
+import { DatabaseManager } from "../../database/DatabaseManager";
 import { UserRepository } from "../repository/UserRepository";
 import { ChannelRepository } from "../repository/ChannelRepository";
 import { MessageEntity } from "../entity/MessageEntity";
-import { Message } from "../../common/Message";
-
+import { Message } from "../../../common/Message";
 
 @EntityRepository()
 export class MessageRepository {

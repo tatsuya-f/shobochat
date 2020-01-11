@@ -1,8 +1,8 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import { DatabaseManager } from "../src/server/database/DatabaseManager";
-import { UserEntity } from "../src/server/entity/UserEntity";
-import { UserRepository } from "../src/server/repository/UserRepository";
+import { UserEntity } from "../src/server/database/entity/UserEntity";
+import { UserRepository } from "../src/server/database/repository/UserRepository";
 import { User, isUser } from "../src/common/User";
 
 const testName = "testName";

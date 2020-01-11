@@ -2,7 +2,7 @@ import { getConnection } from "typeorm";
 import * as WebSocket from "ws";
 import { Notification, NotifyKind } from "../../common/Notification";
 import { wss } from "../server";
-import { ChannelRepository } from "../repository/ChannelRepository";
+import { ChannelRepository } from "../database/repository/ChannelRepository";
 import { Channel } from "../../common/Channel";
 
 export function notifyClients(notification: Notification) {
