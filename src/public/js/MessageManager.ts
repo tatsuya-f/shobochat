@@ -74,15 +74,19 @@ export class MessageManager {
         }
     }
     async fetch(messageId: string) {
-        const message = await this.httpHandler.get(messageId);
-        for (let i = 0;i < this._messages.length;i++) {
-            if (this._messages[i].id === messageId) {
-                this._messages[i].content = message.content;
-                $("#messageList").children()
-                    .eq(this._messages.length - 1 - i)
-                    .replaceWith(this.messageTag(message));
-                break;
+        try {
+            const message = await this.httpHandler.get(messageId);
+            for (let i = 0;i < this._messages.length;i++) {
+                if (this._messages[i].id === messageId) {
+                    this._messages[i].content = message.content;
+                    $("#messageList").children()
+                        .eq(this._messages.length - 1 - i)
+                        .replaceWith(this.messageTag(message));
+                    break;
+                }
             }
+        } catch (err) {
+            console.log(err);
         }
     }
     async getOld() {
@@ -105,6 +109,7 @@ export class MessageManager {
                 $("#messageList").children()
                     .eq(this._messages.length - 1 - i)
                     .remove();
+                this._messages.splice(i, 1);
                 $("#shobo-main").scrollTop(oldScrollTop);
                 break;
             }

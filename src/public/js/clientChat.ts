@@ -68,6 +68,7 @@ async function requestDelete(messageManager: MessageManager) {
     const messageId = $("#contextmenu").data("message-id");
     if (typeof messageId === "string") {
         try {
+            console.log(messageId);
             const status = await messageManager.delete(messageId);
             const $queryMessage = $("#queryMessage");
             if (status === 200) {
@@ -84,9 +85,7 @@ async function requestDelete(messageManager: MessageManager) {
                     .fadeIn("fast")
                     .delay(queryMessageDuration)
                     .fadeOut("fast");
-                console.log("DELETE Failed");
             }
-
         } catch (err) {
             console.log(err);
         }
@@ -219,8 +218,8 @@ $(() => {
             }
             // Channel notify
             case NotifyKind.ChanNew: {
-                if (typeof notify.payload === "string") {
-                    // TODO
+                if (isChannelArray(notify.payload)) {
+                    setChannelList(notify.payload);
                 }
             }
         }

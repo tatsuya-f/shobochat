@@ -132,7 +132,7 @@ export class SettingStateManager {
                         const status = await this.httpHandler.putUserpass(userpass);
                         if (status === 200) {
                             $queryMessage
-                                .css("color", "red")
+                                .css("color", "black")
                                 .html("あいことばを変更しました")
                                 .fadeIn("fast")
                                 .delay(queryMessageDuration)
