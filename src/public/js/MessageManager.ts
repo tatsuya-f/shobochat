@@ -139,7 +139,7 @@ export class MessageManager {
         const messageId = $("#input-area").data("message-id");
         if (typeof message === "string" && message !== "") {
             try {
-                const status = await this.httpHandler.put(messageId, message);
+                const status = await this.httpHandler.put(this._channel, messageId, message);
                 const $queryMessage = $("#queryMessage");
                 if (status === 200) {
                     $queryMessage
