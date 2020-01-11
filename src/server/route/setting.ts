@@ -1,7 +1,7 @@
 import * as express from "express";
 import { hash } from "../handler/hashHandler";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { UserRepository } from "../repository/UserRepository";
+import { UserRepository } from "../database/repository/UserRepository";
 import { notifyChangedUsername } from "../handler/webSocketHandler";
 
 export const settingRoute = express.Router();

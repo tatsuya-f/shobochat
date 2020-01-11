@@ -1,8 +1,8 @@
 import * as assert from "assert";
 import * as fs from "fs";
 import { DatabaseManager } from "../src/server/database/DatabaseManager";
-import { ChannelEntity } from "../src/server/entity/ChannelEntity";
-import { ChannelRepository } from "../src/server/repository/ChannelRepository";
+import { ChannelEntity } from "../src/server/database/entity/ChannelEntity";
+import { ChannelRepository } from "../src/server/database/repository/ChannelRepository";
 import { Channel, isChannel } from "../src/common/Channel";
 
 const channelName = "test-chan";

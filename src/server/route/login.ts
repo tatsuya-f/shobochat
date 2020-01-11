@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { hash } from "../handler/hashHandler";
 import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { UserRepository } from "../repository/UserRepository";
+import { UserRepository } from "../database/repository/UserRepository";
 import { User } from "../../common/User";
 
 export const loginRouter = express.Router();

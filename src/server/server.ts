@@ -9,10 +9,10 @@ import { registerRouter } from "./route/register";
 import { settingRoute } from "./route/setting";
 import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
-import { DatabaseManager } from "./database/DatabaseManager";
 import { channelsRouter } from "./route/channels";
-import { UserRepository } from "./repository/UserRepository";
-import { ChannelRepository } from "./repository/ChannelRepository";
+import { DatabaseManager } from "./database/DatabaseManager";
+import { UserRepository } from "./database/repository/UserRepository";
+import { ChannelRepository } from "./database/repository/ChannelRepository";
 import { defaultChannelList } from "../common/Channel";
 
 export const app = express();

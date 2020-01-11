@@ -1,6 +1,6 @@
 import { EntityManager, EntityRepository } from "typeorm";
 import { ChannelEntity } from "../entity/ChannelEntity";
-import { Channel } from "../../common/Channel";
+import { Channel } from "../../../common/Channel";
 
 @EntityRepository()
 export class ChannelRepository {

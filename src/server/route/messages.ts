@@ -7,8 +7,8 @@ import {
 import { answerIsPrime } from "../handler/primeHandler";
 import { shobot } from "../server";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { MessageRepository } from "../repository/MessageRepository";
-import { ChannelRepository } from "../repository/ChannelRepository";
+import { MessageRepository } from "../database/repository/MessageRepository";
+import { ChannelRepository } from "../database/repository/ChannelRepository";
 
 export const messagesRouter = express.Router();
 

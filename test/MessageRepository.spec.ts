@@ -2,12 +2,12 @@ import * as uuid from "uuid";
 import * as assert from "assert";
 import * as fs from "fs";
 import { DatabaseManager } from "../src/server/database/DatabaseManager";
-import { UserEntity } from "../src/server/entity/UserEntity";
-import { ChannelEntity } from "../src/server/entity/ChannelEntity";
-import { UserRepository } from "../src/server/repository/UserRepository";
-import { ChannelRepository } from "../src/server/repository/ChannelRepository";
-import { MessageEntity } from "../src/server/entity/MessageEntity";
-import { MessageRepository } from "../src/server/repository/MessageRepository";
+import { UserEntity } from "../src/server/database/entity/UserEntity";
+import { ChannelEntity } from "../src/server/database/entity/ChannelEntity";
+import { UserRepository } from "../src/server/database/repository/UserRepository";
+import { ChannelRepository } from "../src/server/database/repository/ChannelRepository";
+import { MessageEntity } from "../src/server/database/entity/MessageEntity";
+import { MessageRepository } from "../src/server/database/repository/MessageRepository";
 import { Message, isMessage } from "../src/common/Message";
 
 const TEST_NAME = "TEST_NAME";

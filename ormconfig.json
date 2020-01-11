@@ -3,14 +3,14 @@
         "name": "default",
         "type": "sqlite",
         "database": "sqliteDB",
-        "entities": ["./entity/*.ts"],
+        "entities": ["./database/entity/*.ts"],
         "synchronize": true
     },
     {
         "name": "test-connection",
         "type": "sqlite",
         "database": "testDB",
-        "entities": ["./src/server/entity/*.ts"],
+        "entities": ["./src/server/database/entity/*.ts"],
         "synchronize": true
     }
 ]

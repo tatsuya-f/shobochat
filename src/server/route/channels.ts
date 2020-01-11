@@ -1,7 +1,7 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { ChannelRepository } from "../repository/ChannelRepository";
+import { ChannelRepository } from "../database/repository/ChannelRepository";
 import { notifyNewChannel } from "../handler/webSocketHandler";
 
 export const channelsRouter = express.Router();
