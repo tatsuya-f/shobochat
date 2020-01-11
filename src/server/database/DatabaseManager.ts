@@ -8,7 +8,6 @@ export class DatabaseManager {
     private constructor() {}
 
     private async setConnection(connectionName: string = "default") {
-        console.log(connectionName);
         this.connection = await createConnection(connectionName);
     }
 
@@ -20,7 +19,7 @@ export class DatabaseManager {
     // データベースと接続されたただ一つの DatabaseMaanger を返す
     static async getInstance() {
         if (!DatabaseManager.instance.isConnected()) {
-            await DatabaseManager.instance.setConnection(process.env.TYPEORM_CONNECTION_TYPE);
+            await DatabaseManager.instance.setConnection(process.env.TYPEORM_CONNECTION_NAME);
         }
         return DatabaseManager.instance;
     }
@@ -31,5 +30,17 @@ export class DatabaseManager {
 
     getRepository<T>(customRepository: ObjectType<T>): T {
         return this.connection.getCustomRepository(customRepository);
+    }
+
+    getDatabasePath(): string {
+        const databasePath: string | Uint8Array | undefined = this.connection.options.database;
+
+        if (databasePath === undefined) {
+            throw new Error("not configured");
+        } else if (typeof databasePath === "string") {
+            return databasePath;
+        } else {
+            return new TextDecoder("utf-8").decode(databasePath);
+        }
     }
 }

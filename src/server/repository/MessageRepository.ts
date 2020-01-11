@@ -1,13 +1,13 @@
-import { EntityManager, getConnection, EntityRepository } from "typeorm";
 import * as uuid from "uuid";
+import { EntityManager, EntityRepository } from "typeorm";
+import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../repository/UserRepository";
 import { ChannelRepository } from "../repository/ChannelRepository";
 import { MessageEntity } from "../entity/MessageEntity";
 import { Message } from "../../common/Message";
 
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
-@EntityRepository(MessageEntity)
+@EntityRepository()
 export class MessageRepository {
 
     /*
@@ -115,10 +115,9 @@ export class MessageRepository {
     }
 
     async insertAndGetId(channelName: string, userId: number, content: string): Promise<string> {
-        const userRepository = getConnection(connectionType)
-            .getCustomRepository(UserRepository);
-        const channelRepository = getConnection(connectionType)
-            .getCustomRepository(ChannelRepository);
+        const databaseManager = await DatabaseManager.getInstance();
+        const userRepository = databaseManager.getRepository(UserRepository);
+        const channelRepository = databaseManager.getRepository(ChannelRepository);
 
         const messageEntity: MessageEntity = this.manager.create(MessageEntity); // const messageEntity = new MessageEntity() と同じ
         await new Promise(resolve => setTimeout(resolve, 1));

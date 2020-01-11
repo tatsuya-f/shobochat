@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cd dist/server/ && TYPEORM_CONNECTION_TYPE=default npx ts-node server.ts",
-    "gulp": "TYPEORM_CONNECTION_TYPE=test-connection npx gulp",
-    "watch": "TYPEORM_CONNECTION_TYPE=test-connection npx gulp watch"
+    "start": "cd dist/server/ && TYPEORM_CONNECTION_NAME=default npx ts-node server.ts",
+    "gulp": "TYPEORM_CONNECTION_NAME=test-connection npx gulp",
+    "watch": "TYPEORM_CONNECTION_NAME=test-connection npx gulp watch"
   },
   "keywords": [],
   "author": "",

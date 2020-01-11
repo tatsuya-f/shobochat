@@ -1,37 +1,29 @@
-import {
-    Connection,
-    ConnectionOptions,
-    createConnection,
-    getConnection,
-    getCustomRepository
-} from "typeorm";
-import { ChannelEntity } from "../src/server/entity/ChannelEntity";
-import { ChannelRepository } from "../src/server/repository/ChannelRepository";
 import * as assert from "assert";
 import * as fs from "fs";
+import { DatabaseManager } from "../src/server/database/DatabaseManager";
+import { ChannelEntity } from "../src/server/entity/ChannelEntity";
+import { ChannelRepository } from "../src/server/repository/ChannelRepository";
 import { Channel, isChannel } from "../src/common/Channel";
 
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 const channelName = "test-chan";
 
-function deleteDB() {
+function deleteDB(databasePath: string) {
     try {
-        fs.unlinkSync("testDB");
+        fs.unlinkSync(databasePath);
     } catch (err) {
         console.log(err);
     }
 }
 
 describe("getById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let channelRepository: ChannelRepository;
     let chanId: number;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
 
             const chan = channelRepository.create(); // const user = new UserEntity() と同じ
             chan.name = channelName;
@@ -43,8 +35,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns User object", async () => {
@@ -56,16 +48,15 @@ describe("getById", () => {
 });
 
 describe("getByName", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let channelRepository: ChannelRepository;
     let chanId: number;
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
-
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             const chan = channelRepository.create(); // const user = new UserEntity() と同じ
             chan.name = channelName;
             await channelRepository.save(chan);
@@ -76,8 +67,8 @@ describe("getByName", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns User object", async () => {
@@ -89,16 +80,15 @@ describe("getByName", () => {
 });
 
 describe("hasName", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let channelRepository: ChannelRepository;
     const chanName = "test-chan";
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
-
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             const channel = channelRepository.create();
             channel.name = chanName;
             await channelRepository.save(channel);
@@ -108,8 +98,8 @@ describe("hasName", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("return true when channel exists", async () => {
@@ -121,24 +111,23 @@ describe("hasName", () => {
 });
 
 describe("insertAndGetId", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let channelRepository: ChannelRepository;
     const testChan1 = "test-chan1";
     const testChan2 = "test-chan2";
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
         } catch (err) {
             console.log(err);
         }
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns id of inserted channel", async () => {
@@ -157,16 +146,15 @@ describe("insertAndGetId", () => {
 });
 
 describe("getEntityById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let channelRepository: ChannelRepository;
     let channelId: number;
     const chanName = "test-chan";
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
 
             const channelEntity = channelRepository.create();
             channelEntity.name = chanName;
@@ -178,8 +166,8 @@ describe("getEntityById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns ChannelEntity object", async () => {

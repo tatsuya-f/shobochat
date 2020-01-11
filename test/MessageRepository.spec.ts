@@ -1,30 +1,23 @@
-import {
-    Connection,
-    ConnectionOptions,
-    createConnection,
-    getConnection,
-    getCustomRepository
-} from "typeorm";
 import * as uuid from "uuid";
+import * as assert from "assert";
+import * as fs from "fs";
+import { DatabaseManager } from "../src/server/database/DatabaseManager";
 import { UserEntity } from "../src/server/entity/UserEntity";
 import { ChannelEntity } from "../src/server/entity/ChannelEntity";
 import { UserRepository } from "../src/server/repository/UserRepository";
 import { ChannelRepository } from "../src/server/repository/ChannelRepository";
 import { MessageEntity } from "../src/server/entity/MessageEntity";
 import { MessageRepository } from "../src/server/repository/MessageRepository";
-import * as assert from "assert";
-import * as fs from "fs";
 import { Message, isMessage } from "../src/common/Message";
 
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 const TEST_NAME = "TEST_NAME";
 const TEST_PASSWORD = "TEST_PASSWORD";
 const TEST_CONTENT = "TEST_CONTENT";
 const TEST_CHAN = "TEST_CHAN";
 
-function deleteDB() {
+function deleteDB(databasePath: string) {
     try {
-        fs.unlinkSync("testDB");
+        fs.unlinkSync(databasePath);
     } catch (err) {
         console.log(err);
     }
@@ -44,7 +37,7 @@ async function insertMessage(messageRepository: MessageRepository, userEntity: U
 }
 
 describe("getById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -54,13 +47,11 @@ describe("getById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
             const userEntity = await userRepository.getEntityById(userId);
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
@@ -72,8 +63,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns message", async () => {
@@ -88,7 +79,7 @@ describe("getById", () => {
 });
 
 describe("getAll", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -96,13 +87,11 @@ describe("getAll", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
             const channelEntity = await channelRepository.getEntityById(channelId);
 
@@ -118,8 +107,8 @@ describe("getAll", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns messages", async () => {
@@ -132,7 +121,7 @@ describe("getAll", () => {
 });
 
 describe("getBeforeSpecifiedTime", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -140,13 +129,11 @@ describe("getBeforeSpecifiedTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
             const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
@@ -163,8 +150,8 @@ describe("getBeforeSpecifiedTime", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns messages", async () => {
@@ -191,7 +178,7 @@ describe("getBeforeSpecifiedTime", () => {
 });
 
 describe("getAllAfterSpecifiedTime", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -200,13 +187,11 @@ describe("getAllAfterSpecifiedTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -224,8 +209,8 @@ describe("getAllAfterSpecifiedTime", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns messages", async () => {
@@ -250,7 +235,7 @@ describe("getAllAfterSpecifiedTime", () => {
 });
 
 describe("getByTime", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -262,13 +247,11 @@ describe("getByTime", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -284,8 +267,8 @@ describe("getByTime", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns message", async () => {
@@ -297,7 +280,7 @@ describe("getByTime", () => {
 });
 
 describe("insertAndGetId", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -305,13 +288,11 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -321,8 +302,8 @@ describe("insertAndGetId", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("returns inserted message id", async () => {
@@ -333,7 +314,7 @@ describe("insertAndGetId", () => {
 });
 
 describe("updateById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -342,13 +323,11 @@ describe("updateById", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -359,8 +338,8 @@ describe("updateById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("update message", async () => {
@@ -374,20 +353,18 @@ describe("updateById", () => {
 });
 
 describe("deleteById", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
     let messageId: string;
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+                
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -399,8 +376,8 @@ describe("deleteById", () => {
     });
 
     after(async () => {
-        await connection.close();
-        deleteDB();
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
     });
 
     it("delete message", async () => {
