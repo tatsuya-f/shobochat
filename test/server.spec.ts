@@ -1,13 +1,7 @@
-import {
-    Connection,
-    ConnectionOptions,
-    createConnection,
-    getConnection,
-    getCustomRepository
-} from "typeorm";
 import * as request from "supertest";
 import * as assert from "assert";
 import * as fs from "fs";
+import { DatabaseManager } from "../src/server/database/DatabaseManager";
 import { UserEntity } from "../src/server/entity/UserEntity";
 import { UserRepository } from "../src/server/repository/UserRepository";
 import { MessageEntity } from "../src/server/entity/MessageEntity";
@@ -18,7 +12,6 @@ import { isMessage, isMessageArray } from "../src/common/Message";
 import { hash } from "../src/server/handler/hashHandler";
 
 const TEST_CHAN = "test-chan";
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 async function postTestMessage(channel: string, times: number, cookie: Array<string>): Promise<void> {
     const agent = request.agent(app);
@@ -41,7 +34,7 @@ function deleteDB() {
 }
 
 describe("GET /", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
@@ -49,18 +42,16 @@ describe("GET /", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
         } catch (err) {
             console.log(err);
         }
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -74,7 +65,7 @@ describe("GET /", () => {
 });
 
 describe("GET /messages/all/channel", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -83,13 +74,11 @@ describe("GET /messages/all/channel", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
             await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -104,7 +93,7 @@ describe("GET /messages/all/channel", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -125,7 +114,7 @@ describe("GET /messages/all/channel", () => {
 });
 
 describe("GET /messages/id/id", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -134,13 +123,11 @@ describe("GET /messages/id/id", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
             await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -154,7 +141,7 @@ describe("GET /messages/id/id", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -170,7 +157,7 @@ describe("GET /messages/id/id", () => {
 });
 
 describe("POST /messages/channel", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -179,13 +166,11 @@ describe("POST /messages/channel", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
             await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -200,7 +185,7 @@ describe("POST /messages/channel", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -215,7 +200,7 @@ describe("POST /messages/channel", () => {
 });
 
 describe("PUT /messages/channel/id", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -225,13 +210,11 @@ describe("PUT /messages/channel/id", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
             await channelRepository.insertAndGetId(TEST_CHAN);
             const response = await agent.get("/");
             cookie = response.header["set-cookie"];
@@ -248,7 +231,7 @@ describe("PUT /messages/channel/id", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -265,7 +248,7 @@ describe("PUT /messages/channel/id", () => {
 });
 
 describe("DELETE /messages/channel/id", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     let channelRepository: ChannelRepository;
@@ -275,13 +258,11 @@ describe("DELETE /messages/channel/id", () => {
 
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
-            channelRepository = getConnection(connectionType)
-                .getCustomRepository(ChannelRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             const response = await agent.get("/");
@@ -299,7 +280,7 @@ describe("DELETE /messages/channel/id", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -319,7 +300,7 @@ describe("DELETE /messages/channel/id", () => {
 });
 
 describe("test for register and login", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
@@ -327,18 +308,17 @@ describe("test for register and login", () => {
     const password = "fuga";
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+
         } catch (err) {
             console.log(err);
         }
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -366,7 +346,7 @@ describe("test for register and login", () => {
 });
 
 describe("test for updata username and password", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
@@ -376,11 +356,10 @@ describe("test for updata username and password", () => {
     const changedPass = "fuga2";
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+
             await agent
                 .post("/register")
                 .send({ name, password });
@@ -390,7 +369,7 @@ describe("test for updata username and password", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 
@@ -418,7 +397,7 @@ describe("test for updata username and password", () => {
 });
 
 describe("test for update user pass", () => {
-    let connection: Connection;
+    let databaseManager: DatabaseManager;
     let userRepository: UserRepository;
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
@@ -428,11 +407,10 @@ describe("test for update user pass", () => {
     const changedPass = "fuga2";
     before(async () => {
         try {
-            connection = await createConnection(connectionType);
-            userRepository = getConnection(connectionType)
-                .getCustomRepository(UserRepository);
-            messageRepository = getConnection(connectionType)
-                .getCustomRepository(MessageRepository);
+            databaseManager = await DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+
             await agent
                 .post("/register")
                 .send({ name, password });
@@ -442,7 +420,7 @@ describe("test for update user pass", () => {
     });
 
     after(async () => {
-        await connection.close();
+        await databaseManager.closeConnection();
         deleteDB();
     });
 

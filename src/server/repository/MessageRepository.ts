@@ -1,4 +1,4 @@
-import { getConnection, EntityRepository, Repository } from "typeorm";
+import { EntityManager, getConnection, EntityRepository } from "typeorm";
 import * as uuid from "uuid";
 import { UserRepository } from "../repository/UserRepository";
 import { ChannelRepository } from "../repository/ChannelRepository";
@@ -8,7 +8,13 @@ import { Message } from "../../common/Message";
 const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 @EntityRepository(MessageEntity)
-export class MessageRepository extends Repository<MessageEntity> {
+export class MessageRepository {
+
+    /*
+     * getCustomRepository を使って
+     * TypeORM 側で初期化すること
+     */
+    constructor(private manager: EntityManager) {}
 
     private toMessage(messageEntity: MessageEntity): Message {
         const message: Message = {
@@ -22,12 +28,12 @@ export class MessageRepository extends Repository<MessageEntity> {
         return message;
     }
 
-    private toMessages(messageEntitys: Array<MessageEntity>): Array<Message> {
-        return messageEntitys.map(messageEntity => this.toMessage(messageEntity));
+    private toMessages(messageEntities: Array<MessageEntity>): Array<Message> {
+        return messageEntities.map(messageEntity => this.toMessage(messageEntity));
     }
 
-    public async getById(messageId: string): Promise<Message> {
-        const messageEntity = await this.createQueryBuilder("message")
+    async getById(messageId: string): Promise<Message> {
+        const messageEntity = await this.manager.createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("message.id = :id", { id: messageId })
@@ -39,23 +45,23 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async getAll(channelName: string): Promise<Array<Message>> {
-        const messageEntitys = await this.createQueryBuilder("message")
+    async getAll(channelName: string): Promise<Array<Message>> {
+        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("message.channel.name = :channelName", { channelName })
             .orderBy("time", "DESC")
             .getMany();
 
-        if (messageEntitys === undefined) {
+        if (messageEntities === undefined) {
             throw new Error("not found");
         } else {
-            return this.toMessages(messageEntitys);
+            return this.toMessages(messageEntities);
         }
     }
 
-    public async getBeforeSpecifiedTime(channelName: string, fromTime: number, n: number): Promise<Array<Message>> {
-        const messageEntities = await this.createQueryBuilder("message")
+    async getBeforeSpecifiedTime(channelName: string, fromTime: number, n: number): Promise<Array<Message>> {
+        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time < :time AND message.channelName = :channelName", {
@@ -73,8 +79,8 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async getAllAfterSpecifiedTime(channelName: string, fromTime: number): Promise<Array<Message>> {
-        const messageEntities = await this.createQueryBuilder("message")
+    async getAllAfterSpecifiedTime(channelName: string, fromTime: number): Promise<Array<Message>> {
+        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time > :time AND message.channelName = :channelName", {
@@ -91,8 +97,8 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async getAllByTime(channelName: string, time: number): Promise<Array<Message>> {
-        const messageEntities = await this.createQueryBuilder("message")
+    async getAllByTime(channelName: string, time: number): Promise<Array<Message>> {
+        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time = :time AND message.channelName = :channelName", {
@@ -108,38 +114,50 @@ export class MessageRepository extends Repository<MessageEntity> {
         }
     }
 
-    public async insertAndGetId(channelName: string, userId: number, content: string): Promise<string> {
+    async insertAndGetId(channelName: string, userId: number, content: string): Promise<string> {
         const userRepository = getConnection(connectionType)
             .getCustomRepository(UserRepository);
         const channelRepository = getConnection(connectionType)
             .getCustomRepository(ChannelRepository);
 
-        const messageEntity: MessageEntity = this.create(); // const messageEntity = new MessageEntity() と同じ
+        const messageEntity: MessageEntity = this.manager.create(MessageEntity); // const messageEntity = new MessageEntity() と同じ
         await new Promise(resolve => setTimeout(resolve, 1));
         messageEntity.id = uuid.v4();
         messageEntity.time = Date.now();
         messageEntity.content = content;
         messageEntity.user = await userRepository.getEntityById(userId);
         messageEntity.channel = await channelRepository.getByName(channelName);
-        await this.save(messageEntity);
+        await this.manager.save(messageEntity);
 
-        const messageId = this.getId(messageEntity);
+        const messageId = this.manager.getId(messageEntity);
         return messageId;
     }
 
-    public async updateById(messageId: string, content: string): Promise<void> {
-        await this.createQueryBuilder("message")
+    async updateById(messageId: string, content: string): Promise<void> {
+        await this.manager.createQueryBuilder(MessageEntity, "message")
             .update(MessageEntity)
             .set({ content })
             .where("id = :id", { id: messageId })
             .execute();
     }
 
-    public async deleteById(messageId: string): Promise<void> {
-        await this.createQueryBuilder("message")
+    async deleteById(messageId: string): Promise<void> {
+        await this.manager.createQueryBuilder(MessageEntity, "message")
             .delete()
             .from(MessageEntity)
             .where("id = :id", { id: messageId })
             .execute();
+    }
+
+    create() {
+        return this.manager.create(MessageEntity);
+    }
+
+    async save(messageEntity: MessageEntity) {
+        await this.manager.save(messageEntity);
+    }
+
+    getId(messageEntity: MessageEntity) {
+        return this.manager.getId(messageEntity); 
     }
 }

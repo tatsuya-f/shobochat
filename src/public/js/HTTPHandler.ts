@@ -79,8 +79,8 @@ export class HTTPHandler {
         });
         return res.status;
     }
-    async put(messageId: string, content: string): Promise<number> {
-        const res = await fetch(`${this.url}/${messageId}`, {
+    async put(channel: string, messageId: string, content: string): Promise<number> {
+        const res = await fetch(`${this.url}/${channel}/${messageId}`, {
             method: "PUT",
             body: JSON.stringify({
                 content: content
