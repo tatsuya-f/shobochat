@@ -9,16 +9,16 @@ nav.navbar.is-primary#shobo-nav(role="navigation" aria-label="main navigation")
             span(aria-hidden="true")
     div.navbar-menu
         div.navbar-start
-        div.navbar-end
-            div.navbar-item
-                button.button.is-warning#help-open
-                    span.icon.is-normal
-                        i.fas.fa-info-circle
-                    span へるぷ
-                button.button.is-warning#setting
-                    span.icon.is-normal
-                        i.fas.fa-info-circle
-                    span せってい
             div.navbar-item.has-dropdown.is-hoverable
-                a.navbar-link ちゃんねる
-                div.navbar-dropdown#channel-list
+                a.navbar-link#channel-dropdown-top ちゃんねる
+        div.navbar-end
+            div.navbar-item.buttons
+                button.button.is-warning.is-light#help-open
+                    span.icon.is-normal
+                        i.fas.fa-question-circle
+                    span へるぷ
+                button.button.is-info.is-light#setting
+                    span.icon.is-normal
+                        i.fas.fa-cogs
+                    span せってい
+

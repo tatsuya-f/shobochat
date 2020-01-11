@@ -10,6 +10,7 @@ import { settingRoute } from "./route/setting";
 import { chatRouter } from "./route/chat";
 import { messagesRouter } from "./route/messages";
 import { DatabaseManager } from "./database/DatabaseManager";
+import { channelsRouter } from "./route/channels";
 import { UserRepository } from "./repository/UserRepository";
 import { ChannelRepository } from "./repository/ChannelRepository";
 import { defaultChannelList } from "../common/Channel";
@@ -45,12 +46,14 @@ app.use("/chat", checkLogin, chatRouter);
 
 app.use("/messages", checkLogin, messagesRouter);
 
+app.use("/channels", checkLogin, channelsRouter);
+
 wss.on("connection", (ws) => {
     // 接続完了後Client側でsendするとServerのmessage eventが発火
     ws.on("message", async () => {
         console.log("WebSocket connected");
         try {
-            await initMessages();
+            await initMessages(ws);
         } catch (err) {
             console.log(err);
         }

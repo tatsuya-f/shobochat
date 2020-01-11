@@ -66,3 +66,7 @@
 #message {
     margin-bottom: 5px;
 }
+
+#channel-add-input {
+    width: 20vw;
+}

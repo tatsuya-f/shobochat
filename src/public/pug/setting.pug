@@ -7,26 +7,45 @@ html
 
     body
         - var id="setting"
-        - var purpose="せってい"
-        - var title=purpose
+        - var title="せってい"
         include parts/_title.pug
-        div.shobo-field
-            label なまえ
-            .control
-                input.input#name(
+
+        div.columns
+            aside.menu.column.is-one-quarter
+                p.menu-label こじん
+                ul.menu-list
+                    li
+                        a#username-menu なまえをかえる
+                    li
+                        a#userpass-menu あいことばをかえる
+                p.menu-label ちゃんねる
+                ul.menu-list
+                    li
+                        a#channel-add-menu ちゃんねるをつくる
+
+            div.column
+                // name
+                label.shobo-username-setting-mode なまえ
+                input.shobo-username-setting-mode.input#username(
                     type="text"
                     placeholder="なまえ"
                     )
-            label あいことば
-            input.input#pass(
-                    type="password"
-                    placeholder="あいことば"
-                    )
-            label あいことば(かくにん)
-            input.input#pass-verify(
-                    type="password"
-                    placeholder="あいことば"
-                    )
-            button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined(id=`${id}`)
-                i.fas.fa-user-plus #{purpose}
-            div#setting-status-message
+                // pass
+                label.shobo-userpass-setting-mode あいことば
+                input.shobo-userpass-setting-mode.input#userpass(
+                        type="password"
+                        placeholder="あいことば"
+                        )
+                label.shobo-userpass-setting-mode あいことば(かくにん)
+                input.shobo-userpass-setting-mode.input#userpass-verify(
+                        type="password"
+                        placeholder="あいことば べりふぁい"
+                        )
+                label.shobo-channel-add-setting-mode あたらしいちゃんねる
+                input.shobo-channel-add-setting-mode.input#new-channel-name(
+                        type="text"
+                        placeholder="にゅーちゃんねる"
+                        )
+                button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined(id=`${id}`)
+                    i.fas.fa-sync-alt#apply-setting けってい
+                div#setting-status-message
