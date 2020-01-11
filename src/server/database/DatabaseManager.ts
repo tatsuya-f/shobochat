@@ -18,8 +18,8 @@ export class DatabaseManager {
 
     // データベースと接続されたただ一つの DatabaseMaanger を返す
     static async getInstance() {
-        if (DatabaseManager.instance.isConnected()) {
-            await DatabaseManager.instance.setConnection(process.env.TYPEORM_CONNECTION_NAME);
+        if (!DatabaseManager.instance.isConnected()) {
+            await DatabaseManager.instance.setConnection(process.env.TYPEORM_CONNECTION_TYPE);
         }
         return DatabaseManager.instance;
     }

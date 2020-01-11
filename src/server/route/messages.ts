@@ -1,22 +1,22 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import { getConnection } from "typeorm";
 import {
     notifyNewMessage,
     notifyChangedMessage,
     notifyDeleteMessage, } from "../handler/webSocketHandler";
 import { answerIsPrime } from "../handler/primeHandler";
 import { shobot } from "../server";
+import { DatabaseManager } from "../database/DatabaseManager";
 import { MessageRepository } from "../repository/MessageRepository";
 import { ChannelRepository } from "../repository/ChannelRepository";
 
 export const messagesRouter = express.Router();
-const connectionType: string = process.env.TYPEORM_CONNECTION_TYPE || "default";
 
 const numInitMessage = 10;
 messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+
     try {
         const channel = req.params.channel;
         const messages = await messageRepository
@@ -26,9 +26,11 @@ messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: N
         next(err);
     }
 });
+
 messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+
     try {
         const channel = req.params.channel;
         const messages = await messageRepository.getAll(channel);
@@ -37,9 +39,11 @@ messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: Ne
         next(err);
     }
 });
+
 messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+
     try {
         const message = await messageRepository.getById(req.params.id);
         res.json(message);
@@ -47,9 +51,11 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
         next(err);
     }
 });
+
 messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+
     try {
         const channel = req.params.channel;
         const time = parseInt(req.params.time);
@@ -61,8 +67,9 @@ messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Respo
 });
 
 messagesRouter.get("/time-before/:channel/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+
     try {
         const channel = req.params.channel;
         const time = parseInt(req.params.time);
@@ -102,9 +109,10 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
             res.status(405).end();
             return;
         }
+        const databaseManager = await DatabaseManager.getInstance();
+        const messageRepository = databaseManager.getRepository(MessageRepository);
+
         const channel = req.params.channel;
-        const messageRepository = getConnection(connectionType)
-            .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
         await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         const primeAns = answerIsPrime(req.body.content);
         if (primeAns !== null) {
@@ -118,10 +126,10 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 });
 
 messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository: MessageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
-    const channelRepository: ChannelRepository = getConnection(connectionType)
-        .getCustomRepository(ChannelRepository);
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+    const channelRepository = databaseManager.getRepository(ChannelRepository);
+
     try {
         const sess = req.session;
         if (sess === undefined) {
@@ -150,10 +158,10 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
 });
 
 messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const messageRepository: MessageRepository = getConnection(connectionType)
-        .getCustomRepository(MessageRepository); // global で宣言するとうまくいかない
-    const channelRepository: ChannelRepository = getConnection(connectionType)
-        .getCustomRepository(ChannelRepository);
+    const databaseManager = await DatabaseManager.getInstance();
+    const messageRepository = databaseManager.getRepository(MessageRepository);
+    const channelRepository = databaseManager.getRepository(ChannelRepository);
+
     try {
         const sess = req.session;
         if (sess === undefined) {
