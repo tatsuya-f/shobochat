@@ -112,11 +112,11 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
         const messageRepository = databaseManager.getRepository(MessageRepository);
 
         const channel = req.params.channel;
-        await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         const primeAns = answerIsPrime(req.body.content);
         if (primeAns !== null) {
             await messageRepository.insertAndGetId(channel, shobot, primeAns);
         }
+        await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         await notificationManager.notifyClientsOfNewMessage(channel);
         res.status(200).end();
     } catch (err) {
