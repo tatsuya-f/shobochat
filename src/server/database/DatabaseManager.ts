@@ -8,7 +8,11 @@ export class DatabaseManager {
     private constructor() {}
 
     private async setConnection(connectionName: string = "default") {
-        this.connection = await createConnection(connectionName);
+        try {
+            this.connection = await createConnection(connectionName);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     private isConnected(): boolean {
@@ -17,7 +21,7 @@ export class DatabaseManager {
     }
 
     // データベースと接続されたただ一つの DatabaseMaanger を返す
-    static async getInstance() {
+    static async getInstance(): Promise<DatabaseManager> {
         if (!DatabaseManager.instance.isConnected()) {
             await DatabaseManager.instance.setConnection(process.env.TYPEORM_CONNECTION_NAME);
         }

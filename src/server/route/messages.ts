@@ -1,9 +1,6 @@
 import * as express from "express";
 import { Request, Response, NextFunction } from "express";
-import {
-    notifyNewMessage,
-    notifyChangedMessage,
-    notifyDeleteMessage, } from "../handler/webSocketHandler";
+import { NotificationManager } from "../notification/NotificationManager";
 import { answerIsPrime } from "../handler/primeHandler";
 import { shobot } from "../server";
 import { DatabaseManager } from "../database/DatabaseManager";
@@ -109,6 +106,8 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
             res.status(405).end();
             return;
         }
+
+        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
 
@@ -118,7 +117,7 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
         if (primeAns !== null) {
             await messageRepository.insertAndGetId(channel, shobot, primeAns);
         }
-        await notifyNewMessage(channel);
+        await notificationManager.notifyClientsOfNewMessage(channel);
         res.status(200).end();
     } catch (err) {
         next(err);
@@ -126,11 +125,12 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 });
 
 messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
-    const messageRepository = databaseManager.getRepository(MessageRepository);
-    const channelRepository = databaseManager.getRepository(ChannelRepository);
-
     try {
+        const notificationManager = await NotificationManager.getInstance();
+        const databaseManager = await DatabaseManager.getInstance();
+        const messageRepository = databaseManager.getRepository(MessageRepository);
+        const channelRepository = databaseManager.getRepository(ChannelRepository);
+
         const sess = req.session;
         if (sess === undefined) {
             console.log("session not working");
@@ -147,7 +147,7 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
         const message = await messageRepository.getById(messageId);
         if (message.userId === sess.userId) { // reject
             await messageRepository.updateById(messageId, req.body.content);
-            await notifyChangedMessage(channel, messageId);
+            await notificationManager.notifyClientsOfChangedMessage(channel, messageId);
             res.status(200).end();
         } else {
             res.status(405).end();
@@ -158,11 +158,12 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
 });
 
 messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
-    const messageRepository = databaseManager.getRepository(MessageRepository);
-    const channelRepository = databaseManager.getRepository(ChannelRepository);
-
     try {
+        const notificationManager = await NotificationManager.getInstance();
+        const databaseManager = await DatabaseManager.getInstance();
+        const messageRepository = databaseManager.getRepository(MessageRepository);
+        const channelRepository = databaseManager.getRepository(ChannelRepository);
+
         const sess = req.session;
         if (sess === undefined) {
             res.status(405).end();
@@ -178,7 +179,7 @@ messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next:
         const message = await messageRepository.getById(messageId);
         if (message.userId === sess.userId) { // accept
             await messageRepository.deleteById(messageId);
-            notifyDeleteMessage(channel, messageId);
+            notificationManager.notifyClientsOfDeleteMessage(channel, messageId);
             res.status(200).end();
         } else { // reject
             res.status(405).end();

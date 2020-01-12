@@ -2,7 +2,7 @@ import * as express from "express";
 import { hash } from "../handler/hashHandler";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../database/repository/UserRepository";
-import { notifyChangedUsername } from "../handler/webSocketHandler";
+import { NotificationManager } from "../notification/NotificationManager";
 
 export const settingRoute = express.Router();
 
@@ -25,6 +25,7 @@ settingRoute.put("/username", async (req, res) => {
         res.status(401).end();
         return;
     }
+    const notificationManager = await NotificationManager.getInstance();
     const databaseManager = await DatabaseManager.getInstance();
     const userRepository = databaseManager.getRepository(UserRepository);
     const userId = sess.userId;
@@ -36,7 +37,8 @@ settingRoute.put("/username", async (req, res) => {
             res.status(401).end(); // already registered name
         } else {
             await userRepository.updateNameById(userId, newName);
-            notifyChangedUsername(registredUser.name, newName);
+            notificationManager
+                .notifyClientsOfChangedUsername(registredUser.name, newName);
             res.status(200).end();
         }
     } catch (err) {
