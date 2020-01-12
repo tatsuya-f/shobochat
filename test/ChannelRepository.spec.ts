@@ -22,7 +22,8 @@ describe("getById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
 
             const chan = channelRepository.create(); // const user = new UserEntity() と同じ
@@ -35,8 +36,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns User object", async () => {
@@ -54,7 +55,8 @@ describe("getByName", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
                 
             const chan = channelRepository.create(); // const user = new UserEntity() と同じ
@@ -67,8 +69,8 @@ describe("getByName", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns User object", async () => {
@@ -86,7 +88,8 @@ describe("hasName", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
                 
             const channel = channelRepository.create();
@@ -98,8 +101,8 @@ describe("hasName", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("return true when channel exists", async () => {
@@ -118,7 +121,8 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
         } catch (err) {
             console.log(err);
@@ -126,8 +130,8 @@ describe("insertAndGetId", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns id of inserted channel", async () => {
@@ -153,7 +157,8 @@ describe("getEntityById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
 
             const channelEntity = channelRepository.create();
@@ -166,8 +171,8 @@ describe("getEntityById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns ChannelEntity object", async () => {

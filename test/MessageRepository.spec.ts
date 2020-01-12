@@ -47,7 +47,8 @@ describe("getById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -63,8 +64,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns message", async () => {
@@ -87,7 +88,8 @@ describe("getAll", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -107,8 +109,8 @@ describe("getAll", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns messages", async () => {
@@ -129,7 +131,8 @@ describe("getBeforeSpecifiedTime", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -150,8 +153,8 @@ describe("getBeforeSpecifiedTime", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns messages", async () => {
@@ -187,7 +190,8 @@ describe("getAllAfterSpecifiedTime", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -209,8 +213,8 @@ describe("getAllAfterSpecifiedTime", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns messages", async () => {
@@ -247,7 +251,8 @@ describe("getByTime", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -267,8 +272,8 @@ describe("getByTime", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns message", async () => {
@@ -288,7 +293,8 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -302,8 +308,8 @@ describe("insertAndGetId", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns inserted message id", async () => {
@@ -323,7 +329,8 @@ describe("updateById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -338,8 +345,8 @@ describe("updateById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("update message", async () => {
@@ -360,7 +367,8 @@ describe("deleteById", () => {
     let messageId: string;
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -376,8 +384,8 @@ describe("deleteById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("delete message", async () => {

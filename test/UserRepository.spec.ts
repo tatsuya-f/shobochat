@@ -23,7 +23,8 @@ describe("getById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
@@ -37,8 +38,8 @@ describe("getById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns User object", async () => {
@@ -56,7 +57,8 @@ describe("getByName", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
@@ -69,8 +71,8 @@ describe("getByName", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns User object", async () => {
@@ -87,7 +89,8 @@ describe("hasName", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
 
             const user = userRepository.create(); // const user = new UserEntity() と同じ
@@ -100,8 +103,8 @@ describe("hasName", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("return true when user exists", async () => {
@@ -118,7 +121,8 @@ describe("insertAndGetId", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
                 
         } catch (err) {
@@ -127,8 +131,8 @@ describe("insertAndGetId", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns id of inserted User", async () => {
@@ -154,7 +158,8 @@ describe("updatePassById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
 
             id = await userRepository.insertAndGetId(testName, testPassword);
@@ -165,8 +170,8 @@ describe("updatePassById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("update username and password", async () => {
@@ -186,7 +191,8 @@ describe("updateNameById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
 
             id = await userRepository.insertAndGetId(testName, testPassword);
@@ -197,8 +203,8 @@ describe("updateNameById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("update username and password", async () => {
@@ -217,7 +223,8 @@ describe("getEntityById", () => {
 
     before(async () => {
         try {
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
                 
             const userEntity = userRepository.create(); // const user = new UserEntity() と同じ
@@ -231,8 +238,8 @@ describe("getEntityById", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns UserEntity object", async () => {
