@@ -8,6 +8,8 @@ import { User } from "../../common/User";
 
 export const loginRouter = express.Router();
 
+const databaseManager: DatabaseManager = DatabaseManager.getInstance();
+
 loginRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     res.sendFile("login.html", {
         root: "../public",
@@ -28,7 +30,6 @@ loginRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
-    const databaseManager = await DatabaseManager.getInstance();
     const userRepository = databaseManager.getRepository(UserRepository); 
 
     const name = req.body.name;
