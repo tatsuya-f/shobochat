@@ -12,22 +12,34 @@ export class NotificationManager {
 
     private readonly webSocketServer: WebSocket.Server;
 
-    private isStartedListeningToEvent: boolean = false;
+    private isInitialized: boolean = false;
 
     private constructor(port: number) {
         this.webSocketServer = new WebSocket.Server({ port: port });
         console.log("NotificationManager listening on port " + port);
     }
 
-    static async getInstance(): Promise<NotificationManager> {
-        if (!NotificationManager.instance.isStartedListeningToEvent) {
-            await NotificationManager.instance.startListeningToEvent();
+    static getInstance(): NotificationManager {
+        if (!NotificationManager.instance.isInitialized) {
+            throw new Error("notificationManager hasn't been intialized");
         }
         return NotificationManager.instance;
     }
 
+    static async initialize() {
+        NotificationManager.instance.isInitialized = true;
+
+        try {
+            await NotificationManager.instance.startListeningToEvent();
+        } catch (err) {
+            console.log(err);
+            throw new Error("initialize failed");
+        }
+    }
+
     private async initMessages(ws: WebSocket) {
-        const databaseManager = await DatabaseManager.getInstance(); const channelRepository = databaseManager.getRepository(ChannelRepository);
+        const databaseManager = await DatabaseManager.getInstance(); 
+        const channelRepository = databaseManager.getRepository(ChannelRepository);
 
         ws.send(JSON.stringify({
             kind: NotifyKind.Init,
@@ -38,18 +50,11 @@ export class NotificationManager {
     }
 
     private async startListeningToEvent() {
-        this.isStartedListeningToEvent = true;
-
         this.webSocketServer.on("connection", (ws) => {
             // 接続完了後Client側でsendするとServerのmessage eventが発火
             ws.on("message", async () => {
                 console.log("WebSocket connected");
-                try {
-                    await this.initMessages(ws);
-                } catch (err) {
-                    this.isStartedListeningToEvent = false;
-                    console.log(err);
-                }
+                await this.initMessages(ws);
             });
         });
     }

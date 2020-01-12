@@ -10,6 +10,7 @@ import { ChannelRepository } from "../src/server/database/repository/ChannelRepo
 import { app } from "../src/server/server";
 import { isMessage, isMessageArray } from "../src/common/Message";
 import { hash } from "../src/server/handler/hashHandler";
+import { NotificationManager } from "../src/server/notification/NotificationManager";
 
 const TEST_CHAN = "test-chan";
 
@@ -42,6 +43,7 @@ describe("GET /", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -74,6 +76,7 @@ describe("GET /messages/all/channel", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -123,6 +126,7 @@ describe("GET /messages/id/id", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -166,6 +170,7 @@ describe("POST /messages/channel", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -210,6 +215,7 @@ describe("PUT /messages/channel/id", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -258,6 +264,7 @@ describe("DELETE /messages/channel/id", () => {
 
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -308,6 +315,7 @@ describe("test for register and login", () => {
     const password = "fuga";
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -355,6 +363,7 @@ describe("test for updata username", () => {
     const changedName = "hoge2";
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -404,6 +413,7 @@ describe("test for update userpass", () => {
     const changedPass = "fuga2";
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
@@ -452,6 +462,7 @@ describe("test for add channel", () => {
     const password = "fuga";
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
             await agent
@@ -488,6 +499,7 @@ describe("test for delete channel", () => {
     const password = "fuga";
     before(async () => {
         try {
+            await NotificationManager.initialize();
             databaseManager = await DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
             await agent

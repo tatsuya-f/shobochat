@@ -12,6 +12,7 @@ import { DatabaseManager } from "./database/DatabaseManager";
 import { UserRepository } from "./database/repository/UserRepository";
 import { ChannelRepository } from "./database/repository/ChannelRepository";
 import { defaultChannelList } from "../common/Channel";
+import { NotificationManager } from "./notification/NotificationManager";
 
 export const app = express();
 export let shobot: number;
@@ -64,6 +65,8 @@ app.use("/channels", checkLogin, channelsRouter);
                     await channelRepository.insertAndGetId(channel);
                 }
             }
+
+            await NotificationManager.initialize();
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする
             app.listen(port, () =>
