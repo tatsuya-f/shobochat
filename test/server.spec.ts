@@ -443,3 +443,79 @@ describe("test for update userpass", () => {
         }
     });
 });
+
+describe("test for add channel", () => {
+    let databaseManager: DatabaseManager;
+    let channelRepository: ChannelRepository;
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    before(async () => {
+        try {
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+            await agent
+                .post("/register")
+                .send({ name, password });
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
+    });
+
+    it(`add channel ${TEST_CHAN}`, async () => {
+        const response = await agent
+            .post(`/channels/${TEST_CHAN}`)
+            .send()
+            .expect(200);
+        try {
+            assert.strictEqual(await channelRepository.hasName(TEST_CHAN), true);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+});
+
+describe("test for delete channel", () => {
+    let databaseManager: DatabaseManager;
+    let channelRepository: ChannelRepository;
+    const agent = request.agent(app);
+    const name = "hoge";
+    const password = "fuga";
+    before(async () => {
+        try {
+            databaseManager = await DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+            await agent
+                .post("/register")
+                .send({ name, password });
+            const response = await agent
+                .post(`/channels/${TEST_CHAN}`)
+                .send()
+                .expect(200);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        await databaseManager.closeConnection();
+        deleteDB(databaseManager.getDatabasePath());
+    });
+
+    it(`add channel ${TEST_CHAN}`, async () => {
+        try {
+            const response = await agent
+                .delete(`/channels/${TEST_CHAN}`)
+                .send()
+                .expect(200);
+            assert.strictEqual(await channelRepository.hasName(TEST_CHAN), true);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+});

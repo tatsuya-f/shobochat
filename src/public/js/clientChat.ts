@@ -1,7 +1,7 @@
 import { MessagesHTTPHandler } from "./HTTPHandler";
 import { isNotification, NotifyKind } from "../../common/Notification";
 import { Message } from "../../common/Message";
-import { Channel, isChannelArray } from "../../common/Channel";
+import { Channel, isChannelArray, defaultChannel } from "../../common/Channel";
 import { MessageManager } from "./MessageManager";
 import { ChatStateManager } from "./StateManager";
 import { hasChar, parseMarkdown } from "./utils";
@@ -23,14 +23,6 @@ export function isValidMessage(message: Message): boolean {
         $("#message").removeClass("is-danger");
     }
     return isValid;
-}
-
-function setChannelList(channels: Array<Channel>) {
-    const $channelList = $("#channel-list");
-    $channelList.children(".shobo-channel").remove();
-    for (const channel of channels) {
-        $channelList.prepend(`<a id="channel-${channel.name}" class="shobo-channel navbar-item">${channel.name}</a>`);
-    }
 }
 
 export async function checkInput(): Promise<void> {
@@ -62,13 +54,47 @@ function insertTextarea(before: string, after: string) {
     checkInput();
 }
 
+class ChannelManager {
+    private _channels: Set<string> = new Set();
+    private _current = defaultChannel;
+    set current(channel: string) {
+        this._current = channel;
+        $(".shobo-channel").removeClass("is-active");
+        $(`#channel-${this._current}`).addClass("is-active");
+    }
+    get current(): string {
+        return this._current;
+    }
+    set channels(channels: Array<Channel>) {
+        for (const channel of channels) {
+            this._channels.add(channel.name);
+        }
+        this.show();
+    }
+    add(channel: string) {
+        this._channels.add(channel);
+        this.show();
+    }
+    del(deletedChannel: string) {
+        this._channels.delete(deletedChannel);
+        this.show();
+    }
+    show() {
+        const $channelList = $("#channel-list");
+        $channelList.children(".shobo-channel").remove();
+        for (const channel of Array.from(this._channels.values()).sort()) {
+            $channelList.prepend(`<a id="channel-${channel}" class="shobo-channel navbar-item">${channel}</a>`);
+        }
+        $(`#channel-${this.current}`).addClass("is-active");
+    }
+}
+
 const queryMessageDuration = 3000;
 
 async function requestDelete(messageManager: MessageManager) {
     const messageId = $("#contextmenu").data("message-id");
     if (typeof messageId === "string") {
         try {
-            console.log(messageId);
             const status = await messageManager.delete(messageId);
             const $queryMessage = $("#queryMessage");
             if (status === 200) {
@@ -161,6 +187,7 @@ $(() => {
     const httpHandler = new MessagesHTTPHandler();
     const messageManager = new MessageManager(httpHandler);
     const stateManager = new ChatStateManager(httpHandler);
+    const channelManager = new ChannelManager();
 
     ws.addEventListener("open", () => { // 接続完了後発火
         ws.send("");
@@ -172,7 +199,7 @@ $(() => {
             // Message notify
             case NotifyKind.Init: {
                 if (isChannelArray(notify.payload.channels)) {
-                    setChannelList(notify.payload.channels);
+                    channelManager.channels = notify.payload.channels;
                 }
                 await messageManager.initialize();
                 break;
@@ -218,9 +245,16 @@ $(() => {
             }
             // Channel notify
             case NotifyKind.ChanNew: {
-                if (isChannelArray(notify.payload)) {
-                    setChannelList(notify.payload);
+                if (typeof notify.payload === "string") {
+                    channelManager.add(notify.payload);
                 }
+                break;
+            }
+            case NotifyKind.ChanDeleted: {
+                if (typeof notify.payload === "string") {
+                    channelManager.del(notify.payload);
+                }
+                break;
             }
         }
     });
@@ -267,6 +301,7 @@ $(() => {
         window.location.href = "/setting";
     });
     $(document).on("click", ".shobo-channel", function () {
+        channelManager.current = $(this).text();
         messageManager.setChannel($(this).text());
         $(".navbar-burger").toggleClass("is-active");
         $(".navbar-menu").toggleClass("is-active");

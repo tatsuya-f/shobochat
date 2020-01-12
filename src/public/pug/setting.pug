@@ -21,6 +21,7 @@ html
                 ul.menu-list
                     li
                         a#channel-add-menu ちゃんねるをつくる
+                        a#channel-del-menu ちゃんねるをけす
                 p.menu-label ちゃっと
                 ul.menu-list
                     li
@@ -48,6 +49,16 @@ html
                 input.shobo-channel-add-setting-mode.input#new-channel-name(
                         type="text"
                         placeholder="にゅーちゃんねる"
+                        )
+                label.shobo-channel-del-setting-mode けすちゃんねる
+                input.shobo-channel-del-setting-mode.input#del-channel-name(
+                        type="text"
+                        placeholder="ちゃんねる"
+                        )
+                label.shobo-channel-del-setting-mode けすちゃんねる(かくにん)
+                input.shobo-channel-del-setting-mode.input#del-channel-name-verify(
+                        type="text"
+                        placeholder="ちゃんねる べりふぁい"
                         )
                 button.button.shobo-jmp-btn.is-primary.is-rounded.is-outlined#apply-setting
                     i.fas.fa-sync-alt けってい

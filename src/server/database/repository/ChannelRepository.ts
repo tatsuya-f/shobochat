@@ -60,15 +60,25 @@ export class ChannelRepository {
     }
 
     public async insertAndGetId(name: string): Promise<number> {
-        const insertResult = await this.manager.createQueryBuilder()
+        const result = await this.manager.createQueryBuilder()
             .insert()
             .into(ChannelEntity)
             .values([{ name }])
             .execute();
-        if (insertResult === undefined) {
+        if (result === undefined) {
             throw new Error("insert failed");
         } else {
-            return insertResult.identifiers[0].id;
+            return result.identifiers[0].id;
+        }
+    }
+
+    public async deleteByName(name: string): Promise<void> {
+        const result = await this.manager.createQueryBuilder()
+            .delete()
+            .from(ChannelEntity)
+            .where("name = :name", { name });
+        if (result === undefined) {
+            throw new Error("delete failed");
         }
     }
 
@@ -99,6 +109,6 @@ export class ChannelRepository {
     }
 
     getId(channelEntity: ChannelEntity) {
-        return this.manager.getId(channelEntity); 
+        return this.manager.getId(channelEntity);
     }
 }

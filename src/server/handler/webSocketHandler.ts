@@ -3,7 +3,6 @@ import * as WebSocket from "ws";
 import { Notification, NotifyKind } from "../../common/Notification";
 import { wss } from "../server";
 import { ChannelRepository } from "../database/repository/ChannelRepository";
-import { Channel } from "../../common/Channel";
 
 export function notifyClients(notification: Notification) {
     // 接続されている各Clientにsendする
@@ -61,9 +60,16 @@ export function notifyChangedUsername(oldName: string, newName: string) {
     });
 }
 
-export function notifyNewChannel(channels: Array<Channel>) {
+export function notifyNewChannel(channel: string) {
     notifyClients({
         kind: NotifyKind.ChanNew,
-        payload: channels
+        payload: channel
+    });
+}
+
+export function notifyDeletedChannel(channel: string) {
+    notifyClients({
+        kind: NotifyKind.ChanDeleted,
+        payload: channel
     });
 }
