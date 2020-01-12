@@ -39,6 +39,7 @@ export class NotificationManager {
      * NotificationManager が initialize されていない可能性があるので
      * 以下の private な getter を使用する
      */ 
+    // <private getter>
     private get webSocketServer() {
         if (!NotificationManager.isInitialized) {
             console.log("notificationManager hasn't been intialized");
@@ -46,7 +47,9 @@ export class NotificationManager {
         }
         return this._webSocketServer;
     }
+    // </private getter>
 
+    // <initialize>
     static async initialize() {
         NotificationManager.isInitialized = true;
 
@@ -56,6 +59,16 @@ export class NotificationManager {
             console.log(err);
             throw new Error("initialize failed");
         }
+    }
+
+    private async startListeningToEvent() {
+        this._webSocketServer.on("connection", (ws) => {
+            // 接続完了後Client側でsendするとServerのmessage eventが発火
+            ws.on("message", async () => {
+                console.log("WebSocket connected");
+                await this.initMessages(ws);
+            });
+        });
     }
 
     private async initMessages(ws: WebSocket) {
@@ -69,17 +82,9 @@ export class NotificationManager {
             }
         }));
     }
+    // </initialize>
 
-    private async startListeningToEvent() {
-        this._webSocketServer.on("connection", (ws) => {
-            // 接続完了後Client側でsendするとServerのmessage eventが発火
-            ws.on("message", async () => {
-                console.log("WebSocket connected");
-                await this.initMessages(ws);
-            });
-        });
-    }
-
+    // <public method>
     notifyClients(notification: Notification) {
         // 接続されている各Clientにsendする
         this.webSocketServer.clients.forEach(ws => {
@@ -145,4 +150,5 @@ export class NotificationManager {
             payload: channel
         });
     }
+    // </public method>
 }

@@ -44,7 +44,8 @@ describe("GET /", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
         } catch (err) {
@@ -53,8 +54,8 @@ describe("GET /", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("return top page", async () => {
@@ -77,7 +78,8 @@ describe("GET /messages/all/channel", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -96,8 +98,8 @@ describe("GET /messages/all/channel", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("return messages in response.body", async () => {
@@ -127,7 +129,8 @@ describe("GET /messages/id/id", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -145,8 +148,8 @@ describe("GET /messages/id/id", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("return messages in response.body", async () => {
@@ -171,7 +174,8 @@ describe("POST /messages/channel", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -190,8 +194,8 @@ describe("POST /messages/channel", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("returns 200 when parameters are valid", async () => {
@@ -216,7 +220,8 @@ describe("PUT /messages/channel/id", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -237,8 +242,8 @@ describe("PUT /messages/channel/id", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("update message with id = " + testId, async () => {
@@ -265,7 +270,8 @@ describe("DELETE /messages/channel/id", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -287,8 +293,8 @@ describe("DELETE /messages/channel/id", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it("delete message with id = " + testId, async () => {
@@ -316,7 +322,8 @@ describe("test for register and login", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
 
@@ -326,8 +333,8 @@ describe("test for register and login", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it(`register and login user with name = ${name}, password = ${password}`, async () => {
@@ -364,7 +371,8 @@ describe("test for updata username", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
 
@@ -377,8 +385,8 @@ describe("test for updata username", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it(`change user name = ${name} -> ${changedName}`, async () => {
@@ -414,7 +422,8 @@ describe("test for update userpass", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
 
@@ -427,8 +436,8 @@ describe("test for update userpass", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it(`change user password ${password} -> ${changedPass}`, async () => {
@@ -463,7 +472,8 @@ describe("test for add channel", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
             await agent
                 .post("/register")
@@ -474,8 +484,8 @@ describe("test for add channel", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it(`add channel ${TEST_CHAN}`, async () => {
@@ -500,7 +510,8 @@ describe("test for delete channel", () => {
     before(async () => {
         try {
             await NotificationManager.initialize();
-            databaseManager = await DatabaseManager.getInstance();
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
             await agent
                 .post("/register")
@@ -515,8 +526,8 @@ describe("test for delete channel", () => {
     });
 
     after(async () => {
-        await databaseManager.closeConnection();
         deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
     });
 
     it(`add channel ${TEST_CHAN}`, async () => {

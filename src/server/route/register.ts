@@ -7,6 +7,8 @@ import { UserRepository } from "../database/repository/UserRepository";
 
 export const registerRouter = express.Router();
 
+const databaseManager: DatabaseManager = DatabaseManager.getInstance();
+
 registerRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     res.sendFile("register.html", {
         root: "../public",
@@ -27,7 +29,6 @@ registerRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
-    const databaseManager = await DatabaseManager.getInstance();
     const userRepository = databaseManager.getRepository(UserRepository);
 
     const name = req.body.name;

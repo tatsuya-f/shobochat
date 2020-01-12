@@ -9,10 +9,10 @@ import { ChannelRepository } from "../database/repository/ChannelRepository";
 
 export const messagesRouter = express.Router();
 const notificationManager: NotificationManager = NotificationManager.getInstance();
+const databaseManager: DatabaseManager = DatabaseManager.getInstance();
 
 const numInitMessage = 10;
 messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
     const messageRepository = databaseManager.getRepository(MessageRepository);
 
     try {
@@ -26,7 +26,6 @@ messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: N
 });
 
 messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
     const messageRepository = databaseManager.getRepository(MessageRepository);
 
     try {
@@ -39,7 +38,6 @@ messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: Ne
 });
 
 messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
     const messageRepository = databaseManager.getRepository(MessageRepository);
 
     try {
@@ -51,7 +49,6 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
 });
 
 messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
     const messageRepository = databaseManager.getRepository(MessageRepository);
 
     try {
@@ -65,7 +62,6 @@ messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Respo
 });
 
 messagesRouter.get("/time-before/:channel/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
-    const databaseManager = await DatabaseManager.getInstance();
     const messageRepository = databaseManager.getRepository(MessageRepository);
 
     try {
@@ -108,7 +104,6 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
             return;
         }
 
-        const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
 
         const channel = req.params.channel;
@@ -126,7 +121,6 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 
 messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
@@ -158,7 +152,6 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
 
 messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 

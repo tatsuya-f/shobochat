@@ -49,7 +49,10 @@ app.use("/channels", checkLogin, channelsRouter);
 (async function startServer() {
     try {
         if (__filename.endsWith("/dist/server/server.ts")) { // 以下はテスト時には実行されない
-            const databaseManager: DatabaseManager = await DatabaseManager.getInstance();
+            await NotificationManager.initialize();
+            await DatabaseManager.initialize();
+
+            const databaseManager: DatabaseManager = DatabaseManager.getInstance();
             const userRepository: UserRepository = databaseManager.getRepository(UserRepository);
             const channelRepository: ChannelRepository = databaseManager.getRepository(ChannelRepository);
 
@@ -65,8 +68,6 @@ app.use("/channels", checkLogin, channelsRouter);
                     await channelRepository.insertAndGetId(channel);
                 }
             }
-
-            await NotificationManager.initialize();
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする
             app.listen(port, () =>

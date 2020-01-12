@@ -6,10 +6,10 @@ import { NotificationManager } from "../notification/NotificationManager";
 
 export const channelsRouter = express.Router();
 const notificationManager: NotificationManager = NotificationManager.getInstance();
+const databaseManager: DatabaseManager = DatabaseManager.getInstance();
 
 channelsRouter.post("/:channel", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseManager = await DatabaseManager.getInstance();
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
         const channel = req.params.channel;
@@ -27,7 +27,6 @@ channelsRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 
 channelsRouter.delete("/:channel", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseManager = await DatabaseManager.getInstance();
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
         const channel = req.params.channel;
