@@ -131,4 +131,14 @@ export class SettingHTTPHandler {
         });
         return res.status;
     }
+    async deleteChannel(channel: string): Promise<number> {
+        const res = await fetch(`/channels/${channel}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Length": "0"
+            },
+            credentials: "same-origin"
+        });
+        return res.status;
+    }
 }

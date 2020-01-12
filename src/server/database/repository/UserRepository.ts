@@ -103,6 +103,6 @@ export class UserRepository {
     }
 
     getId(userEntity: UserEntity) {
-        return this.manager.getId(userEntity); 
+        return this.manager.getId(userEntity);
     }
 }

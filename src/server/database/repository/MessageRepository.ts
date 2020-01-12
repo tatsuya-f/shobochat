@@ -156,6 +156,6 @@ export class MessageRepository {
     }
 
     getId(messageEntity: MessageEntity) {
-        return this.manager.getId(messageEntity); 
+        return this.manager.getId(messageEntity);
     }
 }
