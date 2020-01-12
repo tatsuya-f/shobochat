@@ -10,24 +10,45 @@ export class NotificationManager {
         parseInt(process.env.NOTIFICATION_MANAGER_PORT || "8080")
     );
 
-    private readonly webSocketServer: WebSocket.Server;
+    // 唯一の NotificationManager が initialize されているかどうかを表す
+    private static isInitialized: boolean = false;
 
-    private isInitialized: boolean = false;
+    private readonly _webSocketServer: WebSocket.Server;
 
     private constructor(port: number) {
-        this.webSocketServer = new WebSocket.Server({ port: port });
+        this._webSocketServer = new WebSocket.Server({ port: port });
         console.log("NotificationManager listening on port " + port);
     }
 
     static getInstance(): NotificationManager {
-        if (!NotificationManager.instance.isInitialized) {
-            throw new Error("notificationManager hasn't been intialized");
-        }
+        /*
+         * initialize されていない NotificationManager を返すのを許容しているのは，
+         * グローバルで getInstance を可能にするためである．
+         * もしもここで，initialize されていない NotificationManager を返せない
+         * ようにすると，実行時（動的）に getInstance より前で initialize をしていたとしても
+         * トランスパイル時に getInstance によってグローバル変数への代入をしている
+         * 部分が先に実行されるため，エラーがでてしまう．
+         *
+         * initialize されていない場合のエラー処理は，private な getter 内で行う．
+         */
         return NotificationManager.instance;
     }
 
+    /* 
+     * public method から，NotificationManager のメンバーにアクセスする場合
+     * NotificationManager が initialize されていない可能性があるので
+     * 以下の private な getter を使用する
+     */ 
+    private get webSocketServer() {
+        if (!NotificationManager.isInitialized) {
+            console.log("notificationManager hasn't been intialized");
+            throw new Error("notificationManager hasn't been intialized");
+        }
+        return this._webSocketServer;
+    }
+
     static async initialize() {
-        NotificationManager.instance.isInitialized = true;
+        NotificationManager.isInitialized = true;
 
         try {
             await NotificationManager.instance.startListeningToEvent();
@@ -50,7 +71,7 @@ export class NotificationManager {
     }
 
     private async startListeningToEvent() {
-        this.webSocketServer.on("connection", (ws) => {
+        this._webSocketServer.on("connection", (ws) => {
             // 接続完了後Client側でsendするとServerのmessage eventが発火
             ws.on("message", async () => {
                 console.log("WebSocket connected");
@@ -59,13 +80,20 @@ export class NotificationManager {
         });
     }
 
-    private notifyClients(notification: Notification) {
+    notifyClients(notification: Notification) {
         // 接続されている各Clientにsendする
         this.webSocketServer.clients.forEach(ws => {
             ws.send(JSON.stringify(notification));
         });
     }
 
+    /* 
+     * このクラスが大きくなりすぎる場合は，
+     * 以下のメソッド群を
+     * notify する種類ごとにわけて，
+     * それぞれ NotificationManager を
+     * 内部に持つクラスに入れる．
+     */
     notifyClientsOfNewMessage(channel: string) {
         this.notifyClients({
             kind: NotifyKind.MsgNew,

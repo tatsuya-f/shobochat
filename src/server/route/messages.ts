@@ -8,6 +8,7 @@ import { MessageRepository } from "../database/repository/MessageRepository";
 import { ChannelRepository } from "../database/repository/ChannelRepository";
 
 export const messagesRouter = express.Router();
+const notificationManager: NotificationManager = NotificationManager.getInstance();
 
 const numInitMessage = 10;
 messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
@@ -107,7 +108,6 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
             return;
         }
 
-        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
 
@@ -126,7 +126,6 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 
 messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
         const channelRepository = databaseManager.getRepository(ChannelRepository);
@@ -159,7 +158,6 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
 
 messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const messageRepository = databaseManager.getRepository(MessageRepository);
         const channelRepository = databaseManager.getRepository(ChannelRepository);

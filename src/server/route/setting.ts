@@ -5,6 +5,7 @@ import { UserRepository } from "../database/repository/UserRepository";
 import { NotificationManager } from "../notification/NotificationManager";
 
 export const settingRoute = express.Router();
+const notificationManager: NotificationManager = NotificationManager.getInstance();
 
 settingRoute.get("/", async (req, res, next) => {
     res.sendFile("setting.html", {
@@ -25,7 +26,6 @@ settingRoute.put("/username", async (req, res) => {
         res.status(401).end();
         return;
     }
-    const notificationManager = await NotificationManager.getInstance();
     const databaseManager = await DatabaseManager.getInstance();
     const userRepository = databaseManager.getRepository(UserRepository);
     const userId = sess.userId;

@@ -5,10 +5,10 @@ import { ChannelRepository } from "../database/repository/ChannelRepository";
 import { NotificationManager } from "../notification/NotificationManager";
 
 export const channelsRouter = express.Router();
+const notificationManager: NotificationManager = NotificationManager.getInstance();
 
 channelsRouter.post("/:channel", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
@@ -27,7 +27,6 @@ channelsRouter.post("/:channel", async (req: Request, res: Response, next: NextF
 
 channelsRouter.delete("/:channel", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notificationManager = await NotificationManager.getInstance();
         const databaseManager = await DatabaseManager.getInstance();
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
