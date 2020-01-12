@@ -1,7 +1,5 @@
 import * as express from "express";
 import * as session from "express-session";
-import * as WebSocket from "ws";
-import { initMessages } from "./handler/webSocketHandler";
 import { checkLogin } from "./handler/loginHandler";
 import { indexRouter } from "./route/index";
 import { loginRouter } from "./route/login";
@@ -14,12 +12,12 @@ import { DatabaseManager } from "./database/DatabaseManager";
 import { UserRepository } from "./database/repository/UserRepository";
 import { ChannelRepository } from "./database/repository/ChannelRepository";
 import { defaultChannelList } from "../common/Channel";
+import { NotificationManager } from "./notification/NotificationManager";
 
 export const app = express();
-export const wss = new WebSocket.Server({ port: 8080 });
 export let shobot: number;
 
-app.set("port", 8000);
+app.set("port", parseInt(process.env.EXPRESS_PORT || "8000"));
 
 app.use(express.json());
 
@@ -48,18 +46,6 @@ app.use("/messages", checkLogin, messagesRouter);
 
 app.use("/channels", checkLogin, channelsRouter);
 
-wss.on("connection", (ws) => {
-    // 接続完了後Client側でsendするとServerのmessage eventが発火
-    ws.on("message", async () => {
-        console.log("WebSocket connected");
-        try {
-            await initMessages(ws);
-        } catch (err) {
-            console.log(err);
-        }
-    });
-});
-
 (async function startServer() {
     try {
         if (__filename.endsWith("/dist/server/server.ts")) { // 以下はテスト時には実行されない
@@ -79,6 +65,8 @@ wss.on("connection", (ws) => {
                     await channelRepository.insertAndGetId(channel);
                 }
             }
+
+            await NotificationManager.initialize();
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする
             app.listen(port, () =>
