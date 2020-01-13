@@ -54,7 +54,7 @@ function insertTextarea(before: string, after: string) {
     checkInput();
 }
 
-class ChannelManager {
+export class ChannelManager {
     private _channels: Set<string> = new Set();
     private _current = defaultChannel;
     set current(channel: string) {
