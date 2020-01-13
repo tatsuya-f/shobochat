@@ -2,7 +2,6 @@ import { MessagesHTTPHandler } from "./HTTPHandler";
 import { Message } from "../../common/Message";
 import { defaultChannel } from "../../common/Channel";
 import { changeTimeFormat, parseMarkdown } from "./utils";
-import { escapeHTML } from "../../common/validate";
 
 export class MessageManager {
     private _messages: Array<Message>
@@ -39,7 +38,7 @@ export class MessageManager {
                     <i class="fas fa-user-circle"></i> \
                 </span>
                 <span class="shobo-name"> \
-                    ${escapeHTML(message.name)} \
+                    ${message.name} \
                 </span> \
                 <span class="shobo-time"> \
                     ${displayTime} \

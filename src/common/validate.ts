@@ -22,12 +22,12 @@ export function isValidChannelName(name: string): boolean {
 
 export function isValidUsername(name: string): boolean {
     const minLength = 1;
-    const maxLength = 20;
+    const maxLength = 40;
     return validator.length(name, minLength, maxLength);
 }
 
 export function isValidUserpass(password: string): boolean {
     const minLength = 4;
-    const maxLength = 30;
+    const maxLength = 50;
     return validator.length(password, minLength, maxLength);
 }
