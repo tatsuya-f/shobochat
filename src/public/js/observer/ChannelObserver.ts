@@ -1,6 +1,5 @@
 import { Observer } from "./Observer";
 import { Notification, NotifyKind } from "../../../common/Notification";
-import { Channel } from "../../../common/Channel";
 import { ChannelManager } from "../clientChat";
 
 export class ChannelObserver extends Observer {
@@ -10,7 +9,7 @@ export class ChannelObserver extends Observer {
     constructor (notify: Notification, channelManager: ChannelManager) {
         super(notify);
         this.channelManager = channelManager;
-    };
+    }
 
     async update() {
         switch (this.notify.kind) {

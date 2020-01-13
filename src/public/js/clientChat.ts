@@ -1,10 +1,12 @@
 import { MessagesHTTPHandler } from "./HTTPHandler";
-import { isNotification, NotifyKind } from "../../common/Notification";
+import { isNotification } from "../../common/Notification";
 import { Message } from "../../common/Message";
-import { Channel, isChannelArray, defaultChannel } from "../../common/Channel";
+import { Channel, defaultChannel } from "../../common/Channel";
 import { MessageManager } from "./MessageManager";
 import { ChatStateManager } from "./StateManager";
 import { hasChar, parseMarkdown } from "./utils";
+import { Observer } from "./observer/Observer";
+import { ObserverManager } from "./ObserverManager";
 
 export function isValidMessage(message: Message): boolean {
     let isValid = true;
@@ -195,67 +197,12 @@ $(() => {
     ws.addEventListener("message", async (e) => { // サーバーがsendすると発火
         const notify = JSON.parse(e.data);
         if (!isNotification(notify)) { return; }
-        switch (notify.kind) {
-            // Message notify
-            case NotifyKind.Init: {
-                if (isChannelArray(notify.payload.channels)) {
-                    channelManager.channels = notify.payload.channels;
-                }
-                await messageManager.initialize();
-                break;
-            }
-            case NotifyKind.MsgNew: {
-                const channel = notify.payload.channel;
-                if (typeof channel !== "string") { break; }
-                if (channel !== messageManager.channel) { break; }
 
-                await messageManager.getNew();
-                break;
-            }
-            case NotifyKind.MsgChanged: {
-                const channel = notify.payload.channel;
-                if (typeof channel !== "string") { break; }
-                if (channel !== messageManager.channel) { break; }
-
-                if (typeof notify.payload.messageId === "string") {
-                    await messageManager.fetch(notify.payload.messageId);
-                }
-                break;
-            }
-            case NotifyKind.MsgDeleted: {
-                const channel = notify.payload.channel;
-                if (typeof channel !== "string") { break; }
-                if (channel !== messageManager.channel) { break; }
-
-                if (typeof notify.payload.messageId === "string") {
-                    await messageManager.onDeleteEvent(notify.payload.messageId);
-                }
-                break;
-            }
-            // User notify
-            case NotifyKind.UserChanged: {
-                if (typeof notify.payload.newName === "string" &&
-                   typeof notify.payload.oldName === "string") {
-                    messageManager.onChangeUserNameEvent(
-                        notify.payload.oldName,
-                        notify.payload.newName
-                    );
-                }
-                break;
-            }
-            // Channel notify
-            case NotifyKind.ChanNew: {
-                if (typeof notify.payload === "string") {
-                    channelManager.add(notify.payload);
-                }
-                break;
-            }
-            case NotifyKind.ChanDeleted: {
-                if (typeof notify.payload === "string") {
-                    channelManager.del(notify.payload);
-                }
-                break;
-            }
+        const observer: Observer|undefined = ObserverManager.getObserver(notify, messageManager, channelManager);
+        if (!observer) {
+            console.log("invalid NotifyKind");
+        } else {
+            await observer.update();
         }
     });
 

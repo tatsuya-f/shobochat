@@ -1,6 +1,5 @@
 import { Observer } from "./Observer";
 import { Notification, NotifyKind } from "../../../common/Notification";
-import { Channel } from "../../../common/Channel";
 import { MessageManager } from "../MessageManager";
 
 export class UserObserver extends Observer {
@@ -10,7 +9,7 @@ export class UserObserver extends Observer {
     constructor (notify: Notification, messageManager: MessageManager) {
         super(notify);
         this.messageManager = messageManager;
-    };
+    }
 
     async update() {
         switch (this.notify.kind) {

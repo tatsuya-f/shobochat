@@ -1,6 +1,5 @@
 import { Observer } from "./observer/Observer";
 import { Notification, NotifyKind } from "../../common/Notification";
-import { Channel } from "../../common/Channel";
 import { MessageManager } from "./MessageManager";
 import { ChannelManager } from "./clientChat";
 import { InitObserver } from "./observer/InitObserver";
@@ -23,7 +22,7 @@ export class ObserverManager {
             case NotifyKind.MsgNew: 
             case NotifyKind.MsgChanged: 
             case NotifyKind.MsgDeleted: {
-                return new MessageObserver(notify, messageManager)
+                return new MessageObserver(notify, messageManager);
             }
 
             // create UserObserver
@@ -38,6 +37,7 @@ export class ObserverManager {
             }
 
             default: {
+                console.log("invalid NotifyKind");
                 return undefined;
             }
         }
