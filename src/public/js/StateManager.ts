@@ -70,6 +70,7 @@ export class SettingStateManager {
         $(`#${this.state}-menu`).addClass("is-active");
     }
     set state(state: SettingState) {
+        $("input").val("");
         $(`.shobo-${this.state}-setting-mode`).hide();
         $(`#${this.state}-menu`).removeClass("is-active");
         this._state = state;
