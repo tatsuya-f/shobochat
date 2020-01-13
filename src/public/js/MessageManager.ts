@@ -1,7 +1,8 @@
 import { MessagesHTTPHandler } from "./HTTPHandler";
 import { Message } from "../../common/Message";
 import { defaultChannel } from "../../common/Channel";
-import { escapeHTML, changeTimeFormat, parseMarkdown } from "./utils";
+import { changeTimeFormat, parseMarkdown } from "./utils";
+import { escapeHTML } from "../../common/validate";
 
 export class MessageManager {
     private _messages: Array<Message>
@@ -58,7 +59,7 @@ export class MessageManager {
     }
     async getNew() {
         const messages = await this.httpHandler.getNewer(this._channel, this.time);
-        this._messages.unshift(...messages);
+        this._messages.unshift(...messages.reverse());
         this.updateTime();
         const $messageList = $("#messageList");
         for (const message of messages) {

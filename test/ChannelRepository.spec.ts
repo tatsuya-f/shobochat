@@ -58,7 +58,6 @@ describe("getByName", () => {
             await DatabaseManager.initialize();
             databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
             const chan = channelRepository.create(); // const user = new UserEntity() と同じ
             chan.name = channelName;
             await channelRepository.save(chan);
@@ -91,7 +90,6 @@ describe("hasName", () => {
             await DatabaseManager.initialize();
             databaseManager = DatabaseManager.getInstance();
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
             const channel = channelRepository.create();
             channel.name = chanName;
             await channelRepository.save(channel);
@@ -179,5 +177,31 @@ describe("getEntityById", () => {
         const channelEntity = await channelRepository.getEntityById(channelId);
         assert.strictEqual(channelEntity.id, channelId);
         assert.strictEqual(channelEntity.name, chanName);
+    });
+});
+
+describe("deleteByName", () => {
+    let databaseManager: DatabaseManager;
+    let channelRepository: ChannelRepository;
+    const testChan = "test-chan";
+    before(async () => {
+        try {
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+            await channelRepository.insertAndGetId(testChan);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
+    });
+
+    it("delete channel", async () => {
+        await channelRepository.deleteByName(testChan);
+        assert.strictEqual(await channelRepository.hasName(testChan), false);
     });
 });

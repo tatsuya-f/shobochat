@@ -2,6 +2,7 @@ import * as express from "express";
 import { Request, Response, NextFunction } from "express";
 import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
 import { hash } from "../handler/hashHandler";
+import { isValidUsername, isValidUserpass, escapeHTML } from "../../common/validate";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../database/repository/UserRepository";
 
@@ -31,17 +32,19 @@ registerRouter.post("/", async (req: Request, res: Response) => {
 
     const userRepository = databaseManager.getRepository(UserRepository);
 
-    const name = req.body.name;
+    const name = escapeHTML(req.body.name);
     const password = req.body.password;
     try {
-        if (!(await userRepository.hasName(name))) { 
+        if (await userRepository.hasName(name)) {
+            console.log("name has already exists; reject");
+            res.status(401).end();
+        } else if (!isValidUsername(name) || !isValidUserpass(password)) {
+            res.status(400).end();
+        } else {
             const userId = await userRepository.insertAndGetId(name, hash(password));
             sess.userId = userId;
             sess.isLoggedin = true;
             res.redirect("/chat");
-        } else { 
-            console.log("name has already exists; reject");
-            res.status(401).end();
         }
     } catch (err) {
         console.log(err);

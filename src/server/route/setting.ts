@@ -1,5 +1,6 @@
 import * as express from "express";
 import { hash } from "../handler/hashHandler";
+import { isValidUsername, isValidUserpass } from "../../common/validate";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../database/repository/UserRepository";
 import { NotificationManager } from "../notification/NotificationManager";
@@ -35,6 +36,8 @@ settingRoute.put("/username", async (req, res) => {
         const registredUser = await userRepository.getById(userId);
         if (await userRepository.hasName(newName)) {
             res.status(401).end(); // already registered name
+        } else if (!isValidUsername(newName)) {
+            res.status(400).end();
         } else {
             await userRepository.updateNameById(userId, newName);
             notificationManager
@@ -59,10 +62,12 @@ settingRoute.put("/userpass", async (req, res) => {
     const userRepository = databaseManager.getRepository(UserRepository);
 
     const userId = sess.userId;
-    const updatedPassword = req.body.password;
-
+    const newPassword = req.body.password;
+    if (!isValidUserpass(newPassword)) {
+        res.status(400).end();
+    }
     try {
-        await userRepository.updatePassById(userId, hash(updatedPassword));
+        await userRepository.updatePassById(userId, hash(newPassword));
         res.status(200).end();
     } catch (err) {
         console.log(err);

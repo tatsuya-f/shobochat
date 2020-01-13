@@ -73,10 +73,10 @@ export class ChannelRepository {
     }
 
     public async deleteByName(name: string): Promise<void> {
-        const result = await this.manager.createQueryBuilder()
+        const result = await this.manager.createQueryBuilder(ChannelEntity, "channel")
             .delete()
-            .from(ChannelEntity)
-            .where("name = :name", { name });
+            .where("name = :name", { name })
+            .execute();
         if (result === undefined) {
             throw new Error("delete failed");
         }

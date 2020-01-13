@@ -5,6 +5,7 @@ import { redirectChatWhenLoggedIn } from "../handler/loginHandler";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { UserRepository } from "../database/repository/UserRepository";
 import { User } from "../../common/User";
+import { escapeHTML } from "../../common/validate";
 
 export const loginRouter = express.Router();
 
@@ -30,9 +31,9 @@ loginRouter.post("/", async (req: Request, res: Response) => {
         return;
     }
 
-    const userRepository = databaseManager.getRepository(UserRepository); 
+    const userRepository = databaseManager.getRepository(UserRepository);
 
-    const name = req.body.name;
+    const name = escapeHTML(req.body.name);
     const password = req.body.password;
     try {
         const user: User = await userRepository.getByName(name);

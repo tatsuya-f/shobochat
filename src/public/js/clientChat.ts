@@ -82,9 +82,9 @@ class ChannelManager {
     show() {
         const $channelList = $("#channel-list");
         $channelList.children(".shobo-channel").remove();
-        for (const channel of Array.from(this._channels.values()).sort()) {
+        Array.from(this._channels.values()).sort().forEach(channel => {
             $channelList.prepend(`<a id="channel-${channel}" class="shobo-channel navbar-item">${channel}</a>`);
-        }
+        });
         $(`#channel-${this.current}`).addClass("is-active");
     }
 }
