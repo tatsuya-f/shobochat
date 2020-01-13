@@ -7,14 +7,17 @@ export interface Channel {
 }
 
 export function isChannel(arg: any): arg is Channel {
-    return typeof arg.id === "number" &&
-        typeof arg.name === "string";
+    return typeof arg.id === "number" && typeof arg.name === "string";
 }
 
 export function isChannelArray(arg: any): arg is Array<Channel> {
-    if (!Array.isArray(arg)) { return false; }
+    if (!Array.isArray(arg)) {
+        return false;
+    }
     arg.forEach(c => {
-        if (!isChannel(c)) { return false; }
+        if (!isChannel(c)) {
+            return false;
+        }
     });
     return true;
 }

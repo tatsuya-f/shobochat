@@ -3,7 +3,8 @@ import { UserClient } from "../../common/UserClient";
 export async function login(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
     const password = $("#pass").val();
-    if (typeof name !== "string" || typeof password !== "string") { // reject
+    if (typeof name !== "string" || typeof password !== "string") {
+        // reject
         alert("なまえとあいことばはもじでいれてください。");
         return;
     }
@@ -20,7 +21,6 @@ export async function login(chatApiEndpoint: string): Promise<void> {
         console.log(err);
     }
 }
-
 
 $(() => {
     const chatApiEndpoint = "/login";

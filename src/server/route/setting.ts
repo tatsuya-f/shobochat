@@ -9,15 +9,19 @@ export const settingRoute = express.Router();
 const notificationManager: NotificationManager = NotificationManager.getInstance();
 
 settingRoute.get("/", async (req, res, next) => {
-    res.sendFile("setting.html", {
-        root: "../public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
+    res.sendFile(
+        "setting.html",
+        {
+            root: "../public"
+        },
+        err => {
+            if (err) {
+                next(err);
+            } else {
+                console.log("Send");
+            }
         }
-    });
+    );
 });
 
 settingRoute.put("/username", async (req, res) => {
@@ -40,8 +44,7 @@ settingRoute.put("/username", async (req, res) => {
             res.status(400).end();
         } else {
             await userRepository.updateNameById(userId, newName);
-            notificationManager
-                .notifyClientsOfChangedUsername(registredUser.name, newName);
+            notificationManager.notifyClientsOfChangedUsername(registredUser.name, newName);
             res.status(200).end();
         }
     } catch (err) {

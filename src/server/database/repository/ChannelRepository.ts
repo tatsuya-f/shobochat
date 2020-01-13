@@ -4,7 +4,6 @@ import { Channel } from "../../../common/Channel";
 
 @EntityRepository()
 export class ChannelRepository {
-
     /*
      * getCustomRepository を使って
      * TypeORM 側で初期化すること
@@ -24,7 +23,8 @@ export class ChannelRepository {
     }
 
     public async getAll() {
-        const channelEntities = await this.manager.createQueryBuilder(ChannelEntity, "channel")
+        const channelEntities = await this.manager
+            .createQueryBuilder(ChannelEntity, "channel")
             .orderBy("name", "ASC")
             .getMany();
         if (channelEntities === undefined) {
@@ -35,7 +35,8 @@ export class ChannelRepository {
     }
 
     public async getById(channelId: number): Promise<Channel> {
-        const channelEntity = await this.manager.createQueryBuilder(ChannelEntity, "channel")
+        const channelEntity = await this.manager
+            .createQueryBuilder(ChannelEntity, "channel")
             .where("channel.id = :id", { id: channelId })
             .getOne();
 
@@ -46,9 +47,9 @@ export class ChannelRepository {
         }
     }
 
-
     public async getByName(name: string): Promise<Channel> {
-        const channel = await this.manager.createQueryBuilder(ChannelEntity, "channel")
+        const channel = await this.manager
+            .createQueryBuilder(ChannelEntity, "channel")
             .where("channel.name = :name", { name })
             .getOne();
 
@@ -60,7 +61,8 @@ export class ChannelRepository {
     }
 
     public async insertAndGetId(name: string): Promise<number> {
-        const result = await this.manager.createQueryBuilder()
+        const result = await this.manager
+            .createQueryBuilder()
             .insert()
             .into(ChannelEntity)
             .values([{ name }])
@@ -73,7 +75,8 @@ export class ChannelRepository {
     }
 
     public async deleteByName(name: string): Promise<void> {
-        const result = await this.manager.createQueryBuilder(ChannelEntity, "channel")
+        const result = await this.manager
+            .createQueryBuilder(ChannelEntity, "channel")
             .delete()
             .where("name = :name", { name })
             .execute();
@@ -83,7 +86,8 @@ export class ChannelRepository {
     }
 
     public async hasName(name: string): Promise<boolean> {
-        const channel = await this.manager.createQueryBuilder(ChannelEntity, "channel")
+        const channel = await this.manager
+            .createQueryBuilder(ChannelEntity, "channel")
             .where("channel.name = :name", { name })
             .getOne();
 

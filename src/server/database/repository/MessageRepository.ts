@@ -8,7 +8,6 @@ import { Message } from "../../../common/Message";
 
 @EntityRepository()
 export class MessageRepository {
-
     /*
      * getCustomRepository を使って
      * TypeORM 側で初期化すること
@@ -32,7 +31,8 @@ export class MessageRepository {
     }
 
     async getById(messageId: string): Promise<Message> {
-        const messageEntity = await this.manager.createQueryBuilder(MessageEntity, "message")
+        const messageEntity = await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("message.id = :id", { id: messageId })
@@ -45,7 +45,8 @@ export class MessageRepository {
     }
 
     async getAll(channelName: string): Promise<Array<Message>> {
-        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
+        const messageEntities = await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("message.channel.name = :channelName", { channelName })
@@ -60,7 +61,8 @@ export class MessageRepository {
     }
 
     async getBeforeSpecifiedTime(channelName: string, fromTime: number, n: number): Promise<Array<Message>> {
-        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
+        const messageEntities = await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time < :time AND message.channelName = :channelName", {
@@ -79,7 +81,8 @@ export class MessageRepository {
     }
 
     async getAllAfterSpecifiedTime(channelName: string, fromTime: number): Promise<Array<Message>> {
-        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
+        const messageEntities = await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time > :time AND message.channelName = :channelName", {
@@ -97,7 +100,8 @@ export class MessageRepository {
     }
 
     async getAllByTime(channelName: string, time: number): Promise<Array<Message>> {
-        const messageEntities = await this.manager.createQueryBuilder(MessageEntity, "message")
+        const messageEntities = await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .innerJoinAndSelect("message.user", "user") // message.user を user に aliasing
             .innerJoinAndSelect("message.channel", "channel")
             .where("time = :time AND message.channelName = :channelName", {
@@ -132,7 +136,8 @@ export class MessageRepository {
     }
 
     async updateById(messageId: string, content: string): Promise<void> {
-        await this.manager.createQueryBuilder(MessageEntity, "message")
+        await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .update(MessageEntity)
             .set({ content })
             .where("id = :id", { id: messageId })
@@ -140,7 +145,8 @@ export class MessageRepository {
     }
 
     async deleteById(messageId: string): Promise<void> {
-        await this.manager.createQueryBuilder(MessageEntity, "message")
+        await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .delete()
             .from(MessageEntity)
             .where("id = :id", { id: messageId })
@@ -148,7 +154,8 @@ export class MessageRepository {
     }
 
     async deleteByChannel(channel: string): Promise<void> {
-        await this.manager.createQueryBuilder(MessageEntity, "message")
+        await this.manager
+            .createQueryBuilder(MessageEntity, "message")
             .leftJoinAndSelect("message.channel", "channel")
             .where("channel = :channel", { channel })
             .delete()

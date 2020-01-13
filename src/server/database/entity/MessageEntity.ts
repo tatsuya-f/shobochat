@@ -16,7 +16,6 @@ import { ChannelEntity } from "./ChannelEntity";
  */
 @Entity()
 export class MessageEntity {
-
     @PrimaryColumn({
         type: "text"
     })
@@ -39,9 +38,11 @@ export class MessageEntity {
     user!: UserEntity;
 
     @ManyToOne(() => ChannelEntity)
-    @JoinColumn([{
-        name: "channelName",
-        referencedColumnName: "name"
-    }])
+    @JoinColumn([
+        {
+            name: "channelName",
+            referencedColumnName: "name"
+        }
+    ])
     channel!: ChannelEntity;
 }

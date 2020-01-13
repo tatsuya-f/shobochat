@@ -5,7 +5,6 @@ import { ChannelRepository } from "../database/repository/ChannelRepository";
 
 // NotificationManager と抽象化しておくことで，内部実装を WebSocket 以外にも変更できるようにする
 export class NotificationManager {
-
     private static readonly instance: NotificationManager = new NotificationManager(
         parseInt(process.env.NOTIFICATION_MANAGER_PORT || "8080")
     );
@@ -34,11 +33,12 @@ export class NotificationManager {
         return NotificationManager.instance;
     }
 
-    /* 
+    /*
      * public method から，NotificationManager のメンバーにアクセスする場合
      * NotificationManager が initialize されていない可能性があるので
      * 以下の private な getter を使用する
-     */ 
+     */
+
     // <private getter>
     private get webSocketServer() {
         if (!NotificationManager.isInitialized) {
@@ -62,7 +62,7 @@ export class NotificationManager {
     }
 
     private async startListeningToEvent() {
-        this._webSocketServer.on("connection", (ws) => {
+        this._webSocketServer.on("connection", ws => {
             // 接続完了後Client側でsendするとServerのmessage eventが発火
             ws.on("message", async () => {
                 console.log("WebSocket connected");
@@ -72,15 +72,17 @@ export class NotificationManager {
     }
 
     private async initMessages(ws: WebSocket) {
-        const databaseManager = await DatabaseManager.getInstance(); 
+        const databaseManager = await DatabaseManager.getInstance();
         const channelRepository = databaseManager.getRepository(ChannelRepository);
 
-        ws.send(JSON.stringify({
-            kind: NotifyKind.Init,
-            payload: {
-                channels: await channelRepository.getAll()
-            }
-        }));
+        ws.send(
+            JSON.stringify({
+                kind: NotifyKind.Init,
+                payload: {
+                    channels: await channelRepository.getAll()
+                }
+            })
+        );
     }
     // </initialize>
 
@@ -92,7 +94,7 @@ export class NotificationManager {
         });
     }
 
-    /* 
+    /*
      * このクラスが大きくなりすぎる場合は，
      * 以下のメソッド群を
      * notify する種類ごとにわけて，
@@ -132,7 +134,8 @@ export class NotificationManager {
         this.notifyClients({
             kind: NotifyKind.UserChanged,
             payload: {
-                oldName, newName
+                oldName,
+                newName
             }
         });
     }

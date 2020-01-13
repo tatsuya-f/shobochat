@@ -11,15 +11,19 @@ export const registerRouter = express.Router();
 const databaseManager: DatabaseManager = DatabaseManager.getInstance();
 
 registerRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile("register.html", {
-        root: "../public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
+    res.sendFile(
+        "register.html",
+        {
+            root: "../public"
+        },
+        err => {
+            if (err) {
+                next(err);
+            } else {
+                console.log("Send");
+            }
         }
-    });
+    );
 });
 
 registerRouter.post("/", async (req: Request, res: Response) => {

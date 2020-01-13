@@ -13,15 +13,13 @@ export function isValidMessage(message: Message): boolean {
     if (!hasChar(message.name)) {
         isValid = false;
         $("#name").addClass("is-danger");
-    }
-    else {
+    } else {
         $("#name").removeClass("is-danger");
     }
     if (!hasChar(message.content)) {
         isValid = false;
         $("#message").addClass("is-danger");
-    }
-    else {
+    } else {
         $("#message").removeClass("is-danger");
     }
     return isValid;
@@ -41,7 +39,9 @@ export async function checkInput(): Promise<void> {
 function insertTextarea(before: string, after: string) {
     const $textarea = $("#message");
     const text = $textarea.val();
-    if (typeof text !== "string") { return; }
+    if (typeof text !== "string") {
+        return;
+    }
     const startpos = $textarea.prop("selectionStart");
     const endpos = $textarea.prop("selectionEnd");
     const beforeCursor = text.substr(0, startpos) + before;
@@ -50,8 +50,8 @@ function insertTextarea(before: string, after: string) {
     $textarea.val(beforeCursor + selected + afterCursor);
     $textarea.focus();
     $textarea.prop({
-        "selectionStart": beforeCursor.length,
-        "selectionEnd": beforeCursor.length
+        selectionStart: beforeCursor.length,
+        selectionEnd: beforeCursor.length
     });
     checkInput();
 }
@@ -84,9 +84,12 @@ export class ChannelManager {
     show() {
         const $channelList = $("#channel-list");
         $channelList.children(".shobo-channel").remove();
-        Array.from(this._channels.values()).sort().reverse().forEach(channel => {
-            $channelList.prepend(`<a id="channel-${channel}" class="shobo-channel navbar-item">${channel}</a>`);
-        });
+        Array.from(this._channels.values())
+            .sort()
+            .reverse()
+            .forEach(channel => {
+                $channelList.prepend(`<a id="channel-${channel}" class="shobo-channel navbar-item">${channel}</a>`);
+            });
         $(`#channel-${this.current}`).addClass("is-active");
     }
 }
@@ -156,9 +159,7 @@ async function requestSend(messageManager: MessageManager) {
 async function requestChange(messageManager: MessageManager) {
     const messageId = $("#input-area").data("message-id");
     const content = $("#message").val();
-    if (typeof content === "string" &&
-        typeof messageId === "string" &&
-        content !== "") {
+    if (typeof content === "string" && typeof messageId === "string" && content !== "") {
         try {
             const status = await messageManager.update(messageId, content);
             const $queryMessage = $("#queryMessage");
@@ -191,14 +192,18 @@ $(() => {
     const stateManager = new ChatStateManager(httpHandler);
     const channelManager = new ChannelManager();
 
-    ws.addEventListener("open", () => { // 接続完了後発火
+    ws.addEventListener("open", () => {
+        // 接続完了後発火
         ws.send("");
     });
-    ws.addEventListener("message", async (e) => { // サーバーがsendすると発火
+    ws.addEventListener("message", async e => {
+        // サーバーがsendすると発火
         const notify = JSON.parse(e.data);
-        if (!isNotification(notify)) { return; }
+        if (!isNotification(notify)) {
+            return;
+        }
 
-        const observer: Observer|undefined = ObserverManager.getObserver(notify, messageManager, channelManager);
+        const observer: Observer | undefined = ObserverManager.getObserver(notify, messageManager, channelManager);
         if (!observer) {
             console.log("invalid NotifyKind");
         } else {
@@ -252,7 +257,7 @@ $(() => {
     $("#setting").on("click", () => {
         window.location.href = "/setting";
     });
-    $(document).on("click", ".shobo-channel", function () {
+    $(document).on("click", ".shobo-channel", function() {
         channelManager.current = $(this).text();
         messageManager.setChannel($(this).text());
         $(".navbar-burger").toggleClass("is-active");
@@ -317,7 +322,8 @@ $(() => {
     //<message list>
     async function fetchKeydownEventListener(e: JQueryEventObject) {
         if (e.which === 38) {
-            if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
+            if ($("#shobo-main")[0].scrollTop === 0) {
+                // now top of shobo-main
                 $("#shobo-main").off("mousewheel");
                 $(document).off("keydown");
                 await messageManager.getOld();
@@ -328,7 +334,8 @@ $(() => {
     }
     async function fetchScrollEventListener(e: JQueryMousewheel.JQueryMousewheelEventObject) {
         if (e.deltaY >= 1) {
-            if ($("#shobo-main")[0].scrollTop === 0) { // now top of shobo-main
+            if ($("#shobo-main")[0].scrollTop === 0) {
+                // now top of shobo-main
                 $("#shobo-main").off("mousewheel");
                 $(document).off("keydown");
                 await messageManager.getOld();
@@ -342,11 +349,12 @@ $(() => {
     //</message list>
 
     //<message highlight>
-    $(document).on("mouseover", ".shobo-message-div", function()  {
-        $(this).addClass("has-background-grey-light");
-    }).on("mouseout", ".shobo-message-div", function() {
-        $(this).removeClass("has-background-grey-light");
-    });
+    $(document)
+        .on("mouseover", ".shobo-message-div", function() {
+            $(this).addClass("has-background-grey-light");
+        })
+        .on("mouseout", ".shobo-message-div", function() {
+            $(this).removeClass("has-background-grey-light");
+        });
     //</message highlight>
 });
-

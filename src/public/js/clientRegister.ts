@@ -4,11 +4,13 @@ export async function register(chatApiEndpoint: string): Promise<void> {
     const name = $("#name").val();
     const password = $("#pass").val();
     const passwordVerify = $("#pass-verify").val();
-    if (password !== passwordVerify) {  // reject
+    if (password !== passwordVerify) {
+        // reject
         alert("あいことばがいっちしません。");
         return;
     }
-    if (typeof name !== "string" || typeof password !== "string") { // reject
+    if (typeof name !== "string" || typeof password !== "string") {
+        // reject
         alert("なまえとあいことばはもじでいれてください。");
         return;
     }
