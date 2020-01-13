@@ -147,6 +147,14 @@ export class MessageRepository {
             .execute();
     }
 
+    async deleteByChannel(channel: string): Promise<void> {
+        await this.manager.createQueryBuilder(MessageEntity, "message")
+            .leftJoinAndSelect("message.channel", "channel")
+            .where("channel = :channel", { channel })
+            .delete()
+            .execute();
+    }
+
     create() {
         return this.manager.create(MessageEntity);
     }

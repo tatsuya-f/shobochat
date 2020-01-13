@@ -398,3 +398,43 @@ describe("deleteById", () => {
         }
     });
 });
+
+describe("deleteById", () => {
+    let databaseManager: DatabaseManager;
+    let userRepository: UserRepository;
+    let messageRepository: MessageRepository;
+    let channelRepository: ChannelRepository;
+    let messageId: string;
+    before(async () => {
+        try {
+            await DatabaseManager.initialize();
+            databaseManager = DatabaseManager.getInstance();
+            userRepository = databaseManager.getRepository(UserRepository);
+            messageRepository = databaseManager.getRepository(MessageRepository);
+            channelRepository = databaseManager.getRepository(ChannelRepository);
+
+            await channelRepository.insertAndGetId(TEST_CHAN);
+
+            const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
+            messageId = await messageRepository.insertAndGetId(TEST_CHAN, userId, TEST_CONTENT);
+
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    after(async () => {
+        deleteDB(databaseManager.getDatabasePath());
+        await databaseManager.closeConnection();
+    });
+
+    it("delete message", async () => {
+        await messageRepository.deleteByChannel(TEST_CHAN);
+        let message;
+        try {
+            message = await messageRepository.getById(messageId);
+        } catch (err) {
+            assert.strictEqual(message, undefined);
+        }
+    });
+});

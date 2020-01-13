@@ -4,6 +4,7 @@ import { escapeHTML } from "../../common/validate";
 import { isValidChannelName } from "../../common/validate";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { ChannelRepository } from "../database/repository/ChannelRepository";
+import { MessageRepository } from "../database/repository/MessageRepository";
 import { NotificationManager } from "../notification/NotificationManager";
 
 export const channelsRouter = express.Router();
@@ -30,10 +31,12 @@ channelsRouter.post("/", async (req: Request, res: Response, next: NextFunction)
 
 channelsRouter.delete("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const messageRepository = databaseManager.getRepository(MessageRepository);
         const channelRepository = databaseManager.getRepository(ChannelRepository);
         const channel = req.body.channel;
         if (await channelRepository.hasName(channel)) {
-            console.log("delete " + channel);
+            console.log(`delete ${channel}`);
+            await messageRepository.deleteByChannel(channel);
             await channelRepository.deleteByName(channel);
             notificationManager.notifyClientsOfDeletedChannel(channel);
             res.status(200).end();
