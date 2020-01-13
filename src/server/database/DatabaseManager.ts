@@ -1,7 +1,6 @@
 import { Connection, ObjectType, createConnection } from "typeorm";
 
 export class DatabaseManager {
-
     private static readonly instance: DatabaseManager = new DatabaseManager();
     private _connection!: Connection;
 
@@ -9,7 +8,7 @@ export class DatabaseManager {
 
     static getInstance(): DatabaseManager {
         /*
-         * Database に接続されていないDatabaseManager 
+         * Database に接続されていないDatabaseManager
          * を返すのを許容しているのは，
          * グローバルで getInstance を可能にするためである．
          * もしもここで，Database に接続されていない DatabaseManager を返せない
@@ -22,15 +21,15 @@ export class DatabaseManager {
         return DatabaseManager.instance;
     }
 
-    /* 
+    /*
      * public method から，DatabaseManager のメンバーにアクセスする場合
      * DatabaseManager が initialize されていない可能性があるので
      * エラー処理が行われている以下の private な getter を使用する
-     */ 
+     */
+
     // <private getter>
     private isInitialized(): boolean {
-        return this._connection && 
-            this._connection.isConnected;
+        return this._connection && this._connection.isConnected;
     }
 
     private get connection() {
@@ -45,8 +44,7 @@ export class DatabaseManager {
     // <initialize>
     static async initialize() {
         try {
-            await DatabaseManager.instance
-                .setUpConnection(process.env.TYPEORM_CONNECTION_NAME);
+            await DatabaseManager.instance.setUpConnection(process.env.TYPEORM_CONNECTION_NAME);
         } catch (err) {
             console.log(err);
             throw new Error("initialize failed");

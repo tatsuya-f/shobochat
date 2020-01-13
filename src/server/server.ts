@@ -21,15 +21,17 @@ app.set("port", parseInt(process.env.EXPRESS_PORT || "8000"));
 
 app.use(express.json());
 
-app.use(session({
-    secret: "shoboshobo",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 365 // 1 year
-    }
-})); // 各エンドポイントにアクセスされる際に，付与していない場合は session 用の Cookie をブラウザに付与
+app.use(
+    session({
+        secret: "shoboshobo",
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 365 // 1 year
+        }
+    })
+); // 各エンドポイントにアクセスされる際に，付与していない場合は session 用の Cookie をブラウザに付与
 
 app.use("/", indexRouter);
 app.use(express.static("../public")); // GET / された後に静的ファイルを配信
@@ -48,7 +50,8 @@ app.use("/channels", checkLogin, channelsRouter);
 
 (async function startServer() {
     try {
-        if (__filename.endsWith("/dist/server/server.ts")) { // 以下はテスト時には実行されない
+        if (__filename.endsWith("/dist/server/server.ts")) {
+            // 以下はテスト時には実行されない
             await NotificationManager.initialize();
             await DatabaseManager.initialize();
 
@@ -57,22 +60,19 @@ app.use("/channels", checkLogin, channelsRouter);
             const channelRepository: ChannelRepository = databaseManager.getRepository(ChannelRepository);
 
             const shobotName = "しょぼっと";
-            if (!await userRepository.hasName(shobotName)) {
-                shobot = await userRepository
-                    .insertAndGetId(shobotName, "shobot");
+            if (!(await userRepository.hasName(shobotName))) {
+                shobot = await userRepository.insertAndGetId(shobotName, "shobot");
             } else {
                 shobot = (await userRepository.getByName(shobotName)).id;
             }
             for (const channel of defaultChannelList) {
-                if (!await channelRepository.hasName(channel)) {
+                if (!(await channelRepository.hasName(channel))) {
                     await channelRepository.insertAndGetId(channel);
                 }
             }
 
             const port = app.get("port"); // テスト時にはテスト側でportをlistenする
-            app.listen(port, () =>
-                console.log("Server listening on port " + port)
-            );
+            app.listen(port, () => console.log("Server listening on port " + port));
         }
     } catch (err) {
         console.log(err);

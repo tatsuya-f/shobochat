@@ -10,6 +10,7 @@ const source = require ("vinyl-source-stream");
 const tsify = require("tsify");
 const ts = require("gulp-typescript");
 const tsProject = ts.createProject("tsconfig.json");
+const prettierPlugin = require('gulp-prettier-plugin');
 const kill = require("tree-kill");
 
 
@@ -22,6 +23,19 @@ function lint() {
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
+}
+
+function prettier() {
+    return src("src/**/*.ts")
+        .pipe(prettierPlugin(
+            {
+                printWidth: 120,
+                    tabWidth: 4
+            }, 
+            { 
+                filter: true 
+            }
+        )).pipe(dest(file => file.base));
 }
 
 function compilePug() {
@@ -120,21 +134,21 @@ function copyCommon() {
 }
 
 task("watch", () => {
-    series(clean, lint, test,
+    series(clean, prettier, lint, test,
         parallel(clientIndex, clientRegister, clientLogin, clientSetting, clientChat),
         checkServer, checkCommon,
         cleanTmp,
         compilePug, copyHtmlAndCss,
         copyServer, copyCommon)();
     watch("src/server/**/*.ts", series(
-        lint, checkServer, cleanTmp, copyServer, cleanTmp,
+        prettier, lint, checkServer, cleanTmp, copyServer, cleanTmp,
     ));
     watch("src/public/js/**/*.ts", series(
-        lint,
+        prettier, lint,
         clientIndex, clientRegister, clientLogin, clientSetting, clientChat, cleanTmp,
     ));
     watch("src/common/**/*.ts", series(
-        lint,
+        prettier, lint, 
         checkServer, cleanTmp, copyServer,
         clientIndex, clientRegister, clientLogin, clientSetting, clientChat,
         copyCommon, cleanTmp,
@@ -144,7 +158,7 @@ task("watch", () => {
     watch("test/**/*.ts", series(test));
 });
 
-exports.default = series(clean, lint, test, parallel(clientIndex, clientRegister, clientLogin, clientSetting, clientChat), checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
+exports.default = series(clean, prettier, lint, test, parallel(clientIndex, clientRegister, clientLogin, clientSetting, clientChat), checkServer, checkCommon, cleanTmp, compilePug, copyHtmlAndCss, copyServer, copyCommon);
 exports.clean = clean;
 exports.lint = lint;
 exports.test = test;

@@ -4,8 +4,8 @@ import { defaultChannel } from "../../common/Channel";
 import { changeTimeFormat, parseMarkdown } from "./utils";
 
 export class MessageManager {
-    private _messages: Array<Message>
-    private time: number;  // last updated time
+    private _messages: Array<Message>;
+    private time: number; // last updated time
     private _channel: string;
     private httpHandler: MessagesHTTPHandler;
     constructor(httpHandler: MessagesHTTPHandler) {
@@ -15,7 +15,9 @@ export class MessageManager {
         this._channel = defaultChannel;
     }
     async setChannel(channel: string) {
-        if (this._channel === channel) { return; }
+        if (this._channel === channel) {
+            return;
+        }
         this._channel = channel;
         await this.initialize();
     }
@@ -52,7 +54,7 @@ export class MessageManager {
     private showAll() {
         const $messageList = $("#messageList");
         $messageList.empty();
-        this._messages.forEach((message) => {
+        this._messages.forEach(message => {
             $messageList.prepend(this.messageTag(message));
         });
     }
@@ -76,10 +78,11 @@ export class MessageManager {
     async fetch(messageId: string) {
         try {
             const message = await this.httpHandler.get(messageId);
-            for (let i = 0;i < this._messages.length;i++) {
+            for (let i = 0; i < this._messages.length; i++) {
                 if (this._messages[i].id === messageId) {
                     this._messages[i].content = message.content;
-                    $("#messageList").children()
+                    $("#messageList")
+                        .children()
                         .eq(this._messages.length - 1 - i)
                         .replaceWith(this.messageTag(message));
                     break;
@@ -92,7 +95,9 @@ export class MessageManager {
     async getOld() {
         const messages = await this.httpHandler.getOlder(
             this._channel,
-            this._messages[this._messages.length - 1].time, 5);
+            this._messages[this._messages.length - 1].time,
+            5
+        );
         this._messages.push(...messages);
         const $shobomain = $("#shobo-main")[0];
         const oldScrollHeight = $shobomain.scrollHeight;
@@ -103,10 +108,11 @@ export class MessageManager {
         $("#shobo-main").scrollTop($shobomain.scrollHeight - oldScrollHeight);
     }
     onDeleteEvent(messageId: string) {
-        for (let i = 0;i < this._messages.length;i++) {
+        for (let i = 0; i < this._messages.length; i++) {
             if (this._messages[i].id === messageId) {
                 const oldScrollTop = $("#shobo-main")[0].scrollTop;
-                $("#messageList").children()
+                $("#messageList")
+                    .children()
                     .eq(this._messages.length - 1 - i)
                     .remove();
                 this._messages.splice(i, 1);
@@ -118,7 +124,7 @@ export class MessageManager {
     }
     onChangeUserNameEvent(oldName: string, newName: string) {
         console.log(oldName, newName);
-        for (let i = 0;i < this._messages.length;i++) {
+        for (let i = 0; i < this._messages.length; i++) {
             if (this._messages[i].name === oldName) {
                 this._messages[i].name = newName;
             }
@@ -160,4 +166,3 @@ export class MessageManager {
         return null;
     }
 }
-

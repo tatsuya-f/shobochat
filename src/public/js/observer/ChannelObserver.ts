@@ -3,10 +3,9 @@ import { Notification, NotifyKind } from "../../../common/Notification";
 import { ChannelManager } from "../clientChat";
 
 export class ChannelObserver extends Observer {
-
     private readonly channelManager: ChannelManager;
 
-    constructor (notify: Notification, channelManager: ChannelManager) {
+    constructor(notify: Notification, channelManager: ChannelManager) {
         super(notify);
         this.channelManager = channelManager;
     }

@@ -1,4 +1,3 @@
-
 export interface Message {
     id: string;
     userId: number;
@@ -9,12 +8,14 @@ export interface Message {
 }
 
 export function isMessage(arg: any): arg is Message {
-    return typeof arg.id === "string" &&
+    return (
+        typeof arg.id === "string" &&
         typeof arg.userId === "number" &&
         typeof arg.channelName === "string" &&
         typeof arg.time === "number" &&
         typeof arg.name === "string" &&
-        typeof arg.content === "string";
+        typeof arg.content === "string"
+    );
 }
 
 export function toMessage(arg: any): Message {
@@ -32,9 +33,13 @@ export function toMessage(arg: any): Message {
 }
 
 export function isMessageArray(arg: any): arg is Array<Message> {
-    if (!Array.isArray(arg)) { return false; }
+    if (!Array.isArray(arg)) {
+        return false;
+    }
     arg.forEach(m => {
-        if (!isMessage(m)) { return false; }
+        if (!isMessage(m)) {
+            return false;
+        }
     });
     return true;
 }

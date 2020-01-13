@@ -12,15 +12,19 @@ export const loginRouter = express.Router();
 const databaseManager: DatabaseManager = DatabaseManager.getInstance();
 
 loginRouter.get("/", redirectChatWhenLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile("login.html", {
-        root: "../public",
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            console.log("Send");
+    res.sendFile(
+        "login.html",
+        {
+            root: "../public"
+        },
+        err => {
+            if (err) {
+                next(err);
+            } else {
+                console.log("Send");
+            }
         }
-    });
+    );
 });
 
 loginRouter.post("/", async (req: Request, res: Response) => {

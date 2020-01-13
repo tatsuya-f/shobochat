@@ -3,7 +3,7 @@ import { MessagesHTTPHandler, SettingHTTPHandler } from "./HTTPHandler";
 const ChatStateList = ["normal", "edit", "hidden"] as const;
 type ChatState = typeof ChatStateList[number];
 export class ChatStateManager {
-    private _state: ChatState = "normal"
+    private _state: ChatState = "normal";
     private httpHandler: MessagesHTTPHandler;
     constructor(httpHandler: MessagesHTTPHandler) {
         this.httpHandler = httpHandler;
@@ -23,16 +23,12 @@ export class ChatStateManager {
     }
     normal() {
         this.state = "normal";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
+        document.documentElement.style.setProperty("--input-area-height", `${$("#input-area").outerHeight()}px`);
         $("#message").val("");
     }
     async edit(messageId: string, content: string) {
         this.state = "edit";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
+        document.documentElement.style.setProperty("--input-area-height", `${$("#input-area").outerHeight()}px`);
         try {
             $("#message").val();
             $("#message").val(content);
@@ -43,20 +39,21 @@ export class ChatStateManager {
     }
     hidden() {
         this.state = "hidden";
-        document.documentElement.style.setProperty(
-            "--input-area-height", `${$("#input-area").outerHeight()}px`
-        );
+        document.documentElement.style.setProperty("--input-area-height", `${$("#input-area").outerHeight()}px`);
     }
 }
 
 const SettingStateList = [
     // about user
-    "username", "userpass",
+    "username",
+    "userpass",
     // about channel
-    "channel-add", "channel-del"] as const;
+    "channel-add",
+    "channel-del"
+] as const;
 type SettingState = typeof SettingStateList[number];
 export class SettingStateManager {
-    private _state: SettingState = "username"
+    private _state: SettingState = "username";
     httpHandler: SettingHTTPHandler;
     constructor(httpHandler: SettingHTTPHandler) {
         this.httpHandler = httpHandler;

@@ -1,6 +1,6 @@
 import { Validator } from "class-validator";
 
-export function escapeHTML(str : string): string {
+export function escapeHTML(str: string): string {
     str = str.replace(/&/g, "&amp;");
     str = str.replace(/</g, "&lt;");
     str = str.replace(/>/g, "&gt;");
@@ -10,14 +10,12 @@ export function escapeHTML(str : string): string {
     return str;
 }
 
-
 const validator = new Validator();
 
 export function isValidChannelName(name: string): boolean {
     const minLength = 1;
     const maxLength = 20;
-    return validator.length(name, minLength, maxLength) &&
-        validator.matches(name, /^[0-9a-z_]+$/i);
+    return validator.length(name, minLength, maxLength) && validator.matches(name, /^[0-9a-z_]+$/i);
 }
 
 export function isValidUsername(name: string): boolean {

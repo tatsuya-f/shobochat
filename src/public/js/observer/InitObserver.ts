@@ -5,11 +5,10 @@ import { MessageManager } from "../MessageManager";
 import { ChannelManager } from "../clientChat";
 
 export class InitObserver extends Observer {
-
     private readonly messageManager: MessageManager;
     private readonly channelManager: ChannelManager;
 
-    constructor (notify: Notification, messageManager: MessageManager, channelManager: ChannelManager) {
+    constructor(notify: Notification, messageManager: MessageManager, channelManager: ChannelManager) {
         super(notify);
         this.messageManager = messageManager;
         this.channelManager = channelManager;

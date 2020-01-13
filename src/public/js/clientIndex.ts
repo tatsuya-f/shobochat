@@ -1,4 +1,3 @@
-
 $(() => {
     $("#jmp-register").on("click", async () => {
         $("#jmp-register").addClass("is-loading");

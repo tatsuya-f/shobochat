@@ -93,7 +93,6 @@ export class MessagesHTTPHandler {
     }
 }
 
-
 export class SettingHTTPHandler {
     async putUsername(username: string): Promise<number> {
         const res = await fetch("/setting/username/", {

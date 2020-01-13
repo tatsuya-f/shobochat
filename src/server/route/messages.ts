@@ -16,8 +16,7 @@ messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: N
     const messageRepository = databaseManager.getRepository(MessageRepository);
     try {
         const channel = req.params.channel;
-        const messages = await messageRepository
-            .getBeforeSpecifiedTime(channel, Date.now(), numInitMessage);
+        const messages = await messageRepository.getBeforeSpecifiedTime(channel, Date.now(), numInitMessage);
         res.json(messages);
     } catch (err) {
         next(err);
@@ -131,7 +130,8 @@ messagesRouter.put("/:channel/:id", async (req: Request, res: Response, next: Ne
         }
         const messageId = req.params.id;
         const message = await messageRepository.getById(messageId);
-        if (message.userId === sess.userId) { // reject
+        if (message.userId === sess.userId) {
+            // reject
             await messageRepository.updateById(messageId, req.body.content);
             await notificationManager.notifyClientsOfChangedMessage(channel, messageId);
             res.status(200).end();
@@ -155,17 +155,20 @@ messagesRouter.delete("/:channel/:id", async (req: Request, res: Response, next:
         }
         const messageId = req.params.id;
         const channel = req.params.channel;
-        if (!channelRepository.hasName(channel)) { // reject
+        if (!channelRepository.hasName(channel)) {
+            // reject
             console.log(`no such a channel named ${channel}`);
             res.status(405).end();
             return;
         }
         const message = await messageRepository.getById(messageId);
-        if (message.userId === sess.userId) { // accept
+        if (message.userId === sess.userId) {
+            // accept
             await messageRepository.deleteById(messageId);
             notificationManager.notifyClientsOfDeleteMessage(channel, messageId);
             res.status(200).end();
-        } else { // reject
+        } else {
+            // reject
             res.status(405).end();
         }
     } catch (err) {
