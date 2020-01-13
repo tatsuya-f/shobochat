@@ -151,5 +151,13 @@ export class MessageManager {
     async send(content: string): Promise<number> {
         return await this.httpHandler.post(this._channel, content);
     }
+    lookUp(messageId: string): string | null {
+        for (const message of this._messages) {
+            if (message.id === messageId) {
+                return message.content;
+            }
+        }
+        return null;
+    }
 }
 
