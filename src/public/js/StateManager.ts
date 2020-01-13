@@ -28,15 +28,14 @@ export class ChatStateManager {
         );
         $("#message").val("");
     }
-    async edit(messageId: string) {
+    async edit(messageId: string, content: string) {
         this.state = "edit";
         document.documentElement.style.setProperty(
             "--input-area-height", `${$("#input-area").outerHeight()}px`
         );
         try {
             $("#message").val();
-            const msg = await this.httpHandler.get(messageId);
-            $("#message").val(msg.content);
+            $("#message").val(content);
             $("#input-area").data("message-id", messageId);
         } catch (err) {
             console.log(err);

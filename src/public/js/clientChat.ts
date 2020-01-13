@@ -226,7 +226,12 @@ $(() => {
     });
     $("#edit-msg-btn").on("click", async () => {
         const messageId = $("#contextmenu").data("message-id");
-        await stateManager.edit(messageId);
+        const content = messageManager.lookUp(messageId);
+        if (content !== null) {
+            await stateManager.edit(messageId, content);
+        } else {
+            console.log(messageId);
+        }
     });
     //</left click menu>
 
