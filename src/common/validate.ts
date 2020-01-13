@@ -22,7 +22,7 @@ export function isValidChannelName(name: string): boolean {
 
 export function isValidUsername(name: string): boolean {
     const minLength = 1;
-    const maxLength = 20;
+    const maxLength = 40;
     return validator.length(name, minLength, maxLength);
 }
 
