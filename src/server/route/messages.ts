@@ -14,7 +14,6 @@ const databaseManager: DatabaseManager = DatabaseManager.getInstance();
 const numInitMessage = 10;
 messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = databaseManager.getRepository(MessageRepository);
-
     try {
         const channel = req.params.channel;
         const messages = await messageRepository
@@ -27,7 +26,6 @@ messagesRouter.get("/init/:channel", async (req: Request, res: Response, next: N
 
 messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = databaseManager.getRepository(MessageRepository);
-
     try {
         const channel = req.params.channel;
         const messages = await messageRepository.getAll(channel);
@@ -39,7 +37,6 @@ messagesRouter.get("/all/:channel", async (req: Request, res: Response, next: Ne
 
 messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = databaseManager.getRepository(MessageRepository);
-
     try {
         const message = await messageRepository.getById(req.params.id);
         res.json(message);
@@ -50,7 +47,6 @@ messagesRouter.get("/id/:id", async (req: Request, res: Response, next: NextFunc
 
 messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = databaseManager.getRepository(MessageRepository);
-
     try {
         const channel = req.params.channel;
         const time = parseInt(req.params.time);
@@ -63,7 +59,6 @@ messagesRouter.get("/time-after/:channel/:time", async (req: Request, res: Respo
 
 messagesRouter.get("/time-before/:channel/:time/:num", async (req: Request, res: Response, next: NextFunction) => {
     const messageRepository = databaseManager.getRepository(MessageRepository);
-
     try {
         const channel = req.params.channel;
         const time = parseInt(req.params.time);
@@ -103,15 +98,13 @@ messagesRouter.post("/:channel", async (req: Request, res: Response, next: NextF
             res.status(405).end();
             return;
         }
-
-        const messageRepository = databaseManager.getRepository(MessageRepository);
-
         const channel = req.params.channel;
+        const messageRepository = databaseManager.getRepository(MessageRepository);
         const primeAns = answerIsPrime(req.body.content);
+        await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         if (primeAns !== null) {
             await messageRepository.insertAndGetId(channel, shobot, primeAns);
         }
-        await messageRepository.insertAndGetId(channel, sess.userId, req.body.content);
         await notificationManager.notifyClientsOfNewMessage(channel);
         res.status(200).end();
     } catch (err) {

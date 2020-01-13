@@ -12,7 +12,7 @@ import { isMessage, isMessageArray } from "../src/common/Message";
 import { hash } from "../src/server/handler/hashHandler";
 import { NotificationManager } from "../src/server/notification/NotificationManager";
 
-const TEST_CHAN = "test-chan";
+const TEST_CHAN = "test_chan";
 
 async function postTestMessage(channel: string, times: number, cookie: Array<string>): Promise<void> {
     const agent = request.agent(app);
@@ -490,8 +490,8 @@ describe("test for add channel", () => {
 
     it(`add channel ${TEST_CHAN}`, async () => {
         const response = await agent
-            .post(`/channels/${TEST_CHAN}`)
-            .send()
+            .post("/channels")
+            .send({ channel: TEST_CHAN })
             .expect(200);
         try {
             assert.strictEqual(await channelRepository.hasName(TEST_CHAN), true);
@@ -517,8 +517,8 @@ describe("test for delete channel", () => {
                 .post("/register")
                 .send({ name, password });
             const response = await agent
-                .post(`/channels/${TEST_CHAN}`)
-                .send()
+                .post("/channels")
+                .send({ channel: TEST_CHAN })
                 .expect(200);
         } catch (err) {
             console.log(err);
@@ -530,13 +530,13 @@ describe("test for delete channel", () => {
         await databaseManager.closeConnection();
     });
 
-    it(`add channel ${TEST_CHAN}`, async () => {
+    it(`delete channel ${TEST_CHAN}`, async () => {
         try {
             const response = await agent
-                .delete(`/channels/${TEST_CHAN}`)
-                .send()
+                .delete("/channels")
+                .send({ channel: TEST_CHAN })
                 .expect(200);
-            assert.strictEqual(await channelRepository.hasName(TEST_CHAN), true);
+            assert.strictEqual(await channelRepository.hasName(TEST_CHAN), false);
         } catch (err) {
             console.log(err);
         }

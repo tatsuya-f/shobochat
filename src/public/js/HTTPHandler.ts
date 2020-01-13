@@ -122,20 +122,26 @@ export class SettingHTTPHandler {
         return res.status;
     }
     async postChannel(newChannel: string): Promise<number> {
-        const res = await fetch(`/channels/${newChannel}`, {
+        const res = await fetch("/channels", {
             method: "POST",
+            body: JSON.stringify({
+                channel: newChannel
+            }),
             headers: {
-                "Content-Length": "0"
+                "Content-Type": "application/json"
             },
             credentials: "same-origin"
         });
         return res.status;
     }
     async deleteChannel(channel: string): Promise<number> {
-        const res = await fetch(`/channels/${channel}`, {
+        const res = await fetch("/channels", {
             method: "DELETE",
+            body: JSON.stringify({
+                channel
+            }),
             headers: {
-                "Content-Length": "0"
+                "Content-Type": "application/json"
             },
             credentials: "same-origin"
         });

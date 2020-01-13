@@ -52,7 +52,7 @@ describe("getById", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
             const userEntity = await userRepository.getEntityById(userId);
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
@@ -93,7 +93,7 @@ describe("getAll", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
             const channelEntity = await channelRepository.getEntityById(channelId);
 
@@ -136,7 +136,7 @@ describe("getBeforeSpecifiedTime", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
             const userId2 = await userRepository.insertAndGetId(TEST_NAME + "2", TEST_PASSWORD + "2");
@@ -195,7 +195,7 @@ describe("getAllAfterSpecifiedTime", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -256,7 +256,7 @@ describe("getByTime", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             channelId = await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -298,7 +298,7 @@ describe("insertAndGetId", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -334,7 +334,7 @@ describe("updateById", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
@@ -372,7 +372,7 @@ describe("deleteById", () => {
             userRepository = databaseManager.getRepository(UserRepository);
             messageRepository = databaseManager.getRepository(MessageRepository);
             channelRepository = databaseManager.getRepository(ChannelRepository);
-                
+
             await channelRepository.insertAndGetId(TEST_CHAN);
 
             const userId = await userRepository.insertAndGetId(TEST_NAME, TEST_PASSWORD);
