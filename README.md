@@ -14,3 +14,15 @@
 - 安全性
     - 名前の入力にはエスケープ処理をし，メッセージの入力にはサニタイズ処理
 
+## Requirement
+node.js v10.15.3 以上
+
+## Usage
+以下を行うと, http://localhost:8000 でチャットが起動します。
+```
+git clone https://github.com/tatsuya-f/shobochat.git
+cd shobochat
+npm install
+npm run gulp
+npm start
+```
