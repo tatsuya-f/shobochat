@@ -2,7 +2,7 @@
 # しょぼちゃっと
 
 ## Overview
-シンプルなチャットアプリです．
+シンプルなチャットアプリです
 
 ## Feature
 - ステータス欄
@@ -18,7 +18,7 @@
 Node.js v10.15.3 以上
 
 ## Usage
-以下を行うと, http://localhost:8000 でチャットが起動します。
+以下を行うと, http://localhost:8000 でチャットが起動します
 ```
 git clone https://github.com/tatsuya-f/shobochat.git
 cd shobochat
