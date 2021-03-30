@@ -5,20 +5,16 @@
 シンプルなチャットアプリです
 
 ## Feature
-- ステータス欄
-    - 操作が成功したかどうか出力されるため，何が起きたのかわかりやすい
 - WebSocket
     - 他のユーザーが送った後でも即座に反映される
 - Markdown
     - 見やすいメッセージを送ることができる
-- 安全性
-    - 名前の入力にはエスケープ処理をし，メッセージの入力にはサニタイズ処理
 
 ## Requirement
 Node.js v10.15.3 以上
 
 ## Usage
-以下を行うと, http://localhost:8000 でチャットが起動します
+以下を行い， http://localhost:8000 にアクセスすると，チャットアプリを使用できます．
 ```
 git clone https://github.com/tatsuya-f/shobochat.git
 cd shobochat
