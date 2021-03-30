@@ -16,7 +16,7 @@ Node.js v10.15.3 以上
 ## Usage
 以下を行い， http://localhost:8000 にアクセスすると，チャットアプリを使用できます
 
-※ パスワードは4文字以上でないと登録できません
+※ パスワードが4文字以上でないと登録できません
 ```
 git clone https://github.com/tatsuya-f/shobochat.git
 cd shobochat
