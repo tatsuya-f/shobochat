@@ -56,10 +56,10 @@ describe("isValid", () => {
             strictEqual(isValidUserpass("A"), false);
         });
         it("'12345': valid", () => {
-            strictEqual(isValidUserpass("12345"), true);
+            strictEqual(isValidUserpass("12345678"), true);
         });
         it("':abcd:': valid", () => {
-            strictEqual(isValidUserpass(":abcd:"), true);
+            strictEqual(isValidUserpass(":abcd:abcd"), true);
         });
         it("'a_cd@daf:': valid", () => {
             strictEqual(isValidUserpass("a_cd@daf"), true);
@@ -68,7 +68,7 @@ describe("isValid", () => {
             strictEqual(isValidUserpass("a-dasfewcd"), true);
         });
         it("'(^_^)': valid", () => {
-            strictEqual(isValidUserpass("(^_^)"), true);
+            strictEqual(isValidUserpass("(^_^)yahoooo"), true);
         });
         it("'(^_^)': invalid : too long", () => {
             strictEqual(isValidChannelName("(^_^)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"), false);

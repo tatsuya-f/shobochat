@@ -12,6 +12,7 @@ import { isMessage, isMessageArray } from "../src/common/Message";
 import { hash } from "../src/server/handler/hashHandler";
 import { NotificationManager } from "../src/server/notification/NotificationManager";
 
+const TEST_PASSWORD = "TEST_PASSWORD";
 const TEST_CHAN = "test_chan";
 
 async function postTestMessage(channel: string, times: number, cookie: Array<string>): Promise<void> {
@@ -89,7 +90,7 @@ describe("GET /messages/all/channel", () => {
             cookie = response.header["set-cookie"];
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"});
+                .send({ name: "test", password: TEST_PASSWORD});
             await postTestMessage(TEST_CHAN, 3, cookie);
 
         } catch (err) {
@@ -140,7 +141,7 @@ describe("GET /messages/id/id", () => {
             cookie = response.header["set-cookie"];
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"});
+                .send({ name: "test", password: TEST_PASSWORD});
             await postTestMessage(TEST_CHAN, 1, cookie);
         } catch (err) {
             console.log(err);
@@ -186,7 +187,7 @@ describe("POST /messages/channel", () => {
 
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"});
+                .send({ name: "test", password: TEST_PASSWORD});
 
         } catch (err) {
             console.log(err);
@@ -232,7 +233,7 @@ describe("PUT /messages/channel/id", () => {
 
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"});
+                .send({ name: "test", password: TEST_PASSWORD});
 
             await postTestMessage(TEST_CHAN, 1, cookie);
             testId = (await messageRepository.getAll(TEST_CHAN))[0].id as string;
@@ -283,7 +284,7 @@ describe("DELETE /messages/channel/id", () => {
 
             await agent
                 .post("/register")
-                .send({ name: "test", password: "test"});
+                .send({ name: "test", password: TEST_PASSWORD});
 
             await postTestMessage(TEST_CHAN, 1, cookie);
             testId = (await messageRepository.getAll(TEST_CHAN))[0].id as string;
@@ -318,7 +319,7 @@ describe("test for register and login", () => {
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
     const name = "hoge";
-    const password = "fuga";
+    const password = TEST_PASSWORD;
     before(async () => {
         try {
             await NotificationManager.initialize();
@@ -366,7 +367,7 @@ describe("test for updata username", () => {
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
     const name = "hoge";
-    const password = "fuga";
+    const password = TEST_PASSWORD;
     const changedName = "hoge2";
     before(async () => {
         try {
@@ -417,8 +418,8 @@ describe("test for update userpass", () => {
     let messageRepository: MessageRepository;
     const agent = request.agent(app);
     const name = "hoge";
-    const password = "fuga";
-    const changedPass = "fuga2";
+    const password = TEST_PASSWORD;
+    const changedPass = "changed" + TEST_PASSWORD;
     before(async () => {
         try {
             await NotificationManager.initialize();
@@ -442,7 +443,6 @@ describe("test for update userpass", () => {
 
     it(`change user password ${password} -> ${changedPass}`, async () => {
         {
-            const changedPass = "fuga2";
             const response = await agent
                 .put("/setting/userpass")
                 .send({ password: changedPass })
@@ -468,7 +468,7 @@ describe("test for add channel", () => {
     let channelRepository: ChannelRepository;
     const agent = request.agent(app);
     const name = "hoge";
-    const password = "fuga";
+    const password = TEST_PASSWORD;
     before(async () => {
         try {
             await NotificationManager.initialize();
@@ -506,7 +506,7 @@ describe("test for delete channel", () => {
     let channelRepository: ChannelRepository;
     const agent = request.agent(app);
     const name = "hoge";
-    const password = "fuga";
+    const password = TEST_PASSWORD;
     before(async () => {
         try {
             await NotificationManager.initialize();

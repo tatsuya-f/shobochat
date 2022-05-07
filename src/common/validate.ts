@@ -25,7 +25,7 @@ export function isValidUsername(name: string): boolean {
 }
 
 export function isValidUserpass(password: string): boolean {
-    const minLength = 4;
+    const minLength = 8;
     const maxLength = 50;
     return validator.length(password, minLength, maxLength);
 }
