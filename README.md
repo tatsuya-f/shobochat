@@ -10,16 +10,12 @@
 - Markdownに対応
     - 見やすいメッセージを送信することができる
 
-## Requirement
-Node.js v10.15.3 以上
-
 ## Usage
 以下を行い， http://localhost:8000 にアクセスすると，チャットアプリを使用できます
 
 ```
 git clone https://github.com/tatsuya-f/shobochat.git
 cd shobochat
-npm install
-npm run gulp
-npm start
+docker build . -t <your username>/shobochat
+docker run -p 8000:8000 -p 8080:8080 -d <your username>/shobochat
 ```
