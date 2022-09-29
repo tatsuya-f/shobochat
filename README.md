@@ -5,9 +5,9 @@
 シンプルなチャットアプリです
 
 ## Feature
-- WebSocketを使用
+- WebSocket を使用
     - 送信したメッセージが即座に反映される
-- Markdownに対応
+- Markdown に対応
     - 見やすいメッセージを送信することができる
 
 ## Usage
